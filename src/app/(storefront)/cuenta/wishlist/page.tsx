@@ -2,58 +2,51 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, ShoppingBag, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useWishlistStore } from "@/lib/store/wishlist";
 import { formatCOP } from "@/lib/utils/format";
 
-type WishlistItem = {
+type ProductPreview = {
   id: string;
-  products: {
-    id: string;
-    name: string;
-    slug: string;
-    base_price: number;
-    compare_price: number | null;
-    images: string[];
-    status: string;
-  } | null;
+  name: string;
+  slug: string;
+  base_price: number;
+  compare_price: number | null;
+  images: string[];
+  status: string;
+  is_sold_out: boolean;
 };
 
 export default function WishlistPage() {
-  const [items, setItems] = useState<WishlistItem[]>([]);
+  const { productIds, toggle } = useWishlistStore();
+  const [products, setProducts] = useState<ProductPreview[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
 
-  async function load() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) { setLoading(false); return; }
+  useEffect(() => {
+    if (productIds.length === 0) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
 
-    const { data: customer } = await supabase
-      .from("customers")
-      .select("id")
-      .eq("auth_user_id", user.id)
-      .single();
-
-    if (!customer) { setLoading(false); return; }
-
-    const { data } = await supabase
-      .from("wishlists")
-      .select(`id, products (id, name, slug, base_price, compare_price, images, status)`)
-      .eq("customer_id", customer.id)
-      .order("added_at", { ascending: false });
-
-    setItems((data as unknown as WishlistItem[]) ?? []);
-    setLoading(false);
-  }
-
-  async function remove(wishlistId: string) {
-    await supabase.from("wishlists").delete().eq("id", wishlistId);
-    setItems((prev) => prev.filter((i) => i.id !== wishlistId));
-  }
-
-  useEffect(() => { load(); }, []);
+    const supabase = createClient();
+    supabase
+      .from("products")
+      .select("id, name, slug, base_price, compare_price, images, status, is_sold_out")
+      .in("id", productIds)
+      .then(({ data }) => {
+        // Mantener el orden del wishlist store
+        const map = new Map((data ?? []).map((p) => [p.id, p]));
+        setProducts(
+          productIds
+            .map((id) => map.get(id))
+            .filter(Boolean) as ProductPreview[]
+        );
+        setLoading(false);
+      });
+  }, [productIds]);
 
   if (loading) {
     return (
@@ -74,7 +67,7 @@ export default function WishlistPage() {
         Wishlist
       </h2>
 
-      {items.length === 0 ? (
+      {products.length === 0 ? (
         <div className="bg-white border border-[#DDD5C4] py-16 text-center">
           <Heart size={40} className="mx-auto mb-4 text-[#CEC3AB]" />
           <p className="text-sm text-[#897568] mb-4">Tu wishlist está vacía.</p>
@@ -87,24 +80,24 @@ export default function WishlistPage() {
         </div>
       ) : (
         <div className="space-y-2.5">
-          {items.map((item) => {
-            const p = item.products;
-            if (!p) return null;
+          {products.map((p) => {
             const img = p.images?.[0];
-            const isActive = p.status === "active";
+            const isAvailable = p.status === "active" && !p.is_sold_out;
 
             return (
               <div
-                key={item.id}
+                key={p.id}
                 className="bg-white border border-[#DDD5C4] flex items-center gap-4 p-4"
               >
                 {/* Imagen */}
-                <div className="w-16 h-20 shrink-0 overflow-hidden bg-[#F3EDE0]">
+                <div className="w-16 h-20 shrink-0 overflow-hidden bg-[#F3EDE0] relative">
                   {img ? (
-                    <img
+                    <Image
                       src={img}
                       alt={p.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="64px"
+                      className="object-cover"
                     />
                   ) : (
                     <div className="w-full h-full bg-[#EAC9C9]/30" />
@@ -129,7 +122,7 @@ export default function WishlistPage() {
                       </span>
                     )}
                   </div>
-                  {!isActive && (
+                  {!isAvailable && (
                     <span className="text-[10px] uppercase tracking-wide text-[#B5888A] font-[500] mt-1 block">
                       Agotado
                     </span>
@@ -138,7 +131,7 @@ export default function WishlistPage() {
 
                 {/* Acciones */}
                 <div className="flex flex-col items-center gap-2 shrink-0">
-                  {isActive && (
+                  {isAvailable && (
                     <Link
                       href={`/producto/${p.slug}`}
                       className="inline-flex items-center gap-1 px-3 py-2 bg-[#3D2B1F] text-[#F3EDE0] text-[10px] uppercase tracking-[0.12em] font-[500] hover:bg-[#B5888A] transition-colors"
@@ -147,8 +140,8 @@ export default function WishlistPage() {
                     </Link>
                   )}
                   <button
-                    onClick={() => remove(item.id)}
-                    title="Eliminar"
+                    onClick={() => toggle(p.id)}
+                    title="Eliminar de wishlist"
                     className="p-1.5 text-[#CEC3AB] hover:text-[#B5888A] transition-colors"
                   >
                     <Trash2 size={14} />

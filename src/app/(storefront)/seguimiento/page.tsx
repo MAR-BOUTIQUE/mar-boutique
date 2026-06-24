@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Search, Package, MapPin, Truck, CheckCircle, XCircle, Clock } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
 
 export const metadata: Metadata = { title: "Seguimiento de pedido" };
@@ -31,12 +31,11 @@ export default async function SeguimientoPage({ searchParams }: Props) {
   let error: string | null = null;
 
   if (orden && email) {
-    const supabase = await createClient();
-    const { data, error: err } = await supabase
+    // Service client para que guests y clientes registrados puedan consultar
+    const db = createServiceClient();
+    const { data, error: err } = await db
       .from("orders")
-      .select(
-        `*, order_items (id, product_name, variant_attrs, quantity, total_price)`
-      )
+      .select(`*, order_items (id, product_name, variant_attrs, quantity, total_price)`)
       .eq("order_number", orden.toUpperCase())
       .ilike("shipping_email", email.trim())
       .single();
@@ -80,7 +79,7 @@ export default async function SeguimientoPage({ searchParams }: Props) {
               <input
                 name="orden"
                 defaultValue={orden ?? ""}
-                placeholder="ORD-XXXXXXXX"
+                placeholder="MB-XXXXXXXX"
                 className="w-full border border-[#DDD5C4] bg-white px-3 py-2.5 text-sm text-[#3D2B1F] focus:outline-none focus:border-[#897568] transition-colors placeholder:text-[#CEC3AB] uppercase"
                 required
               />
@@ -160,7 +159,6 @@ export default async function SeguimientoPage({ searchParams }: Props) {
                     const active = currentStep === idx;
                     return (
                       <div key={step.key} className="flex items-start gap-4">
-                        {/* Icon + line */}
                         <div className="flex flex-col items-center">
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
@@ -172,15 +170,12 @@ export default async function SeguimientoPage({ searchParams }: Props) {
                             <step.icon size={14} />
                           </div>
                           {idx < STATUS_STEPS.length - 1 && (
-                            <div
-                              className={`w-px h-6 ${done ? "bg-[#3D2B1F]" : "bg-[#DDD5C4]"}`}
-                            />
+                            <div className={`w-px h-6 ${done ? "bg-[#3D2B1F]" : "bg-[#DDD5C4]"}`} />
                           )}
                         </div>
-                        {/* Label */}
                         <div className="pb-4">
                           <p
-                            className={`text-sm font-[${active ? "600" : "400"}] ${
+                            className={`text-sm ${active ? "font-[600]" : "font-[400]"} ${
                               done ? "text-[#3D2B1F]" : "text-[#CEC3AB]"
                             }`}
                           >
@@ -209,9 +204,7 @@ export default async function SeguimientoPage({ searchParams }: Props) {
                 </p>
               </div>
               {order.order_items?.map((item: any) => {
-                const attrs = Object.values(item.variant_attrs ?? {})
-                  .filter(Boolean)
-                  .join(" · ");
+                const attrs = Object.values(item.variant_attrs ?? {}).filter(Boolean).join(" · ");
                 return (
                   <div
                     key={item.id}
@@ -222,9 +215,7 @@ export default async function SeguimientoPage({ searchParams }: Props) {
                       {attrs && <p className="text-[11px] text-[#897568]">{attrs}</p>}
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-[600] text-[#3D2B1F]">
-                        {formatCOP(item.total_price)}
-                      </p>
+                      <p className="text-sm font-[600] text-[#3D2B1F]">{formatCOP(item.total_price)}</p>
                       <p className="text-[11px] text-[#897568]">× {item.quantity}</p>
                     </div>
                   </div>
@@ -243,18 +234,13 @@ export default async function SeguimientoPage({ searchParams }: Props) {
               <div className="px-5 py-4 text-sm text-[#897568] space-y-0.5">
                 <p className="text-[#3D2B1F] font-[500]">{order.shipping_name}</p>
                 <p>{order.shipping_address}</p>
-                <p>
-                  {order.shipping_city}, {order.shipping_department}
-                </p>
+                <p>{order.shipping_city}, {order.shipping_department}</p>
               </div>
             </div>
 
             <p className="text-center text-xs text-[#897568]">
               ¿Tienes dudas?{" "}
-              <Link
-                href="mailto:hola@marboutique.co"
-                className="text-[#3D2B1F] underline underline-offset-2"
-              >
+              <Link href="mailto:hola@marboutique.co" className="text-[#3D2B1F] underline underline-offset-2">
                 hola@marboutique.co
               </Link>
             </p>

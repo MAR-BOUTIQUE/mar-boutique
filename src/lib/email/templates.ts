@@ -1,181 +1,390 @@
 import { getResend, FROM, ADMIN_EMAILS } from "./resend";
-import { formatCOP, formatDate } from "@/lib/utils/format";
+import { formatCOP } from "@/lib/utils/format";
 
-// ── Paleta usada en emails ─────────────────────────────────────
-const C = {
-  bg: "#F3EDE0",
-  espresso: "#3D2B1F",
-  taupe: "#897568",
-  blush: "#EAC9C9",
-  sand: "#CEC3AB",
-};
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mar-boutique.vercel.app";
 
-function emailWrapper(content: string): string {
-  return `
-<!DOCTYPE html>
-<html lang="es">
+// ── Wrapper principal — tabla compatible con todos los clientes ────
+function emailBase(preheader: string, content: string): string {
+  return `<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { margin:0; padding:0; background:${C.bg}; font-family:'Helvetica Neue',Arial,sans-serif; }
-    .container { max-width:560px; margin:0 auto; padding:40px 20px; }
-    .logo { font-size:26px; color:${C.espresso}; font-style:italic; font-family:Georgia,serif; text-align:center; margin-bottom:32px; }
-    .card { background:#ffffff; border:1px solid ${C.blush}; padding:32px; }
-    h2 { font-family:Georgia,serif; font-weight:400; color:${C.espresso}; font-size:22px; margin:0 0 16px; }
-    p { color:${C.taupe}; font-size:14px; line-height:1.7; margin:0 0 14px; }
-    .highlight { color:${C.espresso}; font-weight:600; }
-    .divider { border:none; border-top:1px solid ${C.sand}; margin:24px 0; }
-    .label { font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:${C.taupe}; font-weight:600; }
-    .item-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid ${C.bg}; font-size:13px; color:${C.espresso}; }
-    .total-row { display:flex; justify-content:space-between; padding:12px 0 0; font-size:15px; font-weight:600; color:${C.espresso}; }
-    .btn { display:inline-block; margin-top:20px; padding:12px 28px; background:${C.espresso}; color:#F3EDE0; text-decoration:none; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; font-weight:500; }
-    .footer { text-align:center; margin-top:24px; font-size:11px; color:${C.taupe}; }
-  </style>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Mar Boutique</title>
+  <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
 </head>
-<body>
-  <div class="container">
-    <div class="logo">Mar Boutique</div>
-    <div class="card">${content}</div>
-    <div class="footer">
-      Mar Boutique · Cartagena, Colombia<br>
-      <a href="${process.env.NEXT_PUBLIC_SITE_URL}" style="color:${C.taupe};">marboutique.co</a>
-    </div>
-  </div>
+<body style="margin:0;padding:0;background:#F3EDE0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+  <!-- preheader hidden -->
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">${preheader}&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌</div>
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3EDE0;">
+    <tr>
+      <td align="center" style="padding:40px 16px 32px;">
+
+        <!-- LOGO -->
+        <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+          <tr>
+            <td align="center" style="padding-bottom:28px;">
+              <a href="${SITE_URL}" style="text-decoration:none;">
+                <span style="font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:30px;color:#3D2B1F;letter-spacing:0.02em;">Mar Boutique</span>
+              </a>
+              <div style="width:40px;height:1px;background:#EAC9C9;margin:10px auto 0;"></div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- CARD -->
+        <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#ffffff;border:1px solid #EAC9C9;">
+          <tr>
+            <td style="padding:40px 40px 32px;">
+              ${content}
+            </td>
+          </tr>
+        </table>
+
+        <!-- FOOTER -->
+        <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;margin-top:24px;">
+          <tr>
+            <td align="center" style="padding:0 20px;">
+              <p style="font-family:Arial,sans-serif;font-size:11px;color:#897568;line-height:1.7;margin:0;">
+                Mar Boutique · Cartagena, Colombia<br>
+                <a href="${SITE_URL}" style="color:#897568;text-decoration:underline;">marboutique.co</a>
+                &nbsp;·&nbsp;
+                <a href="mailto:hola@marboutique.co" style="color:#897568;text-decoration:underline;">hola@marboutique.co</a>
+              </p>
+              <p style="font-family:Arial,sans-serif;font-size:10px;color:#CEC3AB;margin:8px 0 0;">
+                Estás recibiendo este correo porque realizaste una compra o tienes una cuenta en Mar Boutique.
+              </p>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 }
 
-function itemsTable(items: any[]): string {
-  return items
-    .map(
-      (item) =>
-        `<div class="item-row">
-          <span>${item.product_name} <span style="color:${C.taupe};font-size:12px;">× ${item.quantity}</span></span>
-          <span>${formatCOP(item.total_price)}</span>
-        </div>`
-    )
-    .join("");
+// ── Componentes reutilizables ──────────────────────────────────────
+function heading(text: string): string {
+  return `<h1 style="font-family:Georgia,'Times New Roman',serif;font-weight:400;font-style:italic;font-size:26px;color:#3D2B1F;margin:0 0 8px;line-height:1.3;">${text}</h1>`;
 }
 
-// ── Confirmación de pedido a la clienta — RB-PED-03 ───────────
+function subheading(text: string): string {
+  return `<p style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#B5888A;font-weight:600;margin:0 0 20px;">${text}</p>`;
+}
+
+function bodyText(text: string, extra = ""): string {
+  return `<p style="font-family:Arial,sans-serif;font-size:14px;color:#897568;line-height:1.75;margin:0 0 14px;${extra}">${text}</p>`;
+}
+
+function divider(): string {
+  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0;">
+    <tr><td style="border-top:1px solid #EAC9C9;font-size:0;line-height:0;">&nbsp;</td></tr>
+  </table>`;
+}
+
+function label(text: string): string {
+  return `<p style="font-family:Arial,sans-serif;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#CEC3AB;font-weight:600;margin:0 0 6px;">${text}</p>`;
+}
+
+function value(text: string): string {
+  return `<p style="font-family:Arial,sans-serif;font-size:14px;color:#3D2B1F;font-weight:600;margin:0 0 16px;">${text}</p>`;
+}
+
+function cta(text: string, url: string): string {
+  return `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:28px;">
+    <tr>
+      <td style="background:#3D2B1F;">
+        <a href="${url}" style="display:inline-block;padding:14px 32px;font-family:Arial,sans-serif;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:#F3EDE0;text-decoration:none;">${text}</a>
+      </td>
+    </tr>
+  </table>`;
+}
+
+function orderHeader(orderNumber: string, status: string, statusColor: string): string {
+  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3EDE0;margin-bottom:24px;">
+    <tr>
+      <td style="padding:16px 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td>
+              ${label("Número de pedido")}
+              <p style="font-family:Georgia,serif;font-size:18px;color:#3D2B1F;font-weight:600;margin:0;">${orderNumber}</p>
+            </td>
+            <td align="right" valign="middle">
+              <span style="font-family:Arial,sans-serif;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:${statusColor};font-weight:700;background:${statusColor}18;border:1px solid ${statusColor}40;padding:4px 10px;">${status}</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>`;
+}
+
+function itemsTable(items: any[]): string {
+  if (!items.length) return "";
+  const rows = items.map((item) => {
+    const attrs = item.variant_attrs ? Object.values(item.variant_attrs).filter(Boolean).join(" · ") : "";
+    return `<tr>
+      <td style="font-family:Arial,sans-serif;font-size:13px;color:#3D2B1F;padding:10px 0;border-bottom:1px solid #F3EDE0;">
+        <span style="font-weight:500;">${item.product_name}</span>${attrs ? `<br><span style="font-size:11px;color:#897568;">${attrs}</span>` : ""}
+        <span style="color:#B5888A;font-size:12px;"> &nbsp;×${item.quantity}</span>
+      </td>
+      <td align="right" style="font-family:Arial,sans-serif;font-size:13px;color:#3D2B1F;font-weight:600;padding:10px 0;border-bottom:1px solid #F3EDE0;white-space:nowrap;">
+        ${formatCOP(item.total_price)}
+      </td>
+    </tr>`;
+  }).join("");
+
+  return `<table width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table>`;
+}
+
+function totalsTable(order: any): string {
+  const hasDiscount = order.discount_amount > 0;
+  const hasShipping = order.shipping_cost > 0;
+  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:4px;">
+    <tr>
+      <td style="font-family:Arial,sans-serif;font-size:13px;color:#897568;padding:8px 0 4px;">Subtotal</td>
+      <td align="right" style="font-family:Arial,sans-serif;font-size:13px;color:#897568;padding:8px 0 4px;">${formatCOP(order.subtotal)}</td>
+    </tr>
+    ${hasDiscount ? `<tr>
+      <td style="font-family:Arial,sans-serif;font-size:13px;color:#B5888A;padding:4px 0;">Descuento</td>
+      <td align="right" style="font-family:Arial,sans-serif;font-size:13px;color:#B5888A;padding:4px 0;">−${formatCOP(order.discount_amount)}</td>
+    </tr>` : ""}
+    ${hasShipping ? `<tr>
+      <td style="font-family:Arial,sans-serif;font-size:13px;color:#897568;padding:4px 0;">Envío</td>
+      <td align="right" style="font-family:Arial,sans-serif;font-size:13px;color:#897568;padding:4px 0;">${formatCOP(order.shipping_cost)}</td>
+    </tr>` : ""}
+    <tr>
+      <td style="border-top:1px solid #EAC9C9;"></td>
+      <td style="border-top:1px solid #EAC9C9;"></td>
+    </tr>
+    <tr>
+      <td style="font-family:Georgia,serif;font-size:16px;color:#3D2B1F;font-weight:600;padding:12px 0 0;">Total</td>
+      <td align="right" style="font-family:Georgia,serif;font-size:16px;color:#3D2B1F;font-weight:600;padding:12px 0 0;">${formatCOP(order.total)}</td>
+    </tr>
+  </table>`;
+}
+
+function shippingBlock(order: any): string {
+  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3EDE0;margin-top:16px;">
+    <tr>
+      <td style="padding:16px 20px;">
+        ${label("Dirección de entrega")}
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#3D2B1F;margin:0;line-height:1.6;">
+          <strong>${order.shipping_name}</strong><br>
+          ${order.shipping_address}<br>
+          ${order.shipping_city}, ${order.shipping_department}<br>
+          <span style="color:#897568;">${order.shipping_phone}</span>
+        </p>
+      </td>
+    </tr>
+  </table>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PLANTILLAS
+// ══════════════════════════════════════════════════════════════════
+
+// 1. Confirmación de pedido a la clienta — RB-PED-03
 export async function sendOrderConfirmationEmail(order: any) {
   const items = order.items ?? [];
-  const html = emailWrapper(`
-    <h2>¡Recibimos tu pedido! 🎉</h2>
-    <p>Hola <span class="highlight">${order.shipping_name}</span>, tu pedido está confirmado y ya estamos preparándolo con cariño.</p>
-    <hr class="divider">
-    <p class="label">Número de pedido</p>
-    <p class="highlight" style="font-size:18px;">${order.order_number}</p>
-    <hr class="divider">
-    <p class="label">Tus prendas</p>
+  const trackUrl = `${SITE_URL}/seguimiento?orden=${order.order_number}&email=${encodeURIComponent(order.shipping_email)}`;
+
+  const content = `
+    ${subheading("Confirmación de pedido")}
+    ${heading("¡Gracias por tu compra!")}
+    ${bodyText(`Hola <strong style="color:#3D2B1F;">${order.shipping_name}</strong>, tu pedido está confirmado y ya estamos preparándolo con cariño para ti.`)}
+    ${divider()}
+    ${orderHeader(order.order_number, "Confirmado", "#3D7A3D")}
+    ${label("Tus prendas")}
     ${itemsTable(items)}
-    <div class="total-row">
-      <span>Total pagado</span>
-      <span>${formatCOP(order.total)}</span>
-    </div>
-    <hr class="divider">
-    <p class="label">Envío a</p>
-    <p>${order.shipping_address}, ${order.shipping_city}, ${order.shipping_department}</p>
-    <a href="${process.env.NEXT_PUBLIC_SITE_URL}/seguimiento?orden=${order.order_number}&email=${encodeURIComponent(order.shipping_email)}" class="btn">
-      Seguir mi pedido
-    </a>
-    <p style="margin-top:20px;font-size:12px;">¿Preguntas? Escríbenos por WhatsApp o a hola@marboutique.co.</p>
-  `);
+    ${totalsTable(order)}
+    ${divider()}
+    ${shippingBlock(order)}
+    ${cta("Seguir mi pedido", trackUrl)}
+    ${divider()}
+    ${bodyText("¿Tienes alguna pregunta? Escríbenos por <a href='https://wa.me/573042346723' style='color:#B5888A;'>WhatsApp</a> o a <a href='mailto:hola@marboutique.co' style='color:#B5888A;'>hola@marboutique.co</a>.", "font-size:12px;")}
+  `;
 
   return getResend().emails.send({
     from: FROM,
     to: order.shipping_email,
-    subject: `Pedido confirmado ${order.order_number} — Mar Boutique`,
-    html,
+    subject: `Tu pedido ${order.order_number} está confirmado — Mar Boutique`,
+    html: emailBase(`Tu pedido ${order.order_number} fue confirmado. Ya estamos preparándolo.`, content),
   });
 }
 
-// ── Notificación a los 3 admins — RB-PED-05 ──────────────────
+// 2. Notificación a los 3 admins — RB-PED-05
 export async function sendNewOrderAdminEmail(order: any) {
   if (!ADMIN_EMAILS.length) return;
-
   const items = order.items ?? [];
-  const html = emailWrapper(`
-    <h2>Nuevo pedido recibido</h2>
-    <p class="label">Pedido</p>
-    <p class="highlight" style="font-size:18px;">${order.order_number}</p>
-    <p class="label">Clienta</p>
-    <p>${order.shipping_name} · ${order.shipping_email} · ${order.shipping_phone}</p>
-    <p class="label">Envío a</p>
-    <p>${order.shipping_address}, ${order.shipping_city}, ${order.shipping_department}</p>
-    <hr class="divider">
-    <p class="label">Prendas</p>
+  const adminUrl = `${SITE_URL}/admin/pedidos/${order.id}`;
+
+  const content = `
+    ${subheading("Panel administrativo")}
+    ${heading("Nuevo pedido recibido")}
+    ${orderHeader(order.order_number, "Pendiente preparación", "#B5888A")}
+    ${label("Clienta")}
+    ${value(order.shipping_name)}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
+      <tr>
+        <td style="font-family:Arial,sans-serif;font-size:13px;color:#897568;">
+          <a href="mailto:${order.shipping_email}" style="color:#B5888A;">${order.shipping_email}</a>&nbsp;&nbsp;·&nbsp;&nbsp;
+          <a href="tel:${order.shipping_phone}" style="color:#897568;text-decoration:none;">${order.shipping_phone}</a>
+        </td>
+      </tr>
+    </table>
+    ${divider()}
+    ${label("Prendas")}
     ${itemsTable(items)}
-    <div class="total-row">
-      <span>Total</span>
-      <span>${formatCOP(order.total)}</span>
-    </div>
-    <a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/pedidos/${order.id}" class="btn">
-      Ver en panel admin
-    </a>
-  `);
+    ${totalsTable(order)}
+    ${divider()}
+    ${shippingBlock(order)}
+    ${cta("Ver pedido en el admin", adminUrl)}
+  `;
 
   return getResend().emails.send({
     from: FROM,
     to: ADMIN_EMAILS,
-    subject: `[Mar Boutique] Nuevo pedido ${order.order_number} — ${formatCOP(order.total)}`,
-    html,
+    subject: `[Nuevo pedido] ${order.order_number} — ${formatCOP(order.total)}`,
+    html: emailBase(`Nuevo pedido de ${order.shipping_name} por ${formatCOP(order.total)}.`, content),
   });
 }
 
-// ── Pago rechazado — RB-CHK-05 ───────────────────────────────
+// 3. Pago rechazado — RB-CHK-05
 export async function sendPaymentFailedEmail(order: any) {
-  const html = emailWrapper(`
-    <h2>Hubo un problema con tu pago</h2>
-    <p>Hola <span class="highlight">${order.shipping_name}</span>, no pudimos procesar el pago de tu pedido <strong>${order.order_number}</strong>.</p>
-    <p>Tus productos siguen disponibles. Puedes intentar de nuevo cuando quieras.</p>
-    <a href="${process.env.NEXT_PUBLIC_SITE_URL}/carrito" class="btn">
-      Volver al carrito
-    </a>
-    <p style="margin-top:20px;font-size:12px;">Si el problema persiste, escríbenos a hola@marboutique.co.</p>
-  `);
+  const content = `
+    ${subheading("Estado del pago")}
+    ${heading("No pudimos procesar tu pago")}
+    ${bodyText(`Hola <strong style="color:#3D2B1F;">${order.shipping_name}</strong>, lamentablemente el pago de tu pedido <strong style="color:#3D2B1F;">${order.order_number}</strong> no pudo completarse.`)}
+    ${bodyText("Esto puede ocurrir por fondos insuficientes, datos incorrectos o un rechazo temporal del banco. Tus productos siguen disponibles.")}
+    ${divider()}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3EDE0;">
+      <tr>
+        <td style="padding:16px 20px;">
+          ${label("¿Qué puedes hacer?")}
+          <ul style="font-family:Arial,sans-serif;font-size:13px;color:#897568;line-height:1.8;margin:8px 0 0;padding-left:18px;">
+            <li>Verificar los datos de tu tarjeta</li>
+            <li>Intentar con otro método de pago (PSE, Nequi, Daviplata)</li>
+            <li>Contactar a tu banco</li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+    ${cta("Volver al carrito", `${SITE_URL}/carrito`)}
+    ${divider()}
+    ${bodyText("¿Necesitas ayuda? Escríbenos por <a href='https://wa.me/573042346723' style='color:#B5888A;'>WhatsApp</a>.", "font-size:12px;")}
+  `;
 
   return getResend().emails.send({
     from: FROM,
     to: order.shipping_email,
     subject: `Problema con tu pago — Mar Boutique`,
-    html,
+    html: emailBase("Tu pago no pudo procesarse. Tus productos siguen disponibles.", content),
   });
 }
 
-// ── Cambio de estado del pedido — RB-PED-03 ──────────────────
+// 4. Cambios de estado del pedido — RB-PED-03
 export async function sendOrderStatusEmail(order: any, newStatus: string) {
-  const statusMessages: Record<string, { subject: string; body: string }> = {
+  const trackUrl = `${SITE_URL}/seguimiento?orden=${order.order_number}&email=${encodeURIComponent(order.shipping_email)}`;
+
+  const configs: Record<string, { preheader: string; badge: string; badgeColor: string; title: string; body: string; extra?: string }> = {
     preparing: {
-      subject: `Tu pedido ${order.order_number} está en preparación`,
-      body: `¡Buenas noticias! Estamos empacando tu pedido <strong>${order.order_number}</strong> con mucho cariño. Pronto lo tendrás en camino.`,
+      preheader: `Tu pedido ${order.order_number} está siendo preparado.`,
+      badge: "En preparación",
+      badgeColor: "#7B5EA7",
+      title: "Estamos preparando tu pedido",
+      body: `¡Buenas noticias! Estamos empacando tu pedido <strong style="color:#3D2B1F;">${order.order_number}</strong> con mucho cariño. Te notificaremos cuando sea despachado.`,
     },
     shipped: {
-      subject: `Tu pedido ${order.order_number} va en camino 🚚`,
-      body: `Tu pedido <strong>${order.order_number}</strong> ya fue entregado al courier${order.tracking_number ? ` con guía <strong>${order.tracking_number}</strong>` : ""}. Tiempo estimado: 3-5 días hábiles.`,
+      preheader: `Tu pedido ${order.order_number} va en camino.`,
+      badge: "En camino",
+      badgeColor: "#1A7FA8",
+      title: "Tu pedido va en camino",
+      body: `Tu pedido <strong style="color:#3D2B1F;">${order.order_number}</strong> fue entregado al courier y está en camino hacia ti.${order.tracking_number ? ` Número de guía: <strong style="color:#3D2B1F;">${order.tracking_number}</strong>${order.courier ? ` (${order.courier})` : ""}.` : ""} Tiempo estimado: 3–5 días hábiles.`,
     },
     delivered: {
-      subject: `¡Tu pedido ${order.order_number} fue entregado! 🎉`,
-      body: `Tu pedido <strong>${order.order_number}</strong> fue entregado. Esperamos que ames tus nuevas prendas. ¡Úsalas con intención! 💛`,
+      preheader: `Tu pedido ${order.order_number} fue entregado. ¡Disfrútalo!`,
+      badge: "Entregado",
+      badgeColor: "#3D7A3D",
+      title: "¡Tu pedido llegó!",
+      body: `Tu pedido <strong style="color:#3D2B1F;">${order.order_number}</strong> fue entregado exitosamente. Esperamos que ames tus nuevas prendas.`,
+      extra: `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3EDE0;margin-top:20px;"><tr><td style="padding:16px 20px;text-align:center;"><p style="font-family:Georgia,serif;font-style:italic;font-size:15px;color:#3D2B1F;margin:0;">"Vístete con intención, vive con propósito."</p></td></tr></table>`,
     },
   };
 
-  const msg = statusMessages[newStatus];
-  if (!msg) return;
+  const cfg = configs[newStatus];
+  if (!cfg) return;
 
-  const html = emailWrapper(`
-    <h2>${msg.subject}</h2>
-    <p>${msg.body}</p>
-    <a href="${process.env.NEXT_PUBLIC_SITE_URL}/seguimiento?orden=${order.order_number}&email=${encodeURIComponent(order.shipping_email)}" class="btn">
-      Ver estado del pedido
-    </a>
-  `);
+  const content = `
+    ${subheading("Actualización de pedido")}
+    ${heading(cfg.title)}
+    ${orderHeader(order.order_number, cfg.badge, cfg.badgeColor)}
+    ${bodyText(cfg.body)}
+    ${cfg.extra ?? ""}
+    ${divider()}
+    ${shippingBlock(order)}
+    ${cta("Ver estado del pedido", trackUrl)}
+    ${divider()}
+    ${bodyText("¿Preguntas? Escríbenos por <a href='https://wa.me/573042346723' style='color:#B5888A;'>WhatsApp</a>.", "font-size:12px;")}
+  `;
 
   return getResend().emails.send({
     from: FROM,
     to: order.shipping_email,
-    subject: msg.subject,
-    html,
+    subject: cfg.preheader.replace(".", " —") + " Mar Boutique",
+    html: emailBase(cfg.preheader, content),
+  });
+}
+
+// 5. Bienvenida — nueva cuenta registrada
+export async function sendWelcomeEmail(email: string, name: string) {
+  const content = `
+    ${subheading("Bienvenida a Mar Boutique")}
+    ${heading(`Hola, ${name || "bienvenida"} ✨`)}
+    ${bodyText("Nos alegra que formes parte de nuestra comunidad. En Mar Boutique encontrarás moda femenina con alma costera, pensada para mujeres que viven con estilo e intención.")}
+    ${divider()}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3EDE0;">
+      <tr>
+        <td style="padding:20px;">
+          ${label("Con tu cuenta puedes")}
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;">
+            ${[
+              ["Seguir tus pedidos en tiempo real", "📦"],
+              ["Guardar tus prendas favoritas en tu wishlist", "💛"],
+              ["Guardar tus direcciones de envío", "📍"],
+            ].map(([txt, icon]) => `<tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#897568;padding:5px 0;">${icon}&nbsp; ${txt}</td></tr>`).join("")}
+          </table>
+        </td>
+      </tr>
+    </table>
+    ${divider()}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FDF8F4;border:1px dashed #EAC9C9;">
+      <tr>
+        <td style="padding:20px;text-align:center;">
+          <p style="font-family:Arial,sans-serif;font-size:11px;color:#B5888A;text-transform:uppercase;letter-spacing:0.2em;margin:0 0 10px;">Tu regalo de bienvenida</p>
+          <p style="font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:26px;color:#3D2B1F;margin:0 0 6px;">10% de descuento</p>
+          <p style="font-family:Arial,sans-serif;font-size:13px;color:#897568;margin:0 0 14px;">en tu primer pedido</p>
+          <div style="display:inline-block;background:#3D2B1F;padding:10px 24px;">
+            <span style="font-family:monospace;font-size:18px;color:#F3EDE0;font-weight:700;letter-spacing:0.15em;">BIENVENIDA10</span>
+          </div>
+          <p style="font-family:Arial,sans-serif;font-size:11px;color:#CEC3AB;margin:12px 0 0;">Aplica el código al hacer checkout · 1 uso por cuenta</p>
+        </td>
+      </tr>
+    </table>
+    ${cta("Explorar el catálogo", `${SITE_URL}/catalogo`)}
+    ${divider()}
+    ${bodyText("¿Tienes dudas? Escríbenos por <a href='https://wa.me/573042346723' style='color:#B5888A;'>WhatsApp</a> o a <a href='mailto:hola@marboutique.co' style='color:#B5888A;'>hola@marboutique.co</a>.", "font-size:12px;")}
+  `;
+
+  return getResend().emails.send({
+    from: FROM,
+    to: email,
+    subject: "Bienvenida a Mar Boutique — tu 10% de descuento está aquí",
+    html: emailBase("Tu cuenta está lista + 10% off en tu primer pedido con BIENVENIDA10", content),
   });
 }

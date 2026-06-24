@@ -18,7 +18,7 @@ export default async function EditarProductoPage({ params }: Props) {
     service
       .from("products")
       .select(
-        `id, name, slug, description, care_instructions, base_price, compare_price, status, images,
+        `id, name, slug, description, care_instructions, base_price, compare_price, status, is_best_seller, images,
          product_categories(category_id),
          product_collections(collection_id),
          product_occasions(occasion_id),
@@ -42,6 +42,7 @@ export default async function EditarProductoPage({ params }: Props) {
     base_price: String(product.base_price),
     compare_price: product.compare_price ? String(product.compare_price) : "",
     status: product.status as "draft" | "active" | "archived",
+    is_best_seller: product.is_best_seller ?? false,
     images: product.images ?? [],
     category_ids: (product.product_categories ?? []).map((r: any) => r.category_id),
     collection_ids: (product.product_collections ?? []).map((r: any) => r.collection_id),

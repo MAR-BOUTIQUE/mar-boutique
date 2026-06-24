@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Plus } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP } from "@/lib/utils/format";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default async function AdminProductosPage() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: products } = await supabase
     .from("products")
     .select(`*, variants:product_variants(id, stock, reserved)`)

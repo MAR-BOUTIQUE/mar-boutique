@@ -1,8 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { formatDateShort } from "@/lib/utils/format";
 
 export default async function AdminClientesPage() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
 
   const { data: customers } = await supabase
     .from("customers")

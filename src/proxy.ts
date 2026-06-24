@@ -25,13 +25,16 @@ export async function proxy(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const { pathname } = req.nextUrl;
 
-  // Rutas protegidas del admin
+  // Rutas protegidas del admin — requiere rol 'admin' en app_metadata
   if (pathname.startsWith("/admin")) {
     if (!user) {
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = "/auth/login";
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
+    }
+    if (user.app_metadata?.role !== "admin") {
+      return NextResponse.redirect(new URL("/", req.nextUrl));
     }
   }
 

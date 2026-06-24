@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Package, ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
@@ -22,17 +23,39 @@ export default async function PedidosPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login?redirect=/cuenta/pedidos");
 
-  const { data: customer } = await supabase
+  const db = createServiceClient();
+
+  // Buscar customer por auth_user_id, si no por email (checkout no vincula auth_user_id)
+  let customerId: string | null = null;
+  const { data: byAuthId } = await db
     .from("customers")
     .select("id")
     .eq("auth_user_id", user.id)
     .single();
 
-  const { data: orders } = customer
-    ? await supabase
+  if (byAuthId) {
+    customerId = byAuthId.id;
+  } else if (user.email) {
+    const { data: byEmail } = await db
+      .from("customers")
+      .select("id")
+      .eq("email", user.email.toLowerCase())
+      .single();
+
+    if (byEmail) {
+      customerId = byEmail.id;
+      await db
+        .from("customers")
+        .update({ auth_user_id: user.id, is_guest: false })
+        .eq("id", byEmail.id);
+    }
+  }
+
+  const { data: orders } = customerId
+    ? await db
         .from("orders")
         .select("id, order_number, status, total, created_at, shipping_city, shipping_department")
-        .eq("customer_id", customer.id)
+        .eq("customer_id", customerId)
         .order("created_at", { ascending: false })
     : { data: [] };
 

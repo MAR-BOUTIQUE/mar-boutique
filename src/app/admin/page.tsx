@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP } from "@/lib/utils/format";
 import { ShoppingBag, DollarSign, Users, AlertTriangle } from "lucide-react";
 
 async function getDashboardStats() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
   const startOfToday = new Date(today.setHours(0, 0, 0, 0)).toISOString();
@@ -45,7 +45,7 @@ async function getDashboardStats() {
 }
 
 async function getRecentOrders() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data } = await supabase
     .from("orders")
     .select("id, order_number, shipping_name, total, status, created_at")

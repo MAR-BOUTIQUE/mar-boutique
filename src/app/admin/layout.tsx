@@ -7,8 +7,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // TODO: verificar que el usuario tiene rol admin en DB
-  if (!user) redirect("/auth/login?redirect=/admin");
+  if (!user || user.app_metadata?.role !== "admin") {
+    redirect("/");
+  }
 
   return (
     <div className="flex min-h-screen bg-[#F3EDE0]">

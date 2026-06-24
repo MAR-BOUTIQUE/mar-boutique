@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDateShort } from "@/lib/utils/format";
 
 const STATUS_OPTIONS = [
@@ -35,7 +35,7 @@ interface Props {
 
 export default async function AdminPedidosPage({ searchParams }: Props) {
   const { status, q } = await searchParams;
-  const supabase = await createClient();
+  const supabase = createServiceClient();
 
   let query = supabase
     .from("orders")

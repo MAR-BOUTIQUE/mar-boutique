@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHmac } from "crypto";
+import { createHash } from "crypto";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/email/templates";
 import type { CartItem, CheckoutForm } from "@/types";
@@ -12,6 +12,7 @@ interface CheckoutPayload {
   subtotal: number;
   discountAmount: number;
   shippingCost: number;
+  paymentMethod?: "wompi" | "contraentrega";
 }
 
 function buildWompiSignature(
@@ -21,19 +22,19 @@ function buildWompiSignature(
   secret: string
 ): string {
   const str = `${reference}${amountInCents}${currency}${secret}`;
-  return createHmac("sha256", secret).update(str).digest("hex");
+  return createHash("sha256").update(str).digest("hex");
 }
 
 export async function POST(req: NextRequest) {
   try {
     const payload: CheckoutPayload = await req.json();
-    const { form, items, sessionId, total, subtotal, discountAmount, shippingCost } = payload;
+    const { form, items, sessionId, total, subtotal, discountAmount, shippingCost, paymentMethod = "wompi" } = payload;
 
     if (!items.length) {
       return NextResponse.json({ error: "Carrito vacío" }, { status: 400 });
     }
 
-    const supabase = await createServiceClient();
+    const supabase = createServiceClient();
 
     // 1. Obtener o crear cliente — RB-CHK-07
     let customerId: string | null = null;
@@ -52,6 +53,8 @@ export async function POST(req: NextRequest) {
           email: form.email.toLowerCase(),
           full_name: form.full_name,
           phone: form.phone,
+          id_type: form.id_type || null,
+          id_number: form.id_number || null,
           marketing_email: form.save_address ?? false,
           is_guest: true,
         })
@@ -60,19 +63,24 @@ export async function POST(req: NextRequest) {
       customerId = newCustomer?.id ?? null;
     }
 
-    // 2. Crear pedido en estado pending_payment
+    // 2. Crear pedido
     const orderNumber = `MB-${Date.now().toString(36).toUpperCase()}`;
     const wompiReference = `MAR-${orderNumber}`;
+    const isContraentrega = paymentMethod === "contraentrega";
+    const now = new Date().toISOString();
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
       .insert({
         order_number: orderNumber,
         customer_id: customerId,
-        status: "pending_payment",
+        status: isContraentrega ? "paid" : "pending_payment",
+        payment_method: paymentMethod,
         shipping_name: form.full_name,
         shipping_email: form.email.toLowerCase(),
         shipping_phone: form.phone,
+        customer_id_type: form.id_type || null,
+        customer_id_number: form.id_number || null,
         shipping_address: form.address,
         shipping_city: form.city,
         shipping_department: form.department,
@@ -80,9 +88,11 @@ export async function POST(req: NextRequest) {
         discount_amount: discountAmount,
         shipping_cost: shippingCost,
         total,
-        wompi_reference: wompiReference,
+        wompi_reference: isContraentrega ? null : wompiReference,
+        paid_at: isContraentrega ? now : null,
+        cart_session_id: sessionId,
         terms_accepted: form.terms_accepted,
-        terms_accepted_at: new Date().toISOString(),
+        terms_accepted_at: now,
       })
       .select("id, order_number")
       .single();
@@ -106,7 +116,46 @@ export async function POST(req: NextRequest) {
 
     await supabase.from("order_items").insert(orderItems);
 
-    // 4. Log de estado inicial
+    if (isContraentrega) {
+      // ── FLUJO CONTRAENTREGA — confirmar stock y enviar emails de inmediato
+      for (const item of items) {
+        await supabase.rpc("confirm_stock_sale", {
+          p_variant_id: item.variantId,
+          p_session_id: sessionId,
+          p_quantity: item.quantity,
+          p_order_id: order.id,
+        });
+      }
+
+      await supabase.from("order_status_log").insert({
+        order_id: order.id,
+        from_status: null,
+        to_status: "paid",
+        notes: "Pedido contraentrega — pago al recibir, confirmación inmediata",
+      });
+
+      // Obtener pedido completo con items para emails
+      const { data: fullOrder } = await supabase
+        .from("orders")
+        .select("*, items:order_items(*)")
+        .eq("id", order.id)
+        .single();
+
+      if (fullOrder) {
+        await Promise.allSettled([
+          sendOrderConfirmationEmail(fullOrder),
+          sendNewOrderAdminEmail(fullOrder),
+        ]);
+      }
+
+      return NextResponse.json({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        contraentrega: true,
+      });
+    }
+
+    // 4. Log de estado inicial (Wompi)
     await supabase.from("order_status_log").insert({
       order_id: order.id,
       from_status: null,

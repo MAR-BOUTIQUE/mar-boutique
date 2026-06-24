@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { CatalogFilters } from "@/components/storefront/CatalogFilters";
+import { CatalogSortSelect } from "@/components/storefront/CatalogSortSelect";
 import type { Product } from "@/types";
 
 interface SearchParams {
@@ -114,12 +115,14 @@ export default async function CatalogoPage({ searchParams }: Props) {
       <div className="flex gap-8">
         {/* SIDEBAR FILTROS */}
         <aside className="hidden lg:block w-56 shrink-0">
-          <CatalogFilters
-            categories={filterOptions.categories}
-            collections={filterOptions.collections}
-            occasions={filterOptions.occasions}
-            current={filters}
-          />
+          <Suspense fallback={<div className="space-y-8 animate-pulse"><div className="h-4 bg-[#DDD5C4] rounded w-3/4"/><div className="h-4 bg-[#DDD5C4] rounded w-1/2"/></div>}>
+            <CatalogFilters
+              categories={filterOptions.categories}
+              collections={filterOptions.collections}
+              occasions={filterOptions.occasions}
+              current={filters}
+            />
+          </Suspense>
         </aside>
 
         {/* GRID DE PRODUCTOS */}
@@ -129,7 +132,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
             <p className="text-sm text-[#897568]">
               {products.length} {products.length === 1 ? "prenda" : "prendas"}
             </p>
-            <SortSelect current={filters.orden} />
+            <CatalogSortSelect current={filters.orden} />
           </div>
 
           {products.length === 0 ? (
@@ -157,31 +160,3 @@ export default async function CatalogoPage({ searchParams }: Props) {
   );
 }
 
-function SortSelect({ current }: { current?: string }) {
-  const options = [
-    { value: "novedades", label: "Novedades" },
-    { value: "precio_asc", label: "Precio: menor a mayor" },
-    { value: "precio_desc", label: "Precio: mayor a menor" },
-  ];
-
-  return (
-    <form>
-      <select
-        name="orden"
-        defaultValue={current ?? "novedades"}
-        onChange={(e) => {
-          const url = new URL(window.location.href);
-          url.searchParams.set("orden", e.target.value);
-          window.location.href = url.toString();
-        }}
-        className="text-xs text-[#3D2B1F] border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2 outline-none cursor-pointer"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </form>
-  );
-}

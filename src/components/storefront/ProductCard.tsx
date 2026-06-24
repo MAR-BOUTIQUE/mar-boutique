@@ -6,6 +6,7 @@ import { Heart } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils/cn";
 import { formatCOP, discountPercent } from "@/lib/utils/format";
+import { useWishlistStore } from "@/lib/store/wishlist";
 import type { Product } from "@/types";
 
 interface ProductCardProps {
@@ -13,7 +14,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const [wishlisted, setWishlisted] = useState(false);
+  const { toggle, has } = useWishlistStore();
+  const wishlisted = has(product.id);
   const [imgIdx, setImgIdx] = useState(0);
 
   const price = product.effective_price ?? product.base_price;
@@ -54,6 +56,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* BADGES */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+            {product.is_best_seller && !isSoldOut && (
+              <span className="bg-[#897568] text-white text-[9px] tracking-[0.15em] uppercase px-2 py-0.5 font-[600]">
+                ✦ Más vendido
+              </span>
+            )}
             {isSoldOut && (
               <span className="bg-[#3D2B1F] text-[#F3EDE0] text-[9px] tracking-[0.15em] uppercase px-2 py-0.5 font-[500]">
                 Agotado
@@ -70,7 +77,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={(e) => {
               e.preventDefault();
-              setWishlisted((v) => !v);
+              toggle(product.id);
             }}
             aria-label={wishlisted ? "Quitar de favoritos" : "Añadir a favoritos"}
             className={cn(

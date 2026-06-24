@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP } from "@/lib/utils/format";
 import { TrendingUp, ShoppingBag, Users, Package } from "lucide-react";
 
 async function getReportData() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();

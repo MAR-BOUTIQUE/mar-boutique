@@ -41,8 +41,8 @@ export default function AdminConfiguracionPage() {
           <EnvRow label="Resend API Key" envKey="RESEND_API_KEY" secret />
           <EnvRow label="Emails admin" envKey="ADMIN_EMAILS" />
           <EnvRow label="Wompi Public Key" envKey="NEXT_PUBLIC_WOMPI_PUBLIC_KEY" />
-          <EnvRow label="Wompi Integrity Key" envKey="WOMPI_INTEGRITY_KEY" secret />
-          <EnvRow label="Wompi Events Key" envKey="WOMPI_EVENTS_KEY" secret />
+          <EnvRow label="Wompi Integrity Secret" envKey="WOMPI_INTEGRITY_SECRET" secret />
+          <EnvRow label="Wompi Events Secret" envKey="WOMPI_EVENTS_SECRET" secret />
         </div>
       </div>
 

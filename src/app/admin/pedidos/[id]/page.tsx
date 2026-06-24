@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
 import { OrderStatusActions } from "@/components/admin/OrderStatusActions";
 
@@ -9,7 +9,7 @@ interface Props {
 
 export default async function AdminPedidoDetailPage({ params }: Props) {
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = createServiceClient();
 
   const { data: order } = await supabase
     .from("orders")
@@ -66,6 +66,16 @@ export default async function AdminPedidoDetailPage({ params }: Props) {
             </div>
             <div className="flex justify-between font-[600] text-[#3D2B1F] pt-1 border-t border-[#DDD5C4]">
               <span>Total</span><span>{formatCOP(order.total)}</span>
+            </div>
+            <div className="flex justify-between text-[#897568] pt-1 border-t border-[#F3EDE0]">
+              <span>Método de pago</span>
+              {order.payment_method === "contraentrega" ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#F3EDE0] border border-[#CEC3AB] text-[#897568] text-[10px] uppercase tracking-wide font-[500]">
+                  Contraentrega
+                </span>
+              ) : (
+                <span className="text-[#897568] text-xs">Wompi / Online</span>
+              )}
             </div>
           </div>
         </div>

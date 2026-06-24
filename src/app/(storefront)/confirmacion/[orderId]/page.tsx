@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle, Package, ArrowRight } from "lucide-react";
+import { CheckCircle, Package, ArrowRight, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
 
@@ -33,6 +33,7 @@ export default async function ConfirmacionPage({ params }: Props) {
   if (!order) notFound();
 
   const currentStep = STATUS_STEPS.indexOf(order.status);
+  const isContraentrega = order.payment_method === "contraentrega";
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 text-center">
@@ -102,7 +103,7 @@ export default async function ConfirmacionPage({ params }: Props) {
         </div>
 
         <div className="border-t border-[#DDD5C4] pt-4 flex justify-between font-[600] text-[#3D2B1F]">
-          <span>Total pagado</span>
+          <span>{isContraentrega ? "Total a pagar al recibir" : "Total pagado"}</span>
           <span>{formatCOP(order.total)}</span>
         </div>
 
@@ -126,6 +127,20 @@ export default async function ConfirmacionPage({ params }: Props) {
           </div>
         )}
       </div>
+
+      {/* Aviso contraentrega */}
+      {isContraentrega && (
+        <div className="flex items-start gap-3 bg-[#F3EDE0] border border-[#CEC3AB] px-5 py-4 text-left mb-6">
+          <Truck size={18} className="text-[#897568] shrink-0 mt-0.5" strokeWidth={1.5} />
+          <div>
+            <p className="text-sm font-[600] text-[#3D2B1F]">Pago contraentrega</p>
+            <p className="text-xs text-[#897568] mt-1 leading-relaxed">
+              Ten el dinero listo cuando llegue tu domiciliario.
+              El valor a pagar es <strong>{formatCOP(order.total)}</strong>.
+            </p>
+          </div>
+        </div>
+      )}
 
       <p className="text-xs text-[#897568] mb-6">
         Te enviamos la confirmación a <strong>{order.shipping_email}</strong>

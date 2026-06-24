@@ -1,41 +1,45 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { createServiceClient } from "@/lib/supabase/server";
+import { ProductCard } from "@/components/storefront/ProductCard";
+import type { Product } from "@/types";
 
-// Valores de marca visibles en la web actual
 const BRAND_VALUES = [
-  {
-    title: "Intencional",
-    desc: "Cada prenda con propósito. Elegimos con cuidado lo que llevamos.",
-  },
-  {
-    title: "Versátil",
-    desc: "De la playa a la noche. Prendas que se adaptan a tu ritmo.",
-  },
-  {
-    title: "Atemporal",
-    desc: "Más allá de las temporadas. Clásicos que siempre suman.",
-  },
-  {
-    title: "Auténtica",
-    desc: "Tu esencia, reflejada. Moda que habla de quién eres.",
-  },
+  { title: "Intencional", desc: "Cada prenda con propósito. Elegimos con cuidado lo que llevamos." },
+  { title: "Versátil", desc: "De la playa a la noche. Prendas que se adaptan a tu ritmo." },
+  { title: "Atemporal", desc: "Más allá de las temporadas. Clásicos que siempre suman." },
+  { title: "Auténtica", desc: "Tu esencia, reflejada. Moda que habla de quién eres." },
 ];
 
-export default function HomePage() {
+async function getNewestProducts(): Promise<Product[]> {
+  const db = createServiceClient();
+  const { data } = await db
+    .from("products")
+    .select(`
+      id, name, slug, base_price, compare_price, images,
+      is_on_sale, effective_price, is_sold_out
+    `)
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(4);
+
+  return (data ?? []) as Product[];
+}
+
+export default async function HomePage() {
+  const products = await getNewestProducts();
+
   return (
     <>
       {/* ── HERO ───────────────────────────────────────────────── */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-[#F3EDE0]">
-        {/* Fondo decorativo — se reemplaza con imagen real de la marca */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#F3EDE0] via-[#EAC9C9]/20 to-[#CEC3AB]/30" />
 
         <div className="relative z-10 text-center px-4 max-w-2xl mx-auto">
-          {/* Badge */}
           <span className="inline-block text-[10px] tracking-[0.3em] uppercase text-[#B5888A] mb-6 font-[500]">
             Nueva colección
           </span>
 
-          {/* Título principal */}
           <h1
             className="text-5xl sm:text-6xl md:text-7xl text-[#3D2B1F] mb-4 leading-[1.05]"
             style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
@@ -52,8 +56,7 @@ export default function HomePage() {
               href="/catalogo"
               className="inline-flex items-center gap-2 px-8 py-3 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#5A3E2E] transition-colors rounded-none"
             >
-              Ver catálogo
-              <ArrowRight size={14} />
+              Ver catálogo <ArrowRight size={14} />
             </Link>
             <Link
               href="/colecciones"
@@ -64,7 +67,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
           <span className="text-[9px] tracking-[0.25em] uppercase text-[#897568]">Scroll</span>
           <div className="w-px h-12 bg-[#897568]" />
@@ -110,15 +112,19 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Grid de productos — se rellena dinámicamente */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-[3/4] bg-[#EAC9C9]/30 rounded-none animate-pulse"
-            />
-          ))}
-        </div>
+        {products.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="aspect-[3/4] bg-[#EAC9C9]/30 animate-pulse" />
+            ))}
+          </div>
+        )}
 
         <div className="text-center mt-10 sm:hidden">
           <Link

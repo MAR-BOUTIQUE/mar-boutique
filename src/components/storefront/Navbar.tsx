@@ -10,6 +10,7 @@ import { useCartStore } from "@/lib/store/cart";
 const NAV_LINKS = [
   { href: "/catalogo", label: "Catálogo" },
   { href: "/colecciones", label: "Colecciones" },
+  { href: "/best-sellers", label: "Best Sellers", hot: true },
   { href: "/nosotras", label: "Nosotras" },
 ];
 
@@ -49,6 +50,8 @@ export function Navbar() {
                   "text-[11px] tracking-[0.2em] uppercase font-[500] transition-colors duration-200",
                   pathname === link.href
                     ? "text-[#3D2B1F]"
+                    : link.hot
+                    ? "text-[#B5888A] hover:text-[#3D2B1F]"
                     : "text-[#897568] hover:text-[#3D2B1F]"
                 )}
               >
@@ -130,7 +133,11 @@ export function Navbar() {
               onClick={() => setMenuOpen(false)}
               className={cn(
                 "text-[13px] tracking-[0.18em] uppercase font-[500]",
-                pathname === link.href ? "text-[#3D2B1F]" : "text-[#897568]"
+                pathname === link.href
+                  ? "text-[#3D2B1F]"
+                  : link.hot
+                  ? "text-[#B5888A]"
+                  : "text-[#897568]"
               )}
             >
               {link.label}

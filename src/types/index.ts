@@ -78,6 +78,8 @@ export interface Product {
   categories?: Category[];
   collections?: Collection[];
   occasions?: Occasion[];
+  // Columnas reales
+  is_best_seller?: boolean;
   // Computados
   is_on_sale?: boolean;
   is_sold_out?: boolean;
@@ -139,6 +141,7 @@ export interface Order {
   discount_amount: number;
   shipping_cost: number;
   total: number;
+  payment_method: string;
   wompi_transaction_id: string | null;
   wompi_reference: string | null;
   paid_at: string | null;
@@ -214,6 +217,8 @@ export interface CheckoutForm {
   full_name: string;
   email: string;
   phone: string;
+  id_type: string;
+  id_number: string;
   address: string;
   city: string;
   department: string;

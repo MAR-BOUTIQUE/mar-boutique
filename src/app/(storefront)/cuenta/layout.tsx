@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import AccountSidebar from "@/components/cuenta/AccountSidebar";
 
 export default async function CuentaLayout({ children }: { children: React.ReactNode }) {
@@ -10,13 +11,33 @@ export default async function CuentaLayout({ children }: { children: React.React
 
   if (!user) redirect("/auth/login?redirect=/cuenta");
 
-  const { data: customer } = await supabase
+  const db = createServiceClient();
+
+  // Buscar por auth_user_id, si no encontrado buscar por email y vincular
+  let displayName = user.email ?? "Mi cuenta";
+  const { data: byAuthId } = await db
     .from("customers")
-    .select("full_name")
+    .select("id, full_name")
     .eq("auth_user_id", user.id)
     .single();
 
-  const displayName = customer?.full_name ?? user.email ?? "Mi cuenta";
+  if (byAuthId) {
+    displayName = byAuthId.full_name ?? displayName;
+  } else if (user.email) {
+    const { data: byEmail } = await db
+      .from("customers")
+      .select("id, full_name")
+      .eq("email", user.email.toLowerCase())
+      .single();
+
+    if (byEmail) {
+      displayName = byEmail.full_name ?? displayName;
+      await db
+        .from("customers")
+        .update({ auth_user_id: user.id, is_guest: false })
+        .eq("id", byEmail.id);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#F3EDE0]">

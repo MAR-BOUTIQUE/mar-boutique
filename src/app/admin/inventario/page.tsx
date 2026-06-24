@@ -1,7 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export default async function AdminInventarioPage() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
 
   const { data: variants } = await supabase
     .from("product_variants")

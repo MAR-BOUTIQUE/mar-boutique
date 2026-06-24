@@ -1,39 +1,54 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Lock, AlertCircle } from "lucide-react";
+import { ArrowLeft, Lock, AlertCircle, UserCheck, Clock, Truck } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
+import { createClient } from "@/lib/supabase/client";
 import { formatCOP } from "@/lib/utils/format";
+import { MUNICIPIOS_POR_DEPARTAMENTO, DEPARTAMENTOS } from "@/lib/data/colombia-municipios";
 import type { CheckoutForm } from "@/types";
 
-const DEPARTMENTS = [
-  "Amazonas","Antioquia","Arauca","Atlántico","Bolívar","Boyacá","Caldas",
-  "Caquetá","Casanare","Cauca","Cesar","Chocó","Córdoba","Cundinamarca",
-  "Guainía","Guaviare","Huila","La Guajira","Magdalena","Meta","Nariño",
-  "Norte de Santander","Putumayo","Quindío","Risaralda","San Andrés","Santander",
-  "Sucre","Tolima","Valle del Cauca","Vaupés","Vichada",
-];
+const CONTRAENTREGA_CITIES = new Set(["Cartagena", "Turbaco"]);
+
+function isEligibleCity(city: string): boolean {
+  return CONTRAENTREGA_CITIES.has(city);
+}
+
+function getSameDayStatus(): { beforeCutoff: boolean } {
+  const now = new Date();
+  const colombiaMinutes = (now.getUTCHours() * 60 + now.getUTCMinutes() - 5 * 60 + 24 * 60) % (24 * 60);
+  return { beforeCutoff: colombiaMinutes < 16 * 60 };
+}
+
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, subtotal, discountAmount, shippingCost, total, sessionId, clearCart } =
+  const { items, subtotal, discountAmount, shippingCost, total, sessionId, clearCart, applyPromotion, appliedPromotion } =
     useCartStore();
 
   const [form, setForm] = useState<CheckoutForm>({
     full_name: "",
     email: "",
     phone: "",
+    id_type: "CC",
+    id_number: "",
     address: "",
     city: "",
     department: "",
     coupon_code: "",
     terms_accepted: false,
   });
+  const [prefilled, setPrefilled] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<"form" | "payment">("form");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [existingCustomer, setExistingCustomer] = useState(false);
+  const checkDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"wompi" | "contraentrega">("wompi");
   const [wompiData, setWompiData] = useState<{
     publicKey: string;
     currency: string;
@@ -47,18 +62,134 @@ export default function CheckoutPage() {
     if (items.length === 0) router.replace("/carrito");
   }, [items, router]);
 
+  // Precargar datos del usuario autenticado
+  useEffect(() => {
+    if (prefilled) return;
+    const supabase = createClient();
+
+    async function prefillFromUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const updates: Partial<CheckoutForm> = {};
+
+      if (user.email) updates.email = user.email;
+
+      // Buscar perfil en customers
+      const { data: customer } = await supabase
+        .from("customers")
+        .select("full_name, phone, id_type, id_number")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (customer) {
+        if (customer.full_name) updates.full_name = customer.full_name;
+        if (customer.phone) updates.phone = customer.phone;
+        if (customer.id_type) updates.id_type = customer.id_type;
+        if (customer.id_number) updates.id_number = customer.id_number;
+      }
+
+      // Buscar dirección por defecto
+      const { data: address } = await supabase
+        .from("customer_addresses")
+        .select("address, city, department")
+        .eq("customer_id", user.id)
+        .eq("is_default", true)
+        .maybeSingle();
+
+      if (address) {
+        if (address.address) updates.address = address.address;
+        if (address.department) {
+          updates.department = address.department;
+          // Solo precargar la ciudad si existe en el listado del departamento
+          const municipios = MUNICIPIOS_POR_DEPARTAMENTO[address.department] ?? [];
+          if (address.city && municipios.includes(address.city)) {
+            updates.city = address.city;
+          }
+        }
+      }
+
+      if (Object.keys(updates).length > 0) {
+        setForm((f) => ({ ...f, ...updates }));
+      }
+      setPrefilled(true);
+    }
+
+    prefillFromUser();
+  }, [prefilled]);
+
+  const checkExistingCustomer = useCallback((email: string, idNumber: string) => {
+    if (prefilled) return; // ya está logueado, no mostrar el banner
+    if (checkDebounceRef.current) clearTimeout(checkDebounceRef.current);
+
+    const param = email.includes("@") ? `email=${encodeURIComponent(email)}`
+      : idNumber.length >= 5 ? `id_number=${encodeURIComponent(idNumber)}`
+      : null;
+
+    if (!param) { setExistingCustomer(false); return; }
+
+    checkDebounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/checkout/check-customer?${param}`);
+        const { registered } = await res.json();
+        setExistingCustomer(registered);
+      } catch { /* silencioso */ }
+    }, 700);
+  }, [prefilled]);
+
   function set(field: keyof CheckoutForm, value: string | boolean) {
-    setForm((f) => ({ ...f, [field]: value }));
+    setForm((f) => {
+      const next = { ...f, [field]: value };
+      if (field === "email" || field === "id_number") {
+        checkExistingCustomer(
+          field === "email" ? String(value) : next.email,
+          field === "id_number" ? String(value) : next.id_number
+        );
+      }
+      return next;
+    });
+    if (field === "city" && typeof value === "string" && !isEligibleCity(String(value))) {
+      setPaymentMethod("wompi");
+    }
     setError(null);
+  }
+
+  async function applyCoupon() {
+    const code = form.coupon_code?.trim();
+    if (!code) { setCouponMsg({ text: "Ingresa un código de cupón", ok: false }); return; }
+    if (appliedPromotion) { setCouponMsg({ text: "Ya hay un descuento aplicado", ok: false }); return; }
+
+    setCouponLoading(true);
+    setCouponMsg(null);
+    try {
+      const res = await fetch("/api/checkout/coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal, email: form.email }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        applyPromotion(data.promotion);
+        setCouponMsg({ text: `¡Cupón aplicado! −${data.promotion.discount_value}% de descuento`, ok: true });
+      } else {
+        setCouponMsg({ text: data.message ?? "Código inválido", ok: false });
+      }
+    } catch {
+      setCouponMsg({ text: "Error al validar el cupón", ok: false });
+    } finally {
+      setCouponLoading(false);
+    }
   }
 
   function validate(): string | null {
     if (!form.full_name.trim()) return "Ingresa tu nombre completo.";
     if (!form.email.includes("@")) return "El correo no es válido.";
     if (form.phone.replace(/\D/g, "").length < 7) return "El teléfono no es válido.";
+    if (!form.id_type) return "Selecciona el tipo de documento.";
+    if (form.id_number.replace(/\D/g, "").length < 4) return "Ingresa un número de documento válido.";
     if (!form.address.trim()) return "Ingresa tu dirección.";
-    if (!form.city.trim()) return "Ingresa tu ciudad.";
     if (!form.department) return "Selecciona tu departamento.";
+    if (!form.city) return "Selecciona tu ciudad o municipio.";
     if (!form.terms_accepted) return "Debes aceptar los términos y condiciones.";
     return null;
   }
@@ -75,11 +206,17 @@ export default function CheckoutPage() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ form, items, sessionId, total, subtotal, discountAmount, shippingCost }),
+        body: JSON.stringify({ form, items, sessionId, total, subtotal, discountAmount, shippingCost, paymentMethod }),
       });
 
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? "Error al procesar el pedido."); return; }
+
+      if (data.contraentrega) {
+        clearCart();
+        router.push(`/confirmacion/${data.orderId}`);
+        return;
+      }
 
       setWompiData(data.wompi);
       setStep("payment");
@@ -89,6 +226,9 @@ export default function CheckoutPage() {
       setSubmitting(false);
     }
   }
+
+  const cityEligible = isEligibleCity(form.city);
+  const sameDayStatus = getSameDayStatus();
 
   if (items.length === 0) return null;
 
@@ -113,6 +253,24 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
           {/* ── FORMULARIO ── */}
           <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-6">
+
+            {/* Banner cliente existente */}
+            {existingCustomer && (
+              <div className="flex items-start gap-3 bg-white border border-[#EAC9C9] px-4 py-3.5">
+                <UserCheck size={16} className="text-[#B5888A] shrink-0 mt-0.5" strokeWidth={1.5} />
+                <div className="flex-1">
+                  <p className="text-xs text-[#3D2B1F] font-[500]">¿Ya tienes cuenta en Mar Boutique?</p>
+                  <p className="text-[11px] text-[#897568] mt-0.5">Inicia sesión para cargar tus datos automáticamente.</p>
+                </div>
+                <Link
+                  href="/auth/login?redirect=/checkout"
+                  className="shrink-0 text-[10px] tracking-[0.12em] uppercase font-[600] text-[#B5888A] hover:text-[#3D2B1F] transition-colors whitespace-nowrap"
+                >
+                  Iniciar sesión
+                </Link>
+              </div>
+            )}
+
             <Section title="Datos de contacto">
               <Field label="Nombre completo *" id="full_name">
                 <Input
@@ -140,6 +298,34 @@ export default function CheckoutPage() {
                   />
                 </Field>
               </div>
+
+              {/* Documento de identidad */}
+              <div className="grid grid-cols-5 gap-3">
+                <Field label="Tipo *" id="id_type">
+                  <select
+                    id="id_type"
+                    value={form.id_type}
+                    onChange={(e) => set("id_type", e.target.value)}
+                    className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2.5 text-sm text-[#3D2B1F] outline-none focus:border-[#897568] transition-colors"
+                  >
+                    <option value="CC">CC</option>
+                    <option value="CE">CE</option>
+                    <option value="PPT">PPT</option>
+                    <option value="Pasaporte">Pasaporte</option>
+                    <option value="NIT">NIT</option>
+                  </select>
+                </Field>
+                <div className="col-span-4">
+                  <Field label="Número de documento *" id="id_number">
+                    <Input
+                      id="id_number" type="text" autoComplete="off"
+                      value={form.id_number}
+                      onChange={(v) => set("id_number", v)}
+                      placeholder="1234567890"
+                    />
+                  </Field>
+                </div>
+              </div>
             </Section>
 
             <Section title="Dirección de envío">
@@ -152,25 +338,39 @@ export default function CheckoutPage() {
                 />
               </Field>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Ciudad *" id="city">
-                  <Input
-                    id="city" type="text" autoComplete="address-level2"
-                    value={form.city}
-                    onChange={(v) => set("city", v)}
-                    placeholder="Cartagena"
-                  />
-                </Field>
                 <Field label="Departamento *" id="department">
                   <select
                     id="department"
                     value={form.department}
-                    onChange={(e) => set("department", e.target.value)}
+                    onChange={(e) => {
+                      const dep = e.target.value;
+                      setForm((f) => ({ ...f, department: dep, city: "" }));
+                      setPaymentMethod("wompi");
+                      setError(null);
+                    }}
                     className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2.5 text-sm text-[#3D2B1F] outline-none focus:border-[#897568] transition-colors"
                   >
                     <option value="">Seleccionar…</option>
-                    {DEPARTMENTS.map((d) => (
+                    {DEPARTAMENTOS.map((d) => (
                       <option key={d} value={d}>{d}</option>
                     ))}
+                  </select>
+                </Field>
+                <Field label="Ciudad / Municipio *" id="city">
+                  <select
+                    id="city"
+                    value={form.city}
+                    disabled={!form.department}
+                    onChange={(e) => set("city", e.target.value)}
+                    className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2.5 text-sm text-[#3D2B1F] outline-none focus:border-[#897568] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="">
+                      {form.department ? "Seleccionar…" : "Primero el departamento"}
+                    </option>
+                    {form.department &&
+                      (MUNICIPIOS_POR_DEPARTAMENTO[form.department] ?? []).map((m) => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
                   </select>
                 </Field>
               </div>
@@ -181,17 +381,84 @@ export default function CheckoutPage() {
                 <Input
                   id="coupon" type="text"
                   value={form.coupon_code ?? ""}
-                  onChange={(v) => set("coupon_code", v)}
-                  placeholder="Código de cupón"
+                  onChange={(v) => { set("coupon_code", v); setCouponMsg(null); }}
+                  placeholder="Ej: BIENVENIDA10"
                 />
                 <button
                   type="button"
-                  className="px-5 py-2.5 border border-[#DDD5C4] text-[11px] tracking-[0.15em] uppercase text-[#897568] hover:border-[#897568] hover:text-[#3D2B1F] transition-colors whitespace-nowrap"
+                  onClick={applyCoupon}
+                  disabled={couponLoading || !!appliedPromotion}
+                  className="px-5 py-2.5 border border-[#DDD5C4] text-[11px] tracking-[0.15em] uppercase text-[#897568] hover:border-[#897568] hover:text-[#3D2B1F] transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Aplicar
+                  {couponLoading ? "…" : "Aplicar"}
                 </button>
               </div>
+              {couponMsg && (
+                <p className={`text-xs mt-1.5 ${couponMsg.ok ? "text-green-700" : "text-[#B5888A]"}`}>
+                  {couponMsg.text}
+                </p>
+              )}
             </Section>
+
+            {/* Aviso entrega mismo día + método de pago — solo Cartagena / Turbaco */}
+            {cityEligible && (
+              <div className="space-y-3">
+                {/* Aviso entrega */}
+                <div className={`flex items-start gap-3 px-4 py-3 border ${sameDayStatus.beforeCutoff ? "bg-[#F3EDE0] border-[#CEC3AB]" : "bg-white border-[#DDD5C4]"}`}>
+                  {sameDayStatus.beforeCutoff ? (
+                    <Clock size={15} className="text-[#897568] shrink-0 mt-0.5" strokeWidth={1.5} />
+                  ) : (
+                    <Truck size={15} className="text-[#CEC3AB] shrink-0 mt-0.5" strokeWidth={1.5} />
+                  )}
+                  <div>
+                    {sameDayStatus.beforeCutoff ? (
+                      <>
+                        <p className="text-xs font-[600] text-[#3D2B1F]">Entrega hoy en Cartagena</p>
+                        <p className="text-[11px] text-[#897568] mt-0.5">Pedidos antes de las 4:00 PM llegan antes de las 6:00 PM.</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs font-[600] text-[#897568]">Pedidos después de las 4:00 PM</p>
+                        <p className="text-[11px] text-[#897568] mt-0.5">Tu pedido llegará mañana en Cartagena o Turbaco.</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Selector método de pago */}
+                <div className="space-y-2">
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600]">Método de pago</p>
+                  <label className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-colors ${paymentMethod === "wompi" ? "border-[#3D2B1F] bg-[#F3EDE0]" : "border-[#DDD5C4] bg-white hover:border-[#897568]"}`}>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="wompi"
+                      checked={paymentMethod === "wompi"}
+                      onChange={() => setPaymentMethod("wompi")}
+                      className="accent-[#3D2B1F]"
+                    />
+                    <div>
+                      <p className="text-sm text-[#3D2B1F] font-[500]">Tarjeta / PSE / Nequi</p>
+                      <p className="text-[11px] text-[#897568]">Pago en línea seguro via Wompi</p>
+                    </div>
+                  </label>
+                  <label className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-colors ${paymentMethod === "contraentrega" ? "border-[#3D2B1F] bg-[#F3EDE0]" : "border-[#DDD5C4] bg-white hover:border-[#897568]"}`}>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="contraentrega"
+                      checked={paymentMethod === "contraentrega"}
+                      onChange={() => setPaymentMethod("contraentrega")}
+                      className="accent-[#3D2B1F]"
+                    />
+                    <div>
+                      <p className="text-sm text-[#3D2B1F] font-[500]">Contraentrega</p>
+                      <p className="text-[11px] text-[#897568]">Pagas en efectivo cuando recibas tu pedido</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            )}
 
             {/* Términos — RB-CHK-08 */}
             <div className="space-y-3">
@@ -239,13 +506,27 @@ export default function CheckoutPage() {
               disabled={submitting}
               className="w-full flex items-center justify-center gap-2 py-4 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#5A3E2E] disabled:bg-[#CEC3AB] disabled:cursor-not-allowed transition-colors"
             >
-              <Lock size={13} strokeWidth={1.5} />
-              {submitting ? "Procesando…" : "Continuar al pago"}
+              {paymentMethod === "contraentrega" ? (
+                <Truck size={13} strokeWidth={1.5} />
+              ) : (
+                <Lock size={13} strokeWidth={1.5} />
+              )}
+              {submitting
+                ? "Procesando…"
+                : paymentMethod === "contraentrega"
+                ? "Confirmar pedido (pago al recibir)"
+                : "Continuar al pago"}
             </button>
 
-            <p className="text-[10px] text-center text-[#897568] flex items-center justify-center gap-1.5">
-              <Lock size={10} /> Pago seguro procesado por Wompi (Bancolombia)
-            </p>
+            {paymentMethod === "contraentrega" ? (
+              <p className="text-[10px] text-center text-[#897568] flex items-center justify-center gap-1.5">
+                <Truck size={10} /> Ten el efectivo listo cuando llegue tu domicilio
+              </p>
+            ) : (
+              <p className="text-[10px] text-center text-[#897568] flex items-center justify-center gap-1.5">
+                <Lock size={10} /> Pago seguro procesado por Wompi (Bancolombia)
+              </p>
+            )}
           </form>
 
           {/* ── RESUMEN ── */}
@@ -354,7 +635,6 @@ function WompiWidget({ data }: { data: NonNullable<ReturnType<typeof useState<an
         </p>
       </div>
 
-      {/* Widget de Wompi — se monta via script */}
       <form action="https://checkout.wompi.co/p/" method="GET">
         <input type="hidden" name="public-key" value={data.publicKey} />
         <input type="hidden" name="currency" value={data.currency} />

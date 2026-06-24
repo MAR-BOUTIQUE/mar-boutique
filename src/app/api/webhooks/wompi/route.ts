@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHmac } from "crypto";
+import { createHash } from "crypto";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail, sendPaymentFailedEmail } from "@/lib/email/templates";
 import type { WompiWebhookEvent } from "@/types";
@@ -7,7 +7,6 @@ import type { WompiWebhookEvent } from "@/types";
 // Verificar firma del webhook — seguridad
 function verifySignature(event: WompiWebhookEvent, secret: string): boolean {
   const { properties, checksum } = event.signature;
-  const tx = event.data.transaction;
 
   const values = properties.map((prop) => {
     const parts = prop.split(".");
@@ -20,7 +19,7 @@ function verifySignature(event: WompiWebhookEvent, secret: string): boolean {
   });
 
   const str = [...values, event.timestamp, secret].join("");
-  const expected = createHmac("sha256", secret).update(str).digest("hex");
+  const expected = createHash("sha256").update(str).digest("hex");
   return expected === checksum;
 }
 
@@ -40,12 +39,12 @@ export async function POST(req: NextRequest) {
     }
 
     const tx = data.transaction;
-    const supabase = await createServiceClient();
+    const supabase = createServiceClient();
 
     // Buscar pedido por referencia
     const { data: order } = await supabase
       .from("orders")
-      .select(`*, items:order_items(*)`)
+      .select(`*, cart_session_id, items:order_items(*)`)
       .eq("wompi_reference", tx.reference)
       .single();
 
@@ -65,7 +64,7 @@ export async function POST(req: NextRequest) {
       for (const item of order.items) {
         await supabase.rpc("confirm_stock_sale", {
           p_variant_id: item.variant_id,
-          p_session_id: order.wompi_reference,
+          p_session_id: order.cart_session_id ?? order.wompi_reference,
           p_quantity: item.quantity,
           p_order_id: order.id,
         });
@@ -98,10 +97,8 @@ export async function POST(req: NextRequest) {
     } else if (tx.status === "DECLINED" || tx.status === "VOIDED" || tx.status === "ERROR") {
       // ── PAGO RECHAZADO — RB-CHK-05 ───────────────────────
 
-      // Liberar reservas
-      for (const item of order.items) {
-        await supabase.rpc("release_expired_reservations");
-      }
+      // Liberar reservas de este pedido
+      await supabase.rpc("release_expired_reservations");
 
       await supabase
         .from("orders")
