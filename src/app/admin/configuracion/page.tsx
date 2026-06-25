@@ -82,9 +82,7 @@ export default function AdminConfiguracionPage() {
             </p>
             <ul className="space-y-1.5 text-xs text-amber-700">
               <li><strong>DP-03</strong> — Responsabilidades tributarias (IVA, facturación electrónica)</li>
-              <li><strong>DP-05</strong> — Proveedor email transaccional (Resend configurado, verificar dominio)</li>
-              <li><strong>DP-07</strong> — Identidad visual: logo, paleta, tipografías definitivas</li>
-              <li><strong>DP-08</strong> — Dominio definitivo (marboutique.co) — actualizar NEXT_PUBLIC_SITE_URL</li>
+              <li><strong>DP-05</strong> — Verificar dominio mar-boutique.com en Resend para envío de emails</li>
               <li><strong>DP-09</strong> — Documentos legales: Términos, Privacidad, Datos (Ley 1581/2012)</li>
               <li><strong>DP-10</strong> — Esquema de tarifa de envío en Fase 1</li>
             </ul>

@@ -1,7 +1,7 @@
 import { getResend, FROM, ADMIN_EMAILS } from "./resend";
 import { formatCOP } from "@/lib/utils/format";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mar-boutique.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mar-boutique.com";
 
 // ── Wrapper principal — tabla compatible con todos los clientes ────
 function emailBase(preheader: string, content: string): string {
@@ -49,9 +49,9 @@ function emailBase(preheader: string, content: string): string {
             <td align="center" style="padding:0 20px;">
               <p style="font-family:Arial,sans-serif;font-size:11px;color:#897568;line-height:1.7;margin:0;">
                 Mar Boutique · Cartagena, Colombia<br>
-                <a href="${SITE_URL}" style="color:#897568;text-decoration:underline;">marboutique.co</a>
+                <a href="${SITE_URL}" style="color:#897568;text-decoration:underline;">mar-boutique.com</a>
                 &nbsp;·&nbsp;
-                <a href="mailto:hola@marboutique.co" style="color:#897568;text-decoration:underline;">hola@marboutique.co</a>
+                <a href="mailto:hola@mar-boutique.com" style="color:#897568;text-decoration:underline;">hola@mar-boutique.com</a>
               </p>
               <p style="font-family:Arial,sans-serif;font-size:10px;color:#CEC3AB;margin:8px 0 0;">
                 Estás recibiendo este correo porque realizaste una compra o tienes una cuenta en Mar Boutique.
@@ -207,7 +207,7 @@ export async function sendOrderConfirmationEmail(order: any) {
     ${shippingBlock(order)}
     ${cta("Seguir mi pedido", trackUrl)}
     ${divider()}
-    ${bodyText("¿Tienes alguna pregunta? Escríbenos por <a href='https://wa.me/573042346723' style='color:#B5888A;'>WhatsApp</a> o a <a href='mailto:hola@marboutique.co' style='color:#B5888A;'>hola@marboutique.co</a>.", "font-size:12px;")}
+    ${bodyText("¿Tienes alguna pregunta? Escríbenos por <a href='https://wa.me/573042346723' style='color:#B5888A;'>WhatsApp</a> o a <a href='mailto:hola@mar-boutique.com' style='color:#B5888A;'>hola@mar-boutique.com</a>.", "font-size:12px;")}
   `;
 
   return getResend().emails.send({
@@ -378,7 +378,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
     </table>
     ${cta("Explorar el catálogo", `${SITE_URL}/catalogo`)}
     ${divider()}
-    ${bodyText("¿Tienes dudas? Escríbenos por <a href='https://wa.me/573042346723' style='color:#B5888A;'>WhatsApp</a> o a <a href='mailto:hola@marboutique.co' style='color:#B5888A;'>hola@marboutique.co</a>.", "font-size:12px;")}
+    ${bodyText("¿Tienes dudas? Escríbenos por <a href='https://wa.me/573042346723' style='color:#B5888A;'>WhatsApp</a> o a <a href='mailto:hola@mar-boutique.com' style='color:#B5888A;'>hola@mar-boutique.com</a>.", "font-size:12px;")}
   `;
 
   return getResend().emails.send({

@@ -148,7 +148,7 @@ export default async function SeguimientoPage({ searchParams }: Props) {
                   <div>
                     <p className="text-sm font-[600]">Pedido cancelado</p>
                     <p className="text-xs text-[#897568] mt-0.5">
-                      Este pedido fue cancelado. Si tienes preguntas escríbenos a hola@marboutique.co
+                      Este pedido fue cancelado. Si tienes preguntas escríbenos a hola@mar-boutique.com
                     </p>
                   </div>
                 </div>
@@ -240,8 +240,8 @@ export default async function SeguimientoPage({ searchParams }: Props) {
 
             <p className="text-center text-xs text-[#897568]">
               ¿Tienes dudas?{" "}
-              <Link href="mailto:hola@marboutique.co" className="text-[#3D2B1F] underline underline-offset-2">
-                hola@marboutique.co
+              <Link href="mailto:hola@mar-boutique.com" className="text-[#3D2B1F] underline underline-offset-2">
+                hola@mar-boutique.com
               </Link>
             </p>
           </div>

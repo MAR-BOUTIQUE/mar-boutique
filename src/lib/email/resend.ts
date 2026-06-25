@@ -7,5 +7,5 @@ export function getResend(): Resend {
   return _resend;
 }
 
-export const FROM = process.env.EMAIL_FROM ?? "Mar Boutique <hola@marboutique.co>";
+export const FROM = process.env.EMAIL_FROM ?? "Mar Boutique <hola@mar-boutique.com>";
 export const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "").split(",").filter(Boolean);
