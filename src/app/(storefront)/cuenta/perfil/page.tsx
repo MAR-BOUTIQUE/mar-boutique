@@ -37,7 +37,7 @@ export default function PerfilPage() {
         .from("customers")
         .select("id, full_name, phone, marketing_email, marketing_whatsapp")
         .eq("auth_user_id", user.id)
-        .single();
+        .maybeSingle();
       if (c) {
         setCustomerId(c.id);
         setForm({
@@ -52,19 +52,47 @@ export default function PerfilPage() {
 
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
-    if (!customerId) return;
     setSaving(true);
     setError(null);
-    const { error: err } = await supabase
-      .from("customers")
-      .update(form)
-      .eq("id", customerId);
-    if (err) {
-      setError("No se pudo guardar. Intenta de nuevo.");
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+
+    if (customerId) {
+      const { error: err } = await supabase
+        .from("customers")
+        .update(form)
+        .eq("id", customerId);
+      if (err) {
+        setError("No se pudo guardar. Intenta de nuevo.");
+      } else {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
     } else {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      // El registro no existe aún — crearlo (puede pasar si el callback no lo generó)
+      const { data: newCustomer, error: err } = await supabase
+        .from("customers")
+        .insert({
+          auth_user_id: user.id,
+          email: user.email?.toLowerCase() ?? "",
+          full_name: form.full_name,
+          phone: form.phone,
+          marketing_email: form.marketing_email,
+          marketing_whatsapp: form.marketing_whatsapp,
+          is_guest: false,
+        })
+        .select("id")
+        .single();
+      if (err) {
+        setError("No se pudo guardar. Intenta de nuevo.");
+      } else {
+        setCustomerId(newCustomer.id);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
     }
+
     setSaving(false);
   }
 
