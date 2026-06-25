@@ -38,18 +38,27 @@ export async function GET(req: NextRequest) {
         .maybeSingle();
 
       if (!existing) {
-        const fullName = user.user_metadata?.full_name ?? user.user_metadata?.name ?? "";
-        const marketing = user.user_metadata?.marketing_email ?? false;
+        const meta = user.user_metadata ?? {};
+        // Google OAuth puede venir como "name", registro manual como "full_name"
+        const fullName =
+          meta.full_name ||
+          meta.name ||
+          user.email?.split("@")[0] ||
+          "";
+        const phone = meta.phone ?? null;
+        const marketingEmail = meta.marketing_email ?? false;
+        const marketingWhatsapp = meta.marketing_whatsapp ?? false;
 
         await db.from("customers").insert({
           auth_user_id: user.id,
           email: user.email?.toLowerCase() ?? "",
           full_name: fullName,
-          marketing_email: marketing,
+          phone,
+          marketing_email: marketingEmail,
+          marketing_whatsapp: marketingWhatsapp,
           is_guest: false,
         });
 
-        // Enviar bienvenida (no bloquear el redirect si falla)
         sendWelcomeEmail(user.email ?? "", fullName).catch(() => {});
       }
     }

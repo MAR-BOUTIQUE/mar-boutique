@@ -2,16 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export default function RegistroPage() {
-  const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    confirm: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [marketing, setMarketing] = useState(false);
+  const [marketingEmail, setMarketingEmail] = useState(false);
+  const [marketingWhatsapp, setMarketingWhatsapp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +47,12 @@ export default function RegistroPage() {
       email: form.email,
       password: form.password,
       options: {
-        data: { full_name: form.name, marketing_email: marketing },
+        data: {
+          full_name: form.name,
+          phone: form.phone,
+          marketing_email: marketingEmail,
+          marketing_whatsapp: marketingWhatsapp,
+        },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
@@ -146,6 +156,21 @@ export default function RegistroPage() {
 
           <div>
             <label className="block text-[10px] tracking-[0.18em] uppercase text-[#897568] font-[600] mb-1.5">
+              Teléfono / WhatsApp
+            </label>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) => set("phone", e.target.value)}
+              placeholder="3XX XXX XXXX"
+              required
+              autoComplete="tel"
+              className={inputCls}
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] tracking-[0.18em] uppercase text-[#897568] font-[600] mb-1.5">
               Email
             </label>
             <input
@@ -199,17 +224,30 @@ export default function RegistroPage() {
           </div>
 
           {/* Marketing opt-in */}
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={marketing}
-              onChange={(e) => setMarketing(e.target.checked)}
-              className="mt-0.5 accent-[#3D2B1F]"
-            />
-            <span className="text-xs text-[#897568]">
-              Quiero recibir novedades, colecciones y ofertas exclusivas de Mar Boutique por email.
-            </span>
-          </label>
+          <div className="space-y-2 pt-1">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={marketingEmail}
+                onChange={(e) => setMarketingEmail(e.target.checked)}
+                className="mt-0.5 accent-[#3D2B1F]"
+              />
+              <span className="text-xs text-[#897568]">
+                Quiero recibir novedades, colecciones y ofertas exclusivas por email.
+              </span>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={marketingWhatsapp}
+                onChange={(e) => setMarketingWhatsapp(e.target.checked)}
+                className="mt-0.5 accent-[#3D2B1F]"
+              />
+              <span className="text-xs text-[#897568]">
+                Quiero recibir novedades y ofertas por WhatsApp.
+              </span>
+            </label>
+          </div>
 
           {error && (
             <p className="text-xs text-[#B5888A] bg-[#EAC9C9]/20 border border-[#EAC9C9] px-3 py-2">
