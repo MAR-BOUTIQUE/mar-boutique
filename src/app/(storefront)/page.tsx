@@ -4,30 +4,78 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import type { Product } from "@/types";
 
+type FeaturedSection = {
+  collectionName: string;
+  collectionSlug: string | null;
+  collectionDesc: string | null;
+  products: Product[];
+};
+
 const BRAND_VALUES = [
-  { title: "Intencional", desc: "Cada prenda con propósito. Elegimos con cuidado lo que llevamos." },
-  { title: "Versátil", desc: "De la playa a la noche. Prendas que se adaptan a tu ritmo." },
-  { title: "Atemporal", desc: "Más allá de las temporadas. Clásicos que siempre suman." },
-  { title: "Auténtica", desc: "Tu esencia, reflejada. Moda que habla de quién eres." },
+  { title: "Intencional", desc: "Con propósito detrás de cada costura. Cada prenda nace desde el amor." },
+  { title: "Versátil", desc: "De los días simples a los momentos especiales. Prendas que se adaptan a tu día a día." },
+  { title: "Femenina", desc: "Diseños que resaltan tu esencia. Delicadeza, confianza y estilo en cada detalle." },
+  { title: "Auténtica", desc: "Cada prenda refleja quién quieres ser." },
 ];
 
-async function getNewestProducts(): Promise<Product[]> {
+async function getFeaturedSection(): Promise<FeaturedSection> {
   const db = createServiceClient();
+
+  // Buscar colección marcada como destacada en inicio
+  const { data: collection } = await db
+    .from("collections")
+    .select("id, name, slug, description")
+    .eq("featured_on_home", true)
+    .eq("is_active", true)
+    .single();
+
+  if (collection) {
+    // Traer los productos de esa colección
+    const { data: rows } = await db
+      .from("product_collections")
+      .select(`
+        products (
+          id, name, slug, base_price, compare_price, images,
+          is_on_sale, effective_price, is_sold_out, status
+        )
+      `)
+      .eq("collection_id", collection.id)
+      .order("sort_order", { ascending: true })
+      .limit(4);
+
+    const products = (rows ?? [])
+      .map((r: any) => r.products)
+      .filter((p: any) => p?.status === "active") as Product[];
+
+    return {
+      collectionName: collection.name,
+      collectionSlug: collection.slug,
+      collectionDesc: collection.description,
+      products,
+    };
+  }
+
+  // Fallback: productos más nuevos
   const { data } = await db
     .from("products")
     .select(`
       id, name, slug, base_price, compare_price, images,
       is_on_sale, effective_price, is_sold_out
     `)
-    .eq("status", "published")
+    .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(4);
 
-  return (data ?? []) as Product[];
+  return {
+    collectionName: "Nueva colección",
+    collectionSlug: null,
+    collectionDesc: null,
+    products: (data ?? []) as Product[],
+  };
 }
 
 export default async function HomePage() {
-  const products = await getNewestProducts();
+  const featured = await getFeaturedSection();
 
   return (
     <>
@@ -67,10 +115,6 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
-          <span className="text-[9px] tracking-[0.25em] uppercase text-[#897568]">Scroll</span>
-          <div className="w-px h-12 bg-[#897568]" />
-        </div>
       </section>
 
       {/* ── VALORES DE MARCA ───────────────────────────────────── */}
@@ -90,31 +134,36 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── NUEVA COLECCIÓN ────────────────────────────────────── */}
+      {/* ── COLECCIÓN DESTACADA ────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="flex items-end justify-between mb-10">
           <div>
             <span className="text-[10px] tracking-[0.25em] uppercase text-[#B5888A] font-[500]">
-              Lo más nuevo
+              Nueva colección
             </span>
             <h2
               className="text-4xl text-[#3D2B1F] mt-1"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              Recién llegado
+              {featured.collectionName}
             </h2>
+            {featured.collectionDesc && (
+              <p className="text-sm text-[#897568] leading-relaxed font-[300] mt-2 max-w-md">
+                {featured.collectionDesc}
+              </p>
+            )}
           </div>
           <Link
-            href="/catalogo"
+            href={featured.collectionSlug ? `/coleccion/${featured.collectionSlug}` : "/catalogo"}
             className="hidden sm:inline-flex items-center gap-1.5 text-[11px] tracking-[0.15em] uppercase text-[#897568] hover:text-[#3D2B1F] transition-colors font-[500]"
           >
             Ver todo <ArrowRight size={12} />
           </Link>
         </div>
 
-        {products.length > 0 ? (
+        {featured.products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {products.map((product) => (
+            {featured.products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -128,10 +177,10 @@ export default async function HomePage() {
 
         <div className="text-center mt-10 sm:hidden">
           <Link
-            href="/catalogo"
+            href={featured.collectionSlug ? `/coleccion/${featured.collectionSlug}` : "/catalogo"}
             className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.15em] uppercase text-[#897568] hover:text-[#3D2B1F] transition-colors font-[500]"
           >
-            Ver todo el catálogo <ArrowRight size={12} />
+            Ver todo <ArrowRight size={12} />
           </Link>
         </div>
       </section>
@@ -148,10 +197,6 @@ export default async function HomePage() {
           >
             Nosotras
           </h2>
-          <p className="text-sm text-[#897568] leading-loose mb-8 font-[300]">
-            Mar Boutique nació desde el amor y la intención. Desde Cartagena,
-            curaduramos prendas que acompañan cada momento con elegancia y propósito.
-          </p>
           <Link
             href="/nosotras"
             className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-[#3D2B1F] border-b border-[#3D2B1F] pb-0.5 hover:border-[#B5888A] hover:text-[#B5888A] transition-colors font-[500]"
