@@ -149,43 +149,6 @@ export default function NosotrasPage() {
         </div>
       </section>
 
-      {/* Equipo */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-20">
-        <div className="text-center mb-12">
-          <span className="text-[10px] tracking-[0.28em] uppercase text-[#B5888A] font-[500]">
-            Las personas detrás de la marca
-          </span>
-          <h2
-            className="text-4xl text-[#3D2B1F] mt-2"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            El equipo
-          </h2>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-8">
-          {TEAM.map((person) => (
-            <div key={person.name} className="border border-[#DDD5C4] bg-white p-8">
-              {/* Avatar placeholder */}
-              <div className="w-16 h-16 rounded-full bg-[#EAC9C9]/50 flex items-center justify-center mb-4">
-                <span className="text-xl text-[#B5888A]" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  {person.name.charAt(0)}
-                </span>
-              </div>
-              <h3
-                className="text-lg text-[#3D2B1F] mb-0.5"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
-                {person.name}
-              </h3>
-              <p className="text-[11px] uppercase tracking-[0.12em] text-[#B5888A] font-[500] mb-3">
-                {person.role}
-              </p>
-              <p className="text-sm text-[#897568] leading-relaxed font-[300]">{person.bio}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="bg-[#3D2B1F] py-20 px-4 text-center">
         <span className="text-[10px] tracking-[0.3em] uppercase text-[#B5888A] font-[500]">
