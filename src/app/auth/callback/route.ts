@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email/templates";
 
@@ -14,8 +15,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(redirectTo);
   }
 
-  // Crear la respuesta primero para poder escribir cookies en ella
-  const response = NextResponse.redirect(redirectTo);
+  // Usar cookies() de next/headers para que las cookies de sesión
+  // se incluyan automáticamente en cualquier respuesta del Route Handler
+  const cookieStore = await cookies();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,12 +25,11 @@ export async function GET(req: NextRequest) {
     {
       cookies: {
         getAll() {
-          return req.cookies.getAll();
+          return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
-          // Escribir cookies directamente en la respuesta de redirect
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
+            cookieStore.set(name, value, options)
           );
         },
       },
@@ -79,5 +80,5 @@ export async function GET(req: NextRequest) {
     // No bloquear el login si falla la creación del customer
   }
 
-  return response;
+  return NextResponse.redirect(redirectTo);
 }
