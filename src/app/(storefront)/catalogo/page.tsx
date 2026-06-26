@@ -23,6 +23,8 @@ interface Props {
   searchParams: Promise<SearchParams>;
 }
 
+const NO_MATCH = ["00000000-0000-0000-0000-000000000000"];
+
 async function getProducts(filters: SearchParams): Promise<Product[]> {
   const supabase = await createClient();
 
@@ -36,6 +38,49 @@ async function getProducts(filters: SearchParams): Promise<Product[]> {
       occasions:product_occasions(occasion:occasions(*))
     `)
     .eq("status", "active");
+
+  // Filtro por categoría
+  if (filters.categoria) {
+    const { data: cat } = await supabase
+      .from("categories").select("id").eq("slug", filters.categoria).single();
+    if (!cat) return [];
+    const { data: rows } = await supabase
+      .from("product_categories").select("product_id").eq("category_id", cat.id);
+    const ids = rows?.map((r: any) => r.product_id) ?? [];
+    query = query.in("id", ids.length ? ids : NO_MATCH);
+  }
+
+  // Filtro por colección
+  if (filters.coleccion) {
+    const { data: col } = await supabase
+      .from("collections").select("id").eq("slug", filters.coleccion).single();
+    if (!col) return [];
+    const { data: rows } = await supabase
+      .from("product_collections").select("product_id").eq("collection_id", col.id);
+    const ids = rows?.map((r: any) => r.product_id) ?? [];
+    query = query.in("id", ids.length ? ids : NO_MATCH);
+  }
+
+  // Filtro por ocasión
+  if (filters.ocasion) {
+    const { data: occ } = await supabase
+      .from("occasions").select("id").eq("slug", filters.ocasion).single();
+    if (!occ) return [];
+    const { data: rows } = await supabase
+      .from("product_occasions").select("product_id").eq("occasion_id", occ.id);
+    const ids = rows?.map((r: any) => r.product_id) ?? [];
+    query = query.in("id", ids.length ? ids : NO_MATCH);
+  }
+
+  // Filtro por talla (atributo JSONB en variantes)
+  if (filters.talla) {
+    const { data: variants } = await supabase
+      .from("product_variants")
+      .select("product_id")
+      .filter("attributes->>talla", "eq", filters.talla);
+    const ids = [...new Set((variants ?? []).map((v: any) => v.product_id))];
+    query = query.in("id", ids.length ? ids : NO_MATCH);
+  }
 
   if (filters.q) {
     query = query.ilike("name", `%${filters.q}%`);
