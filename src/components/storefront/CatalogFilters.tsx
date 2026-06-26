@@ -10,9 +10,10 @@ interface Props {
   collections: Collection[];
   occasions: Occasion[];
   current: Record<string, string | undefined>;
+  onFilterApplied?: () => void;
 }
 
-export function CatalogFilters({ categories, collections, occasions, current }: Props) {
+export function CatalogFilters({ categories, collections, occasions, current, onFilterApplied }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -27,12 +28,14 @@ export function CatalogFilters({ categories, collections, occasions, current }: 
       }
       params.delete("pagina");
       router.push(`${pathname}?${params.toString()}`);
+      onFilterApplied?.();
     },
-    [searchParams, pathname, router]
+    [searchParams, pathname, router, onFilterApplied]
   );
 
   const clearAll = () => {
     router.push(pathname);
+    onFilterApplied?.();
   };
 
   const hasFilters = Object.values(current).some(Boolean);

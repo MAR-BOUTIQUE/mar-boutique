@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { CatalogFilters } from "@/components/storefront/CatalogFilters";
+import { CatalogMobileFilters } from "@/components/storefront/CatalogMobileFilters";
 import { CatalogSortSelect } from "@/components/storefront/CatalogSortSelect";
 import type { Product } from "@/types";
 
@@ -158,7 +159,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
       </div>
 
       <div className="flex gap-8">
-        {/* SIDEBAR FILTROS */}
+        {/* SIDEBAR FILTROS — solo desktop */}
         <aside className="hidden lg:block w-56 shrink-0">
           <Suspense fallback={<div className="space-y-8 animate-pulse"><div className="h-4 bg-[#DDD5C4] rounded w-3/4"/><div className="h-4 bg-[#DDD5C4] rounded w-1/2"/></div>}>
             <CatalogFilters
@@ -172,11 +173,25 @@ export default async function CatalogoPage({ searchParams }: Props) {
 
         {/* GRID DE PRODUCTOS */}
         <div className="flex-1">
-          {/* Barra superior: resultados + orden */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-[#897568]">
-              {products.length} {products.length === 1 ? "prenda" : "prendas"}
-            </p>
+          {/* Barra superior: resultados + orden + filtros móvil */}
+          <div className="flex items-center justify-between mb-6 gap-2">
+            <div className="flex items-center gap-3">
+              {/* Botón filtros solo en móvil */}
+              <div className="lg:hidden">
+                <Suspense fallback={null}>
+                  <CatalogMobileFilters
+                    categories={filterOptions.categories}
+                    collections={filterOptions.collections}
+                    occasions={filterOptions.occasions}
+                    current={filters}
+                    totalProducts={products.length}
+                  />
+                </Suspense>
+              </div>
+              <p className="text-sm text-[#897568]">
+                {products.length} {products.length === 1 ? "prenda" : "prendas"}
+              </p>
+            </div>
             <CatalogSortSelect current={filters.orden} />
           </div>
 
