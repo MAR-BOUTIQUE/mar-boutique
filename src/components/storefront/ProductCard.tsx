@@ -17,6 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { toggle, has } = useWishlistStore();
   const wishlisted = has(product.id);
   const [imgIdx, setImgIdx] = useState(0);
+  const [toast, setToast] = useState<string | null>(null);
 
   const price = product.effective_price ?? product.base_price;
   const isOnSale = product.is_on_sale && product.compare_price;
@@ -78,6 +79,9 @@ export function ProductCard({ product }: ProductCardProps) {
             onClick={(e) => {
               e.preventDefault();
               toggle(product.id);
+              const adding = !has(product.id);
+              setToast(adding ? "Añadido a favoritos" : "Quitado de favoritos");
+              setTimeout(() => setToast(null), 2000);
             }}
             aria-label={wishlisted ? "Quitar de favoritos" : "Añadir a favoritos"}
             className={cn(
@@ -94,6 +98,13 @@ export function ProductCard({ product }: ProductCardProps) {
               fill={wishlisted ? "currentColor" : "none"}
             />
           </button>
+
+          {/* TOAST WISHLIST */}
+          {toast && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#3D2B1F] text-[#F3EDE0] text-[10px] tracking-[0.12em] uppercase px-3 py-1.5 pointer-events-none">
+              {toast}
+            </div>
+          )}
         </div>
       </Link>
 
