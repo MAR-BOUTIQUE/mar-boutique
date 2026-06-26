@@ -35,6 +35,7 @@ export interface Collection {
   hero_url: string | null;
   sort_order: number;
   is_active: boolean;
+  featured_on_home: boolean;
 }
 
 export interface Occasion {

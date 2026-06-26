@@ -11,19 +11,19 @@ export const metadata: Metadata = {
 const VALUES = [
   {
     title: "Intencional",
-    desc: "Elegimos cada prenda con propósito. No seguimos tendencias por seguirlas — curaduramos piezas que tienen algo qué decir.",
+    desc: "Con propósito detrás de cada costura. Cada prenda nace desde el amor.",
   },
   {
     title: "Versátil",
-    desc: "De la playa a la cena. Prendas que se adaptan a tu ritmo y viajan contigo sin perder su esencia.",
+    desc: "De los días simples a los momentos especiales. Prendas que se adaptan a tu día a día.",
   },
   {
-    title: "Atemporal",
-    desc: "Más allá de las temporadas. Apostamos por clásicos que suman, no por modas que pasan.",
+    title: "Femenina",
+    desc: "Diseños que resaltan tu esencia. Delicadeza, confianza y estilo en cada detalle.",
   },
   {
     title: "Auténtica",
-    desc: "Tu esencia, reflejada. Moda que habla de quién eres, no de quién deberías ser.",
+    desc: "Cada prenda refleja quién quieres ser.",
   },
 ];
 
@@ -56,10 +56,7 @@ export default function NosotrasPage() {
           >
             Nosotras
           </h1>
-          <p className="text-sm text-[#897568] leading-loose font-[300]">
-            Mar Boutique nació desde el amor y la intención. Desde Cartagena, curaduramos prendas
-            que acompañan cada momento con elegancia y propósito.
-          </p>
+
         </div>
       </section>
 
@@ -84,22 +81,37 @@ export default function NosotrasPage() {
               className="text-3xl text-[#3D2B1F] mt-2 mb-5"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              Cartagena como punto de partida
+              Hola Marlover
             </h2>
             <div className="space-y-4 text-sm text-[#897568] leading-loose font-[300]">
               <p>
-                Todo comenzó con una pregunta simple: ¿por qué es tan difícil encontrar ropa que se
-                vea bonita <em>y</em> se sienta bien? Ropa que puedas llevar a la playa en la
-                mañana y a cenar en la noche sin sentirte fuera de lugar.
+                Somos una marca colombiana creada para acompañar a la mujer en su día a día,
+                recordándole que lo simple también puede ser especial y que cada momento tiene su
+                significado.
               </p>
               <p>
-                Mar Boutique nació en Cartagena — una ciudad que mezcla sin esfuerzo lo colonial
-                con lo tropical, lo elegante con lo relajado. Esa esencia vive en cada prenda que
-                curaduramos.
+                MAR nace en el año 2020 como un sueño que poco a poco fue tomando forma desde el
+                amor y la intención. Fundada por María Angélica Rambaut, ingeniera industrial de
+                profesión, pero apasionada por la moda, el emprendimiento y creyente de que con
+                Dios todo es posible.
               </p>
               <p>
-                No somos una tienda de tendencias. Somos una curaduría de piezas con intención,
-                elegidas para mujeres que saben lo que quieren y lo usan con propósito.
+                Desde el inicio, la inspiración ha sido clara: crear algo que vaya más allá de lo
+                superficial, con el propósito de hacer que cada mujer se sienta hermosa, segura y
+                conectada consigo misma.
+              </p>
+              <p>
+                En MAR cada prenda que diseñamos son pensadas para sentirnos femeninas, casuales y
+                chic, que se adapten a diferentes momentos del día con naturalidad y estilo.
+              </p>
+              <p>
+                Nos inspira el poder femenino de sentirnos seguras, auténticas y hermosas en
+                cualquier ocasión, creando piezas versátiles que acompañan cada momento y resaltan
+                la esencia de quien las lleva.
+              </p>
+              <p>
+                Cada prenda refleja nuestro propósito: ofrecer no solo diseño, sino una forma de
+                sentir, donde la comodidad, la feminidad y la autenticidad se encuentran.
               </p>
             </div>
           </div>

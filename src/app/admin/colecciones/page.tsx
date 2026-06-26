@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit2, Trash2, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit2, Trash2, Eye, EyeOff, Home } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils/format";
 
@@ -13,6 +13,7 @@ type Collection = {
   hero_url: string | null;
   sort_order: number;
   is_active: boolean;
+  featured_on_home: boolean;
 };
 
 const EMPTY: Omit<Collection, "id"> = {
@@ -22,6 +23,7 @@ const EMPTY: Omit<Collection, "id"> = {
   hero_url: "",
   sort_order: 0,
   is_active: true,
+  featured_on_home: false,
 };
 
 const INPUT = "w-full border border-[#e5e7eb] bg-white px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-[#897568] transition-colors placeholder:text-gray-300";
@@ -71,6 +73,13 @@ export default function AdminColeccionesPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    // Si se va a destacar en inicio, primero quitar el destacado a las demás
+    if (form.featured_on_home) {
+      await supabase
+        .from("collections")
+        .update({ featured_on_home: false })
+        .neq("id", editingId ?? "");
+    }
     if (editingId) {
       await supabase.from("collections").update(form).eq("id", editingId);
     } else {
@@ -164,15 +173,29 @@ export default function AdminColeccionesPage() {
                 />
               </div>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={form.is_active}
-                onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                className="accent-[#3D2B1F]"
-              />
-              <span className="text-xs text-gray-600">Colección activa (visible en el storefront)</span>
-            </label>
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.is_active}
+                  onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+                  className="accent-[#3D2B1F]"
+                />
+                <span className="text-xs text-gray-600">Colección activa (visible en el storefront)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.featured_on_home}
+                  onChange={(e) => setForm({ ...form, featured_on_home: e.target.checked })}
+                  className="accent-[#B5888A]"
+                />
+                <span className="text-xs text-gray-600 flex items-center gap-1">
+                  <Home size={11} className="text-[#B5888A]" />
+                  Destacar en inicio (reemplaza la colección actual del home)
+                </span>
+              </label>
+            </div>
             <div className="flex gap-2 pt-1">
               <button
                 type="submit"
@@ -212,6 +235,7 @@ export default function AdminColeccionesPage() {
                 <th className="px-4 py-3 text-left">Nombre</th>
                 <th className="px-4 py-3 text-left">Slug</th>
                 <th className="px-4 py-3 text-center">Orden</th>
+                <th className="px-4 py-3 text-center">Inicio</th>
                 <th className="px-4 py-3 text-center">Estado</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -222,6 +246,13 @@ export default function AdminColeccionesPage() {
                   <td className="px-4 py-3 font-[500] text-gray-800">{c.name}</td>
                   <td className="px-4 py-3 text-gray-400 font-mono text-xs">{c.slug}</td>
                   <td className="px-4 py-3 text-center text-gray-500">{c.sort_order}</td>
+                  <td className="px-4 py-3 text-center">
+                    {c.featured_on_home && (
+                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-[500] bg-[#EAC9C9]/60 text-[#B5888A]">
+                        <Home size={11} /> Inicio
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => toggleActive(c)}

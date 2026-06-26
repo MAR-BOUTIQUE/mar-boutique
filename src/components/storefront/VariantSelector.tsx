@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Heart, ShoppingBag, AlertCircle } from "lucide-react";
+import Image from "next/image";
+import { Heart, ShoppingBag, AlertCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useCartStore } from "@/lib/store/cart";
 import type { Product, ProductVariant } from "@/types";
@@ -38,6 +39,7 @@ export function VariantSelector({ product }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [feedback, setFeedback] = useState<"ok" | "error" | null>(null);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   const addItem = useCartStore((s) => s.addItem);
 
@@ -108,7 +110,10 @@ export function VariantSelector({ product }: Props) {
             <span className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600]">
               Talla{selectedSize ? `: ${selectedSize}` : ""}
             </span>
-            <button className="text-[10px] text-[#B5888A] underline underline-offset-2">
+            <button
+              onClick={() => setShowSizeGuide(true)}
+              className="text-[10px] text-[#B5888A] underline underline-offset-2"
+            >
               Guía de tallas
             </button>
           </div>
@@ -241,6 +246,35 @@ export function VariantSelector({ product }: Props) {
           <AlertCircle size={12} />
           Sin stock disponible. Intenta de nuevo.
         </p>
+      )}
+
+      {/* MODAL GUÍA DE TALLAS */}
+      {showSizeGuide && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setShowSizeGuide(false)}
+        >
+          <div
+            className="relative bg-white max-w-lg w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowSizeGuide(false)}
+              className="absolute top-3 right-3 text-[#897568] hover:text-[#3D2B1F] transition-colors z-10"
+              aria-label="Cerrar"
+            >
+              <X size={20} strokeWidth={1.5} />
+            </button>
+            <Image
+              src="/guia-tallas.jpg"
+              alt="Tabla de medidas Mar Boutique"
+              width={800}
+              height={600}
+              className="w-full h-auto"
+              priority
+            />
+          </div>
+        </div>
       )}
     </div>
   );
