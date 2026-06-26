@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function proxy(req: NextRequest) {
-  const res = NextResponse.next();
+  // Patrón requerido por Supabase SSR para refrescar el token en cada request
+  let supabaseResponse = NextResponse.next({ request: req });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,15 +14,17 @@ export async function proxy(req: NextRequest) {
           return req.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            req.cookies.set(name, value);
-            res.cookies.set(name, value, options);
-          });
+          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({ request: req });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
         },
       },
     }
   );
 
+  // No agregar lógica entre createServerClient y getUser()
   const { data: { user } } = await supabase.auth.getUser();
   const { pathname } = req.nextUrl;
 
@@ -55,7 +58,8 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(home);
   }
 
-  return res;
+  // Retornar supabaseResponse para que las cookies de sesión se propaguen
+  return supabaseResponse;
 }
 
 export const config = {
