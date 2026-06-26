@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import { ShoppingBag, Heart, User, Menu, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useCartStore } from "@/lib/store/cart";
@@ -16,8 +16,12 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const itemCount = useCartStore((s) =>
     s.items.reduce((sum, i) => sum + i.quantity, 0)
   );
@@ -27,6 +31,30 @@ export function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (searchOpen) {
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    } else {
+      setSearchQuery("");
+    }
+  }, [searchOpen]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSearchOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    setSearchOpen(false);
+    router.push(`/catalogo?q=${encodeURIComponent(q)}`);
+  }
 
   return (
     <header
@@ -77,6 +105,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-5">
             <button
               aria-label="Buscar"
+              onClick={() => setSearchOpen(true)}
               className="text-[#897568] hover:text-[#3D2B1F] transition-colors"
             >
               <Search size={18} strokeWidth={1.5} />
@@ -123,6 +152,37 @@ export function Navbar() {
         </div>
       </div>
 
+      {/* OVERLAY DE BÚSQUEDA */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col">
+          <div
+            className="absolute inset-0 bg-[#3D2B1F]/40 backdrop-blur-sm"
+            onClick={() => setSearchOpen(false)}
+          />
+          <div className="relative bg-[#F3EDE0] border-b border-[#DDD5C4] px-4 sm:px-8 py-5">
+            <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex items-center gap-4">
+              <Search size={18} className="text-[#897568] shrink-0" strokeWidth={1.5} />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar prendas..."
+                className="flex-1 bg-transparent text-lg text-[#3D2B1F] placeholder:text-[#CEC3AB] focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className="text-[#897568] hover:text-[#3D2B1F] transition-colors"
+                aria-label="Cerrar búsqueda"
+              >
+                <X size={20} strokeWidth={1.5} />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* MENÚ MÓVIL */}
       {menuOpen && (
         <div className="md:hidden bg-[#F3EDE0] border-t border-[#DDD5C4] px-6 py-6 flex flex-col gap-5">
@@ -144,6 +204,13 @@ export function Navbar() {
             </Link>
           ))}
           <div className="border-t border-[#DDD5C4] pt-5 flex gap-6">
+            <button
+              onClick={() => { setMenuOpen(false); setSearchOpen(true); }}
+              className="text-[#897568]"
+              aria-label="Buscar"
+            >
+              <Search size={20} strokeWidth={1.5} />
+            </button>
             <Link href="/cuenta/wishlist" onClick={() => setMenuOpen(false)} className="text-[#897568]">
               <Heart size={20} strokeWidth={1.5} />
             </Link>
