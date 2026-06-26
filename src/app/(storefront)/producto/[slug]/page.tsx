@@ -115,9 +115,18 @@ export default async function ProductPage({ params }: Props) {
               <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-3">
                 Descripción
               </h2>
-              <p className="text-sm text-[#3D2B1F] leading-relaxed font-[300]">
-                {product.description}
-              </p>
+              <div className="space-y-3 text-sm text-[#3D2B1F] leading-relaxed font-[300]">
+                {product.description.split(/\n\n+/).map((paragraph, i) => (
+                  <p key={i}>
+                    {paragraph.split("\n").map((line, j, arr) => (
+                      <span key={j}>
+                        {line}
+                        {j < arr.length - 1 && <br />}
+                      </span>
+                    ))}
+                  </p>
+                ))}
+              </div>
             </div>
           )}
 
@@ -127,9 +136,18 @@ export default async function ProductPage({ params }: Props) {
               <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-3">
                 Cuidado de la prenda
               </h2>
-              <p className="text-sm text-[#897568] leading-relaxed font-[300]">
-                {product.care_instructions}
-              </p>
+              <div className="space-y-3 text-sm text-[#897568] leading-relaxed font-[300]">
+                {product.care_instructions.split(/\n\n+/).map((paragraph, i) => (
+                  <p key={i}>
+                    {paragraph.split("\n").map((line, j, arr) => (
+                      <span key={j}>
+                        {line}
+                        {j < arr.length - 1 && <br />}
+                      </span>
+                    ))}
+                  </p>
+                ))}
+              </div>
             </div>
           )}
 
