@@ -61,8 +61,8 @@ export default function NosotrasPage() {
       </section>
 
       {/* Historia */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-20">
+        <div className="grid md:grid-cols-[2fr_3fr] gap-12 items-start">
           {/* Imagen placeholder */}
           <div className="aspect-[3/4] bg-gradient-to-br from-[#EAC9C9]/40 to-[#CEC3AB]/30 flex items-center justify-center">
             <span
