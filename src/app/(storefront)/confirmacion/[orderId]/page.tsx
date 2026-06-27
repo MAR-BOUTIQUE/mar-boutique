@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, Package, ArrowRight, Truck } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
 import { PaymentPoller } from "@/components/storefront/PaymentPoller";
 
@@ -23,7 +23,9 @@ const STATUS_STEPS = ["paid", "preparing", "shipped", "delivered"];
 
 export default async function ConfirmacionPage({ params }: Props) {
   const { orderId } = await params;
-  const supabase = await createClient();
+  // Service client: la página es accesible por guests (sin sesión) y por usuarios
+  // registrados. El orderId (UUID) actúa como token de acceso — imposible de adivinar.
+  const supabase = createServiceClient();
 
   const { data: order } = await supabase
     .from("orders")
