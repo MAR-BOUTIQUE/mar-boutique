@@ -15,6 +15,7 @@ export default function RegistroPage() {
     confirm: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [marketingEmail, setMarketingEmail] = useState(false);
   const [marketingWhatsapp, setMarketingWhatsapp] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -212,15 +213,24 @@ export default function RegistroPage() {
             <label className="block text-[10px] tracking-[0.18em] uppercase text-[#897568] font-[600] mb-1.5">
               Confirmar contraseña
             </label>
-            <input
-              type={showPassword ? "text" : "password"}
-              value={form.confirm}
-              onChange={(e) => set("confirm", e.target.value)}
-              placeholder="Repite tu contraseña"
-              required
-              autoComplete="new-password"
-              className={inputCls}
-            />
+            <div className="relative">
+              <input
+                type={showConfirm ? "text" : "password"}
+                value={form.confirm}
+                onChange={(e) => set("confirm", e.target.value)}
+                placeholder="Repite tu contraseña"
+                required
+                autoComplete="new-password"
+                className={cn(inputCls, "pr-11")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm(!showConfirm)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#CEC3AB] hover:text-[#897568]"
+              >
+                {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           {/* Marketing opt-in */}
