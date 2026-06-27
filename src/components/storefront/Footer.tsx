@@ -43,10 +43,10 @@ export function Footer() {
   return (
     <footer className="bg-[#3D2B1F] text-[#CEC3AB] mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 
           {/* MARCA */}
-          <div className="md:col-span-2">
+          <div className="sm:col-span-2 md:col-span-2">
             <span
               className="block text-2xl text-white mb-3"
               style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
