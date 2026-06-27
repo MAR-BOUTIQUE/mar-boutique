@@ -49,6 +49,7 @@ export default function CheckoutPage() {
   const [existingCustomer, setExistingCustomer] = useState(false);
   const checkDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"wompi" | "contraentrega">("wompi");
+  const [shippingZone, setShippingZone] = useState<{ code: string; name: string; price: number } | null>(null);
   const [wompiData, setWompiData] = useState<{
     publicKey: string;
     currency: string;
@@ -111,12 +112,30 @@ export default function CheckoutPage() {
 
       if (Object.keys(updates).length > 0) {
         setForm((f) => ({ ...f, ...updates }));
+        if (updates.city) detectShippingZone(updates.city);
       }
       setPrefilled(true);
     }
 
     prefillFromUser();
   }, [prefilled]);
+
+  // Detectar zona de envío cuando cambia la ciudad
+  const detectShippingZone = useCallback(async (city: string) => {
+    if (!city) {
+      setShippingZone(null);
+      useCartStore.getState().setShippingCost(0);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/shipping/zone?city=${encodeURIComponent(city)}`);
+      if (res.ok) {
+        const zone = await res.json();
+        setShippingZone(zone);
+        useCartStore.getState().setShippingCost(zone.price);
+      }
+    } catch { /* silencioso */ }
+  }, []);
 
   const checkExistingCustomer = useCallback((email: string, idNumber: string) => {
     if (prefilled) return; // ya está logueado, no mostrar el banner
@@ -148,8 +167,9 @@ export default function CheckoutPage() {
       }
       return next;
     });
-    if (field === "city" && typeof value === "string" && !isEligibleCity(String(value))) {
-      setPaymentMethod("wompi");
+    if (field === "city" && typeof value === "string") {
+      if (!isEligibleCity(String(value))) setPaymentMethod("wompi");
+      detectShippingZone(String(value));
     }
     setError(null);
   }
@@ -562,9 +582,16 @@ export default function CheckoutPage() {
                   </div>
                 )}
                 <div className="flex justify-between text-[#897568]">
-                  <span>Envío</span>
+                  <div>
+                    <span>Envío</span>
+                    {shippingZone && (
+                      <p className="text-[10px] text-[#CEC3AB]">{shippingZone.name}</p>
+                    )}
+                  </div>
                   <span className="text-right text-xs">
-                    {shippingCost > 0 ? formatCOP(shippingCost) : "Por definir"}
+                    {shippingCost > 0 ? formatCOP(shippingCost) : (
+                      <span className="text-[#CEC3AB]">Selecciona ciudad</span>
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between font-[600] text-[#3D2B1F] text-base pt-1 border-t border-[#DDD5C4]">

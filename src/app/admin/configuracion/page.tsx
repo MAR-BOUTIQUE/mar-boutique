@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle, ExternalLink } from "lucide-react";
+import { ShippingZoneManager } from "@/components/admin/ShippingZoneManager";
 
 function EnvRow({ label, envKey, secret }: { label: string; envKey: string; secret?: boolean }) {
   const val = process.env[envKey];
@@ -23,6 +24,18 @@ export default function AdminConfiguracionPage() {
   return (
     <div className="p-6 max-w-3xl space-y-8">
       <h1 className="text-xl font-semibold text-gray-800">Configuración</h1>
+
+      {/* Tarifas de envío */}
+      <div>
+        <div className="mb-4">
+          <h2 className="text-base font-[600] text-gray-800">Tarifas de envío</h2>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Define el costo por zona. El sistema aplica automáticamente el precio según la ciudad del cliente.
+            La Zona 3 aplica a todos los municipios no listados en las zonas anteriores.
+          </p>
+        </div>
+        <ShippingZoneManager />
+      </div>
 
       {/* Integraciones */}
       <div className="bg-white border border-gray-200 rounded overflow-hidden">
