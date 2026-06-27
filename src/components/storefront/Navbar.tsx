@@ -48,7 +48,6 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Cerrar menú al cambiar de ruta
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
@@ -70,29 +69,29 @@ export function Navbar() {
           : "bg-[#F3EDE0]"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Grid 3 columnas: [izquierda] [logo] [derecha] — evita superposición en tablets */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8">
+        {/* Grid 3 columnas: [nav] [logo] [iconos] */}
         <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16">
 
           {/* COLUMNA IZQUIERDA */}
           <div className="flex items-center min-w-0">
-            {/* Móvil y tablet (< 1024px): botón hamburger */}
+            {/* Móvil y tablet (< 1280px): hamburger */}
             <button
-              className="lg:hidden text-[#3D2B1F] shrink-0"
+              className="xl:hidden text-[#3D2B1F] shrink-0"
               aria-label="Menú"
               onClick={() => setMenuOpen((v) => !v)}
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
 
-            {/* Desktop (≥ 1024px): links de navegación */}
-            <nav className="hidden lg:flex items-center gap-7 xl:gap-9 min-w-0">
+            {/* Desktop (≥ 1280px): links de navegación */}
+            <nav className="hidden xl:flex items-center gap-7 2xl:gap-9 min-w-0">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "text-[10px] xl:text-[11px] tracking-[0.15em] xl:tracking-[0.2em] uppercase font-[500] transition-colors duration-200 whitespace-nowrap",
+                    "text-[10px] 2xl:text-[11px] tracking-[0.15em] 2xl:tracking-[0.2em] uppercase font-[500] transition-colors duration-200 whitespace-nowrap",
                     pathname === link.href
                       ? "text-[#3D2B1F]"
                       : link.hot
@@ -118,8 +117,8 @@ export function Navbar() {
 
           {/* COLUMNA DERECHA */}
           <div className="flex items-center justify-end gap-3 sm:gap-4">
-            {/* Móvil y tablet: búsqueda + carrito */}
-            <div className="lg:hidden flex items-center gap-3">
+            {/* Móvil y tablet (< 1280px): búsqueda + carrito */}
+            <div className="xl:hidden flex items-center gap-3">
               <button
                 aria-label="Buscar"
                 onClick={() => setSearchOpen(true)}
@@ -141,8 +140,8 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Desktop (≥ 1024px): todos los iconos */}
-            <div className="hidden lg:flex items-center gap-4 xl:gap-5">
+            {/* Desktop (≥ 1280px): todos los iconos */}
+            <div className="hidden xl:flex items-center gap-4 2xl:gap-5">
               <button
                 aria-label="Buscar"
                 onClick={() => setSearchOpen(true)}
@@ -215,9 +214,9 @@ export function Navbar() {
         </div>
       )}
 
-      {/* MENÚ MÓVIL/TABLET — drawer completo (< 1024px) */}
+      {/* MENÚ MÓVIL/TABLET — drawer (< 1280px) */}
       {menuOpen && (
-        <div className="lg:hidden bg-[#F3EDE0] border-t border-[#DDD5C4] px-6 py-6 flex flex-col gap-5">
+        <div className="xl:hidden bg-[#F3EDE0] border-t border-[#DDD5C4] px-6 py-6 flex flex-col gap-5">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
