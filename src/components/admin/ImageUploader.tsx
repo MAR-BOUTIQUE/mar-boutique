@@ -103,12 +103,12 @@ export function ImageUploader({ images, onChange, maxImages = 8 }: Props) {
             {uploading ? "Subiendo…" : "Arrastra imágenes aquí o haz clic para seleccionar"}
           </p>
           <p className="text-xs text-[#CEC3AB] mt-1">
-            JPG, PNG, WEBP · máx. 5 MB por imagen · {images.length}/{maxImages}
+            JPG, PNG, WEBP, HEIC · máx. 20 MB por imagen · {images.length}/{maxImages}
           </p>
           <input
             ref={inputRef}
             type="file"
-            accept="image/*"
+            accept="image/*,image/heic,image/heif,.heic,.heif"
             multiple
             className="hidden"
             onChange={(e) => e.target.files && uploadFiles(e.target.files)}
