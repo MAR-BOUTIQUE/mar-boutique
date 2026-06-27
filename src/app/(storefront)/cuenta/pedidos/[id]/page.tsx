@@ -4,6 +4,7 @@ import { ArrowLeft, Package, MapPin, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
+import { RetryPaymentBanner } from "@/components/storefront/RetryPaymentBanner";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   pending_payment: { label: "Pendiente de pago", cls: "text-amber-700 bg-amber-50 border-amber-200" },
@@ -94,6 +95,11 @@ export default async function PedidoDetallePage({
         </div>
         <span className={`text-[10px] px-3 py-1.5 border font-[500] ${s.cls}`}>{s.label}</span>
       </div>
+
+      {/* Banner de reintento si el pago quedó pendiente */}
+      {order.status === "pending_payment" && order.payment_method === "wompi" && (
+        <RetryPaymentBanner orderId={order.id} createdAt={order.created_at} />
+      )}
 
       <div className="space-y-4">
         {/* Prendas */}

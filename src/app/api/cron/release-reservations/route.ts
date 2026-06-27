@@ -8,13 +8,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = await createServiceClient();
-  const { error } = await supabase.rpc("release_expired_reservations");
+  const supabase = createServiceClient();
 
-  if (error) {
-    console.error("release_expired_reservations error:", error);
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+  // 1. Liberar reservas de stock expiradas (10 min) — RB-CHK-01
+  const { error: releaseError } = await supabase.rpc("release_expired_reservations");
+  if (releaseError) {
+    console.error("release_expired_reservations error:", releaseError);
   }
 
-  return NextResponse.json({ ok: true, timestamp: new Date().toISOString() });
+  // 2. Cancelar pedidos en pending_payment con más de 30 min sin pago — RB-PED-02
+  const { data: cancelled, error: cancelError } = await supabase.rpc("cancel_expired_orders");
+  if (cancelError) {
+    console.error("cancel_expired_orders error:", cancelError);
+  }
+
+  return NextResponse.json({
+    ok: !releaseError && !cancelError,
+    cancelled_orders: cancelled ?? 0,
+    timestamp: new Date().toISOString(),
+  });
 }

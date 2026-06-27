@@ -147,9 +147,9 @@ export default async function ConfirmacionPage({ params }: Props) {
         Te enviamos la confirmación a <strong>{order.shipping_email}</strong>
       </p>
 
-      {/* Polling mientras el webhook de Wompi llega */}
+      {/* Polling mientras el webhook de Wompi llega; si agota el tiempo, muestra botón de reintento */}
       {order.status === "pending_payment" && order.payment_method === "wompi" && (
-        <PaymentPoller orderId={order.id} />
+        <PaymentPoller orderId={order.id} createdAt={order.created_at} />
       )}
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
