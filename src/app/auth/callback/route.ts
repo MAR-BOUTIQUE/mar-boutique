@@ -6,12 +6,24 @@ import { sendWelcomeEmail } from "@/lib/email/templates";
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
+  const oauthError = searchParams.get("error");
   const next = searchParams.get("redirect") ?? "/";
 
   const redirectTo = new URL(next.startsWith("/") ? next : "/", origin);
 
+  // Supabase envía ?error= cuando el proveedor OAuth falla o la URL no está en la allowlist
+  if (oauthError) {
+    console.error("[auth/callback] OAuth error from provider:", oauthError, searchParams.get("error_description"));
+    const errorUrl = new URL("/auth/login", origin);
+    errorUrl.searchParams.set("error", "oauth_failed");
+    return NextResponse.redirect(errorUrl);
+  }
+
   if (!code) {
-    return NextResponse.redirect(redirectTo);
+    // No hay código — redirigir al login en vez del home para visibilidad del error
+    const errorUrl = new URL("/auth/login", origin);
+    errorUrl.searchParams.set("error", "no_code");
+    return NextResponse.redirect(errorUrl);
   }
 
   // Capturamos las cookies que Supabase quiere escribir para aplicarlas
