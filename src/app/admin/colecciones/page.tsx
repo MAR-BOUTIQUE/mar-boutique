@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, Eye, EyeOff, Home } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils/format";
 
 type Collection = {
@@ -36,22 +35,22 @@ export default function AdminColeccionesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<Collection, "id">>(EMPTY);
   const [saving, setSaving] = useState(false);
-  const supabase = createClient();
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  async function fetch() {
-    const { data } = await supabase
-      .from("collections")
-      .select("*")
-      .order("sort_order", { ascending: true });
-    setCollections(data ?? []);
+  async function loadCollections() {
+    const res = await fetch("/api/admin/collections");
+    if (res.ok) {
+      setCollections(await res.json());
+    }
     setLoading(false);
   }
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { loadCollections(); }, []);
 
   function openNew() {
     setForm(EMPTY);
     setEditingId(null);
+    setSaveError(null);
     setShowForm(true);
   }
 
@@ -59,6 +58,7 @@ export default function AdminColeccionesPage() {
     const { id, ...rest } = c;
     setForm(rest);
     setEditingId(id);
+    setSaveError(null);
     setShowForm(true);
   }
 
@@ -73,31 +73,45 @@ export default function AdminColeccionesPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    // Si se va a destacar en inicio, primero quitar el destacado a las demás
-    if (form.featured_on_home) {
-      await supabase
-        .from("collections")
-        .update({ featured_on_home: false })
-        .neq("id", editingId ?? "");
+    setSaveError(null);
+
+    const method = editingId ? "PUT" : "POST";
+    const body = editingId ? { id: editingId, ...form } : form;
+
+    const res = await fetch("/api/admin/collections", {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      setSaveError(data.error ?? "Error al guardar la colección");
+      setSaving(false);
+      return;
     }
-    if (editingId) {
-      await supabase.from("collections").update(form).eq("id", editingId);
-    } else {
-      await supabase.from("collections").insert(form);
-    }
-    await fetch();
+
+    await loadCollections();
     setShowForm(false);
     setSaving(false);
   }
 
   async function handleDelete(id: string) {
     if (!confirm("¿Eliminar esta colección? Los productos no se eliminarán.")) return;
-    await supabase.from("collections").delete().eq("id", id);
+    await fetch("/api/admin/collections", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
     setCollections((prev) => prev.filter((c) => c.id !== id));
   }
 
   async function toggleActive(c: Collection) {
-    await supabase.from("collections").update({ is_active: !c.is_active }).eq("id", c.id);
+    await fetch("/api/admin/collections", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: c.id, is_active: !c.is_active }),
+    });
     setCollections((prev) => prev.map((x) => (x.id === c.id ? { ...x, is_active: !x.is_active } : x)));
   }
 
@@ -196,6 +210,13 @@ export default function AdminColeccionesPage() {
                 </span>
               </label>
             </div>
+
+            {saveError && (
+              <p className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2">
+                {saveError}
+              </p>
+            )}
+
             <div className="flex gap-2 pt-1">
               <button
                 type="submit"
