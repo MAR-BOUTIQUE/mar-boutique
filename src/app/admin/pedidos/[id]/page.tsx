@@ -42,6 +42,11 @@ export default async function AdminPedidoDetailPage({ params }: Props) {
         <div className="bg-white border border-[#DDD5C4] p-5">
           <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-3">Clienta</h2>
           <p className="text-sm text-[#3D2B1F] font-[500]">{order.shipping_name}</p>
+          {order.customer_id_number && (
+            <p className="text-xs text-[#897568]">
+              {order.customer_id_type ?? "CC"} {order.customer_id_number}
+            </p>
+          )}
           <p className="text-xs text-[#897568]">{order.shipping_email}</p>
           <p className="text-xs text-[#897568]">{order.shipping_phone}</p>
           <p className="text-xs text-[#897568] mt-2">
