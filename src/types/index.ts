@@ -81,6 +81,7 @@ export interface Product {
   occasions?: Occasion[];
   // Columnas reales
   is_best_seller?: boolean;
+  is_pre_sale?: boolean;
   // Computados
   is_on_sale?: boolean;
   is_sold_out?: boolean;

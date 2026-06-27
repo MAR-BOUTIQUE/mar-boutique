@@ -38,7 +38,7 @@ async function getFeaturedSection(): Promise<FeaturedSection> {
       .select(`
         products (
           id, name, slug, base_price, compare_price, images,
-          is_on_sale, effective_price, is_sold_out, status
+          is_on_sale, effective_price, is_sold_out, is_pre_sale, status
         )
       `)
       .eq("collection_id", collection.id)
@@ -62,7 +62,7 @@ async function getFeaturedSection(): Promise<FeaturedSection> {
     .from("products")
     .select(`
       id, name, slug, base_price, compare_price, images,
-      is_on_sale, effective_price, is_sold_out
+      is_on_sale, effective_price, is_sold_out, is_pre_sale
     `)
     .eq("status", "active")
     .order("created_at", { ascending: false })

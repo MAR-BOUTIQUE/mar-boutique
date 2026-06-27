@@ -23,6 +23,7 @@ interface ProductFormData {
   compare_price: string;
   status: "draft" | "active" | "archived";
   is_best_seller: boolean;
+  is_pre_sale: boolean;
   images: string[];
   category_ids: string[];
   collection_ids: string[];
@@ -46,6 +47,7 @@ const EMPTY: ProductFormData = {
   compare_price: "",
   status: "draft",
   is_best_seller: false,
+  is_pre_sale: false,
   images: [],
   category_ids: [],
   collection_ids: [],
@@ -264,6 +266,28 @@ export function ProductForm({ initial, categories, collections, occasions }: Pro
           <div>
             <p className="text-xs font-[600] text-[#3D2B1F]">✦ Marcar como Best Seller</p>
             <p className="text-[10px] text-[#897568]">Aparece en la sección Best Sellers del storefront</p>
+          </div>
+        </label>
+
+        {/* Pre Venta toggle */}
+        <label className="flex items-center gap-3 cursor-pointer">
+          <div
+            onClick={() => set("is_pre_sale", !form.is_pre_sale)}
+            className={cn(
+              "relative w-10 h-5 rounded-full transition-colors duration-200",
+              form.is_pre_sale ? "bg-[#3D2B1F]" : "bg-[#DDD5C4]"
+            )}
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200",
+                form.is_pre_sale && "translate-x-5"
+              )}
+            />
+          </div>
+          <div>
+            <p className="text-xs font-[600] text-[#3D2B1F]">◈ Marcar como Pre Venta</p>
+            <p className="text-[10px] text-[#897568]">Muestra la etiqueta "PRE VENTA" en la tarjeta del producto</p>
           </div>
         </label>
       </div>

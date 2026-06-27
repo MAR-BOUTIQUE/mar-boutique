@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       compare_price: body.compare_price ? Number(body.compare_price) : null,
       status: body.status ?? "draft",
       is_best_seller: body.is_best_seller ?? false,
+      is_pre_sale: body.is_pre_sale ?? false,
       images: body.images ?? [],
     })
     .select("id")

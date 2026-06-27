@@ -18,7 +18,7 @@ async function getBestSellers(): Promise<Product[]> {
     .from("products")
     .select(`
       id, name, slug, base_price, compare_price, images,
-      is_on_sale, effective_price, is_sold_out, is_best_seller
+      is_on_sale, effective_price, is_sold_out, is_best_seller, is_pre_sale
     `)
     .eq("status", "active")
     .eq("is_best_seller", true)
