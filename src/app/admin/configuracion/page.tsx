@@ -1,5 +1,6 @@
 import { AlertTriangle, CheckCircle, ExternalLink } from "lucide-react";
 import { ShippingZoneManager } from "@/components/admin/ShippingZoneManager";
+import { HeroSlideManager } from "@/components/admin/HeroSlideManager";
 
 function EnvRow({ label, envKey, secret }: { label: string; envKey: string; secret?: boolean }) {
   const val = process.env[envKey];
@@ -24,6 +25,18 @@ export default function AdminConfiguracionPage() {
   return (
     <div className="p-6 max-w-3xl space-y-8">
       <h1 className="text-xl font-semibold text-gray-800">Configuración</h1>
+
+      {/* Fotos del banner (hero) */}
+      <div>
+        <div className="mb-4">
+          <h2 className="text-base font-[600] text-gray-800">Banner del inicio</h2>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Las fotos rotan automáticamente cada 3 segundos en el banner principal de la tienda.
+            Arrastra para reordenar. La primera foto aparece al cargar la página.
+          </p>
+        </div>
+        <HeroSlideManager />
+      </div>
 
       {/* Tarifas de envío */}
       <div>

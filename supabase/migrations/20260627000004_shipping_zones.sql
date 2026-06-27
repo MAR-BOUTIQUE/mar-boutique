@@ -44,16 +44,16 @@ select id, unnest(array[
   'Soacha','Facatativá','Girardot','Zipaquirá','Chía',
   'Floridablanca','Girón','Piedecuesta','Barrancabermeja',
   'Magangué','Lorica','Sahagún','Cereté',
-  'Ocaña','Pamplona','Cúcuta',
+  'Ocaña','Pamplona',
   'Honda','Espinal','Chaparral',
   'Pitalito','Garzón','La Plata',
   'Sogamoso','Duitama','Chiquinquirá',
-  'Dosquebradas','Cartago','Santa Rosa de Cabal',
+  'Dosquebradas','Santa Rosa de Cabal',
   'La Dorada','Aguadas',
   'Baranoa','Sabanalarga',
   'Ciénaga','Fundación',
   'Aguachica','Codazzi',
-  'Ríohacha','Maicao','Uribia',
+  'Maicao','Uribia',
   'Mompox','El Carmen de Bolívar','María La Baja'
 ])
 from shipping_zones where code = 'main_cities';

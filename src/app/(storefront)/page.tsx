@@ -4,7 +4,10 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/storefront/ProductCard";
+import { HeroSlider } from "@/components/storefront/HeroSlider";
 import type { Product } from "@/types";
+
+type HeroSlide = { id: string; image_url: string; alt_text: string | null };
 
 type FeaturedSection = {
   collectionName: string;
@@ -19,6 +22,16 @@ const BRAND_VALUES = [
   { title: "Femenina", desc: "Diseños que resaltan tu esencia. Delicadeza, confianza y estilo en cada detalle." },
   { title: "Auténtica", desc: "Cada prenda refleja quién quieres ser." },
 ];
+
+async function getHeroSlides(): Promise<HeroSlide[]> {
+  const db = createServiceClient();
+  const { data } = await db
+    .from("hero_slides")
+    .select("id, image_url, alt_text")
+    .eq("is_active", true)
+    .order("sort_order");
+  return (data ?? []) as HeroSlide[];
+}
 
 async function getFeaturedSection(): Promise<FeaturedSection> {
   const db = createServiceClient();
@@ -77,46 +90,76 @@ async function getFeaturedSection(): Promise<FeaturedSection> {
 }
 
 export default async function HomePage() {
-  const featured = await getFeaturedSection();
+  const [featured, heroSlides] = await Promise.all([
+    getFeaturedSection(),
+    getHeroSlides(),
+  ]);
+
+  const hasSlides = heroSlides.length > 0;
 
   return (
     <>
       {/* ── HERO ───────────────────────────────────────────────── */}
-      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-[#F3EDE0]">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#F3EDE0] via-[#EAC9C9]/20 to-[#CEC3AB]/30" />
+      <section
+        className={`relative min-h-[92vh] flex items-center justify-center overflow-hidden ${
+          hasSlides ? "bg-[#3D2B1F]" : "bg-[#F3EDE0]"
+        }`}
+      >
+        {hasSlides ? (
+          <HeroSlider slides={heroSlides} />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F3EDE0] via-[#EAC9C9]/20 to-[#CEC3AB]/30" />
+        )}
 
         <div className="relative z-10 text-center px-4 max-w-2xl mx-auto">
-          <span className="inline-block text-[10px] tracking-[0.3em] uppercase text-[#B5888A] mb-6 font-[500]">
+          <span
+            className={`inline-block text-[10px] tracking-[0.3em] uppercase mb-6 font-[500] ${
+              hasSlides ? "text-white/75" : "text-[#B5888A]"
+            }`}
+          >
             Nueva colección
           </span>
 
           <h1
-            className="text-5xl sm:text-6xl md:text-7xl text-[#3D2B1F] mb-4 leading-[1.05]"
+            className={`text-5xl sm:text-6xl md:text-7xl mb-4 leading-[1.05] ${
+              hasSlides ? "text-white" : "text-[#3D2B1F]"
+            }`}
             style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
           >
             Mar Boutique
           </h1>
 
-          <p className="text-base text-[#897568] mb-10 leading-relaxed font-[300]">
+          <p
+            className={`text-base mb-10 leading-relaxed font-[300] ${
+              hasSlides ? "text-white/80" : "text-[#897568]"
+            }`}
+          >
             Mujeres que visten con intención
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/catalogo"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#5A3E2E] transition-colors rounded-none"
+              className={`inline-flex items-center gap-2 px-8 py-3 text-[11px] tracking-[0.2em] uppercase font-[500] transition-colors rounded-none ${
+                hasSlides
+                  ? "bg-white text-[#3D2B1F] hover:bg-[#F3EDE0]"
+                  : "bg-[#3D2B1F] text-[#F3EDE0] hover:bg-[#5A3E2E]"
+              }`}
             >
               Ver catálogo <ArrowRight size={14} />
             </Link>
             <Link
               href="/colecciones"
-              className="inline-flex items-center gap-2 px-8 py-3 border border-[#3D2B1F] text-[#3D2B1F] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#3D2B1F] hover:text-[#F3EDE0] transition-colors rounded-none"
+              className={`inline-flex items-center gap-2 px-8 py-3 text-[11px] tracking-[0.2em] uppercase font-[500] transition-colors rounded-none ${
+                hasSlides
+                  ? "border border-white text-white hover:bg-white hover:text-[#3D2B1F]"
+                  : "border border-[#3D2B1F] text-[#3D2B1F] hover:bg-[#3D2B1F] hover:text-[#F3EDE0]"
+              }`}
             >
               Colecciones
             </Link>
           </div>
         </div>
-
       </section>
 
       {/* ── VALORES DE MARCA ───────────────────────────────────── */}
