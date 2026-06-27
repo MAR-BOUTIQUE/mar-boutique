@@ -63,8 +63,9 @@ export async function POST(req: NextRequest) {
       customerId = newCustomer?.id ?? null;
     }
 
-    // 2. Crear pedido
-    const orderNumber = `MB-${Date.now().toString(36).toUpperCase()}`;
+    // 2. Crear pedido con número consecutivo desde la secuencia de la DB
+    const { data: seqData } = await supabase.rpc("next_order_number");
+    const orderNumber = (seqData as string) ?? `MB-${Date.now().toString(36).toUpperCase()}`;
     const wompiReference = `MAR-${orderNumber}`;
     const isContraentrega = paymentMethod === "contraentrega";
     const now = new Date().toISOString();

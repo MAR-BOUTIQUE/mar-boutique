@@ -79,7 +79,7 @@ export default async function SeguimientoPage({ searchParams }: Props) {
               <input
                 name="orden"
                 defaultValue={orden ?? ""}
-                placeholder="MB-XXXXXXXX"
+                placeholder="MB-WEB001"
                 className="w-full border border-[#DDD5C4] bg-white px-3 py-2.5 text-sm text-[#3D2B1F] focus:outline-none focus:border-[#897568] transition-colors placeholder:text-[#CEC3AB] uppercase"
                 required
               />
