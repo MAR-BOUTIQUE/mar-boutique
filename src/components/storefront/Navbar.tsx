@@ -76,23 +76,23 @@ export function Navbar() {
 
           {/* COLUMNA IZQUIERDA */}
           <div className="flex items-center min-w-0">
-            {/* Mobile: botón hamburger */}
+            {/* Móvil y tablet (< 1024px): botón hamburger */}
             <button
-              className="md:hidden text-[#3D2B1F] shrink-0"
+              className="lg:hidden text-[#3D2B1F] shrink-0"
               aria-label="Menú"
               onClick={() => setMenuOpen((v) => !v)}
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
 
-            {/* Desktop / tablet: links de navegación */}
-            <nav className="hidden md:flex items-center gap-5 lg:gap-8 min-w-0">
+            {/* Desktop (≥ 1024px): links de navegación */}
+            <nav className="hidden lg:flex items-center gap-7 xl:gap-9 min-w-0">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "text-[10px] lg:text-[11px] tracking-[0.18em] lg:tracking-[0.2em] uppercase font-[500] transition-colors duration-200 whitespace-nowrap",
+                    "text-[10px] xl:text-[11px] tracking-[0.15em] xl:tracking-[0.2em] uppercase font-[500] transition-colors duration-200 whitespace-nowrap",
                     pathname === link.href
                       ? "text-[#3D2B1F]"
                       : link.hot
@@ -106,7 +106,7 @@ export function Navbar() {
             </nav>
           </div>
 
-          {/* COLUMNA CENTRAL: Logo — siempre centrado, nunca se superpone */}
+          {/* COLUMNA CENTRAL: Logo — siempre centrado */}
           <Link href="/" className="flex items-center justify-center px-3">
             <span
               className="text-[19px] sm:text-[21px] text-[#3D2B1F] tracking-tight leading-none select-none whitespace-nowrap"
@@ -118,8 +118,8 @@ export function Navbar() {
 
           {/* COLUMNA DERECHA */}
           <div className="flex items-center justify-end gap-3 sm:gap-4">
-            {/* Mobile: búsqueda + carrito */}
-            <div className="md:hidden flex items-center gap-3">
+            {/* Móvil y tablet: búsqueda + carrito */}
+            <div className="lg:hidden flex items-center gap-3">
               <button
                 aria-label="Buscar"
                 onClick={() => setSearchOpen(true)}
@@ -141,8 +141,8 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Desktop: todos los iconos */}
-            <div className="hidden md:flex items-center gap-4 lg:gap-5">
+            {/* Desktop (≥ 1024px): todos los iconos */}
+            <div className="hidden lg:flex items-center gap-4 xl:gap-5">
               <button
                 aria-label="Buscar"
                 onClick={() => setSearchOpen(true)}
@@ -215,9 +215,9 @@ export function Navbar() {
         </div>
       )}
 
-      {/* MENÚ MÓVIL — drawer completo */}
+      {/* MENÚ MÓVIL/TABLET — drawer completo (< 1024px) */}
       {menuOpen && (
-        <div className="md:hidden bg-[#F3EDE0] border-t border-[#DDD5C4] px-6 py-6 flex flex-col gap-5">
+        <div className="lg:hidden bg-[#F3EDE0] border-t border-[#DDD5C4] px-6 py-6 flex flex-col gap-5">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
