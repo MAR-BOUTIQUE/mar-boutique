@@ -122,12 +122,11 @@ export default async function HomePage() {
           </span>
 
           <h1
-            className={`text-5xl sm:text-6xl md:text-7xl mb-4 leading-[1.05] ${
-              hasSlides ? "text-white" : "text-[#3D2B1F]"
-            }`}
+            className="text-5xl sm:text-6xl md:text-7xl mb-4 leading-[1.05]"
             style={{
               fontFamily: "'Playfair Display', serif",
               fontStyle: "italic",
+              color: hasSlides ? "#ffffff" : "#3D2B1F",
               ...(hasSlides && {
                 textShadow:
                   "0 1px 3px rgba(0,0,0,0.95), 0 3px 20px rgba(0,0,0,0.75), 0 6px 50px rgba(0,0,0,0.5)",
