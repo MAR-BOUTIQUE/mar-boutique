@@ -270,8 +270,8 @@ export default async function HomePage() {
             Nuestra historia
           </span>
           <h2
-            className="text-5xl sm:text-6xl text-white mt-3 mb-6 leading-tight"
-            style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
+            className="text-5xl sm:text-6xl mt-3 mb-6 leading-tight"
+            style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", color: "#ffffff" }}
           >
             Nosotras
           </h2>
