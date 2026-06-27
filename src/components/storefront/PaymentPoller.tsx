@@ -25,7 +25,14 @@ export function PaymentPoller({ orderId }: Props) {
         if (!res.ok) return;
         const { status } = await res.json();
 
-        if (status === "paid" || status === "preparing" || status === "shipped" || status === "delivered") {
+        if (
+          status === "paid" ||
+          status === "preparing" ||
+          status === "shipped" ||
+          status === "delivered" ||
+          status === "cancelled" ||
+          status === "payment_failed"
+        ) {
           clearInterval(interval);
           router.refresh();
         }
