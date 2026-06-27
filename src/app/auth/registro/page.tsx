@@ -22,6 +22,8 @@ export default function RegistroPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
 
   const supabase = createClient();
 
@@ -81,6 +83,18 @@ export default function RegistroPage() {
 
   const inputCls = "w-full border border-[#DDD5C4] bg-white px-4 py-3 text-sm text-[#3D2B1F] focus:outline-none focus:border-[#897568] transition-colors placeholder:text-[#CEC3AB]";
 
+  async function handleResend() {
+    setResendLoading(true);
+    setResendSent(false);
+    await supabase.auth.resend({
+      type: "signup",
+      email: form.email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+    setResendLoading(false);
+    setResendSent(true);
+  }
+
   if (done) {
     return (
       <div className="w-full max-w-md text-center">
@@ -93,9 +107,28 @@ export default function RegistroPage() {
             Haz clic en el enlace para activar tu cuenta.
           </p>
           <p className="text-xs text-[#CEC3AB]">Revisa también tu carpeta de spam.</p>
+
+          <div className="pt-2 border-t border-[#DDD5C4]">
+            <p className="text-xs text-[#897568] mb-3">¿No lo recibiste?</p>
+            {resendSent ? (
+              <p className="text-xs text-[#897568] font-[500]">
+                ✓ Correo reenviado. Revisa tu bandeja y spam.
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendLoading}
+                className="text-[11px] tracking-[0.18em] uppercase font-[600] text-[#B5888A] hover:text-[#3D2B1F] transition-colors disabled:opacity-50"
+              >
+                {resendLoading ? "Enviando…" : "Reenviar correo de confirmación"}
+              </button>
+            )}
+          </div>
+
           <Link
             href="/auth/login"
-            className="inline-block mt-4 text-[11px] tracking-[0.18em] uppercase font-[600] text-[#B5888A] hover:text-[#3D2B1F] transition-colors"
+            className="inline-block text-[11px] tracking-[0.18em] uppercase font-[600] text-[#CEC3AB] hover:text-[#3D2B1F] transition-colors"
           >
             Volver al inicio de sesión
           </Link>
