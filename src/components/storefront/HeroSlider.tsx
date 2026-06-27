@@ -54,8 +54,13 @@ export function HeroSlider({ slides }: { slides: Slide[] }) {
         </div>
       ))}
 
-      {/* Overlay degradado para legibilidad del texto */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/15 to-black/45 pointer-events-none" />
+      {/* Overlay: lineal vertical + radial central para que el texto siempre contraste */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.18) 40%, rgba(0,0,0,0.22) 60%, rgba(0,0,0,0.48) 100%)"
+      }} />
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "radial-gradient(ellipse 70% 55% at 50% 50%, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0) 100%)"
+      }} />
 
       {/* Dots de navegación */}
       {slides.length > 1 && (

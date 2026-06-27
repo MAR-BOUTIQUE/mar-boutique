@@ -114,8 +114,9 @@ export default async function HomePage() {
         <div className="relative z-10 text-center px-4 max-w-2xl mx-auto">
           <span
             className={`inline-block text-[10px] tracking-[0.3em] uppercase mb-6 font-[500] ${
-              hasSlides ? "text-white/75" : "text-[#B5888A]"
+              hasSlides ? "text-white/90" : "text-[#B5888A]"
             }`}
+            style={hasSlides ? { textShadow: "0 1px 8px rgba(0,0,0,0.9), 0 2px 20px rgba(0,0,0,0.6)" } : undefined}
           >
             Nueva colección
           </span>
@@ -124,15 +125,23 @@ export default async function HomePage() {
             className={`text-5xl sm:text-6xl md:text-7xl mb-4 leading-[1.05] ${
               hasSlides ? "text-white" : "text-[#3D2B1F]"
             }`}
-            style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              ...(hasSlides && {
+                textShadow:
+                  "0 1px 3px rgba(0,0,0,0.95), 0 3px 20px rgba(0,0,0,0.75), 0 6px 50px rgba(0,0,0,0.5)",
+              }),
+            }}
           >
             Mar Boutique
           </h1>
 
           <p
             className={`text-base mb-10 leading-relaxed font-[300] ${
-              hasSlides ? "text-white/80" : "text-[#897568]"
+              hasSlides ? "text-white/90" : "text-[#897568]"
             }`}
+            style={hasSlides ? { textShadow: "0 1px 6px rgba(0,0,0,0.9), 0 2px 20px rgba(0,0,0,0.6)" } : undefined}
           >
             Mujeres que visten con intención
           </p>
