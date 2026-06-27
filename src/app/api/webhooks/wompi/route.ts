@@ -5,13 +5,19 @@ import { sendOrderConfirmationEmail, sendNewOrderAdminEmail, sendPaymentFailedEm
 import type { WompiWebhookEvent } from "@/types";
 
 // Verificar firma del webhook — seguridad
+// Wompi envía properties como "data.transaction.id" — rutas desde la RAÍZ del evento
 function verifySignature(event: WompiWebhookEvent, secret: string): boolean {
+  if (!secret) {
+    console.error("[wompi_webhook] WOMPI_EVENTS_SECRET no está configurado");
+    return false;
+  }
+
   const { properties, checksum } = event.signature;
 
   const values = properties.map((prop) => {
     const parts = prop.split(".");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let value: any = event.data;
+    let value: any = event; // ← raíz del evento, no event.data
     for (const part of parts) {
       value = value?.[part];
     }
@@ -20,6 +26,17 @@ function verifySignature(event: WompiWebhookEvent, secret: string): boolean {
 
   const str = [...values, event.timestamp, secret].join("");
   const expected = createHash("sha256").update(str).digest("hex");
+
+  if (expected !== checksum) {
+    console.error("[wompi_webhook] Firma inválida", {
+      properties,
+      values,
+      timestamp: event.timestamp,
+      expected,
+      received: checksum,
+    });
+  }
+
   return expected === checksum;
 }
 

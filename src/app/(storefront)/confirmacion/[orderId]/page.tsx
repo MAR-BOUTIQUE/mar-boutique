@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CheckCircle, Package, ArrowRight, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
+import { PaymentPoller } from "@/components/storefront/PaymentPoller";
 
 interface Props {
   params: Promise<{ orderId: string }>;
@@ -145,6 +146,11 @@ export default async function ConfirmacionPage({ params }: Props) {
       <p className="text-xs text-[#897568] mb-6">
         Te enviamos la confirmación a <strong>{order.shipping_email}</strong>
       </p>
+
+      {/* Polling mientras el webhook de Wompi llega */}
+      {order.status === "pending_payment" && order.payment_method === "wompi" && (
+        <PaymentPoller orderId={order.id} />
+      )}
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link
