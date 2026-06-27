@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, Eye, EyeOff, Home } from "lucide-react";
 import { slugify } from "@/lib/utils/format";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 
 type Collection = {
   id: string;
@@ -168,12 +169,11 @@ export default function AdminColeccionesPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={LABEL}>URL imagen hero</label>
-                <input
-                  value={form.hero_url ?? ""}
-                  onChange={(e) => setForm({ ...form, hero_url: e.target.value })}
-                  placeholder="https://..."
-                  className={INPUT}
+                <label className={LABEL}>Imagen hero</label>
+                <ImageUploader
+                  images={form.hero_url ? [form.hero_url] : []}
+                  onChange={(imgs) => setForm({ ...form, hero_url: imgs[0] ?? "" })}
+                  maxImages={1}
                 />
               </div>
               <div>
