@@ -5,6 +5,9 @@ import { ArrowRight } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { HeroSlider } from "@/components/storefront/HeroSlider";
+import { ScrollReveal } from "@/components/storefront/ScrollReveal";
+import { StaggeredGrid } from "@/components/storefront/StaggeredGrid";
+import { MarqueeStrip } from "@/components/storefront/MarqueeStrip";
 import type { Product } from "@/types";
 
 type HeroSlide = { id: string; image_url: string; alt_text: string | null };
@@ -17,10 +20,10 @@ type FeaturedSection = {
 };
 
 const BRAND_VALUES = [
-  { title: "Intencional", desc: "Con propósito detrás de cada costura. Cada prenda nace desde el amor." },
-  { title: "Versátil", desc: "De los días simples a los momentos especiales. Prendas que se adaptan a tu día a día." },
-  { title: "Femenina", desc: "Diseños que resaltan tu esencia. Delicadeza, confianza y estilo en cada detalle." },
-  { title: "Auténtica", desc: "Cada prenda refleja quién quieres ser." },
+  { num: "01", title: "Intencional", desc: "Con propósito detrás de cada costura. Cada prenda nace desde el amor." },
+  { num: "02", title: "Versátil", desc: "De los días simples a los momentos especiales. Prendas que se adaptan a tu día a día." },
+  { num: "03", title: "Femenina", desc: "Diseños que resaltan tu esencia. Delicadeza, confianza y estilo en cada detalle." },
+  { num: "04", title: "Auténtica", desc: "Cada prenda refleja quién quieres ser." },
 ];
 
 async function getHeroSlides(): Promise<HeroSlide[]> {
@@ -36,7 +39,6 @@ async function getHeroSlides(): Promise<HeroSlide[]> {
 async function getFeaturedSection(): Promise<FeaturedSection> {
   const db = createServiceClient();
 
-  // Buscar colección marcada como destacada en inicio
   const { data: collection } = await db
     .from("collections")
     .select("id, name, slug, description")
@@ -45,7 +47,6 @@ async function getFeaturedSection(): Promise<FeaturedSection> {
     .single();
 
   if (collection) {
-    // Traer los productos de esa colección
     const { data: rows } = await db
       .from("product_collections")
       .select(`
@@ -70,7 +71,6 @@ async function getFeaturedSection(): Promise<FeaturedSection> {
     };
   }
 
-  // Fallback: productos más nuevos
   const { data } = await db
     .from("products")
     .select(`
@@ -170,13 +170,23 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── MARQUEE ────────────────────────────────────────────── */}
+      <MarqueeStrip />
+
       {/* ── VALORES DE MARCA ───────────────────────────────────── */}
-      <section className="bg-[#F3EDE0] border-y border-[#DDD5C4] py-12">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <section className="bg-[#F3EDE0] border-b border-[#DDD5C4] py-16 overflow-hidden">
+        <StaggeredGrid
+          className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+          itemDelay={120}
+        >
           {BRAND_VALUES.map((v) => (
             <div key={v.title}>
+              <span className="block text-[10px] tracking-[0.25em] text-[#CEC3AB] font-[600] mb-3 uppercase">
+                {v.num}
+              </span>
+              <div className="w-6 h-px bg-[#EAC9C9] mx-auto mb-3" />
               <h3
-                className="text-lg text-[#3D2B1F] mb-1"
+                className="text-lg text-[#3D2B1F] mb-2"
                 style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
               >
                 {v.title}
@@ -184,18 +194,18 @@ export default async function HomePage() {
               <p className="text-xs text-[#897568] leading-relaxed">{v.desc}</p>
             </div>
           ))}
-        </div>
+        </StaggeredGrid>
       </section>
 
       {/* ── COLECCIÓN DESTACADA ────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="flex items-end justify-between mb-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <ScrollReveal variant="fadeUp" className="flex items-end justify-between mb-12">
           <div>
             <span className="text-[10px] tracking-[0.25em] uppercase text-[#B5888A] font-[500]">
               Nueva colección
             </span>
             <h2
-              className="text-4xl text-[#3D2B1F] mt-1"
+              className="text-4xl sm:text-5xl text-[#3D2B1F] mt-1"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               {featured.collectionName}
@@ -212,14 +222,17 @@ export default async function HomePage() {
           >
             Ver todo <ArrowRight size={12} />
           </Link>
-        </div>
+        </ScrollReveal>
 
         {featured.products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StaggeredGrid
+            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            itemDelay={100}
+          >
             {featured.products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
-          </div>
+          </StaggeredGrid>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -238,44 +251,64 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── MARQUEE CLARO ──────────────────────────────────────── */}
+      <MarqueeStrip inverted />
+
       {/* ── BANNER NOSOTRAS ────────────────────────────────────── */}
-      <section className="bg-[#EAC9C9]/40 py-20">
-        <div className="max-w-2xl mx-auto text-center px-4">
-          <span className="text-[10px] tracking-[0.3em] uppercase text-[#B5888A] font-[500]">
+      <section className="relative bg-[#3D2B1F] py-28 overflow-hidden">
+        {/* Texto decorativo de fondo */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 flex items-center justify-center text-[18vw] font-[700] text-white/[0.03] leading-none select-none"
+          style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
+        >
+          Mar
+        </span>
+
+        <ScrollReveal variant="fadeUp" className="relative z-10 max-w-2xl mx-auto text-center px-4">
+          <span className="text-[10px] tracking-[0.35em] uppercase text-[#B5888A] font-[500]">
             Nuestra historia
           </span>
           <h2
-            className="text-4xl text-[#3D2B1F] mt-2 mb-5"
+            className="text-5xl sm:text-6xl text-white mt-3 mb-6 leading-tight"
             style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
           >
             Nosotras
           </h2>
+          <p className="text-sm text-[#CEC3AB] font-[300] leading-relaxed mb-8 max-w-sm mx-auto">
+            Una marca nacida en Cartagena, con el alma del mar y el propósito de vestir mujeres que brillan.
+          </p>
           <Link
             href="/nosotras"
-            className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-[#3D2B1F] border-b border-[#3D2B1F] pb-0.5 hover:border-[#B5888A] hover:text-[#B5888A] transition-colors font-[500]"
+            className="inline-flex items-center gap-2 px-8 py-3 border border-[#EAC9C9]/60 text-[#EAC9C9] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#EAC9C9] hover:text-[#3D2B1F] transition-colors"
           >
             Conocernos <ArrowRight size={12} />
           </Link>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* ── CTA WISHLIST ───────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <h2
-          className="text-3xl text-[#3D2B1F] mb-3"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          Guarda tus favoritos
-        </h2>
-        <p className="text-sm text-[#897568] mb-8 font-[300]">
-          Añade prendas a tu wishlist y te avisamos cuando baje el precio.
-        </p>
-        <Link
-          href="/cuenta/wishlist"
-          className="inline-flex items-center gap-2 px-8 py-3 border border-[#3D2B1F] text-[#3D2B1F] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#3D2B1F] hover:text-[#F3EDE0] transition-colors"
-        >
-          Ver wishlist
-        </Link>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+        <ScrollReveal variant="scale" duration={800}>
+          <span className="block text-[10px] tracking-[0.3em] uppercase text-[#B5888A] font-[500] mb-4">
+            Tu lista de deseos
+          </span>
+          <h2
+            className="text-4xl sm:text-5xl text-[#3D2B1F] mb-4"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Guarda tus favoritos
+          </h2>
+          <p className="text-sm text-[#897568] mb-10 font-[300] max-w-sm mx-auto leading-relaxed">
+            Añade prendas a tu wishlist y te avisamos cuando baje el precio.
+          </p>
+          <Link
+            href="/cuenta/wishlist"
+            className="inline-flex items-center gap-2 px-10 py-3.5 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#5A3E2E] transition-colors"
+          >
+            Ver wishlist <ArrowRight size={12} />
+          </Link>
+        </ScrollReveal>
       </section>
     </>
   );
