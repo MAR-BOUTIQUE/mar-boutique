@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 interface CartStore extends Cart {
   addItem: (item: Omit<CartItem, "reservedUntil">) => Promise<boolean>;
   removeItem: (variantId: string) => void;
-  updateQuantity: (variantId: string, quantity: number) => void;
+  updateQuantity: (variantId: string, quantity: number) => Promise<boolean>;
   applyPromotion: (promotion: Promotion) => void;
   removePromotion: () => void;
   clearCart: () => void;
@@ -88,29 +88,90 @@ export const useCartStore = create<CartStore>()(
       },
 
       removeItem: (variantId) => {
+        const { sessionId, items } = get();
+        const item = items.find((i) => i.variantId === variantId);
+
+        // Liberar reserva en BD en segundo plano — RB-CHK-01
+        if (item) {
+          fetch("/api/cart/release", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ variantId, sessionId }),
+          }).catch(() => {});
+        }
+
         set((state) => {
-          const items = state.items.filter((i) => i.variantId !== variantId);
+          const next = state.items.filter((i) => i.variantId !== variantId);
           return {
-            items,
-            ...computeTotals(items, state.shippingCost, state.appliedPromotion),
+            items: next,
+            ...computeTotals(next, state.shippingCost, state.appliedPromotion),
           };
         });
       },
 
-      updateQuantity: (variantId, quantity) => {
+      updateQuantity: async (variantId, quantity) => {
         if (quantity <= 0) {
           get().removeItem(variantId);
-          return;
+          return true;
         }
-        set((state) => {
-          const items = state.items.map((i) =>
-            i.variantId === variantId ? { ...i, quantity } : i
-          );
-          return {
-            items,
-            ...computeTotals(items, state.shippingCost, state.appliedPromotion),
-          };
-        });
+
+        const { sessionId, items } = get();
+        const current = items.find((i) => i.variantId === variantId);
+        const currentQty = current?.quantity ?? 0;
+        const diff = quantity - currentQty;
+
+        if (diff === 0) return true;
+
+        if (diff > 0) {
+          // Aumentando — necesita reservar unidades adicionales
+          try {
+            const res = await fetch("/api/cart/reserve", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                variantId,
+                quantity: diff,
+                sessionId,
+              }),
+            });
+
+            if (!res.ok) return false; // sin stock para aumentar
+
+            const { reservedUntil } = await res.json();
+
+            set((state) => {
+              const next = state.items.map((i) =>
+                i.variantId === variantId ? { ...i, quantity, reservedUntil } : i
+              );
+              return {
+                items: next,
+                ...computeTotals(next, state.shippingCost, state.appliedPromotion),
+              };
+            });
+          } catch {
+            return false;
+          }
+        } else {
+          // Disminuyendo — liberar unidades sobrantes en segundo plano
+          // La reserva original cubre la cantidad menor; liberamos el exceso
+          fetch("/api/cart/release-partial", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ variantId, sessionId, quantity: Math.abs(diff) }),
+          }).catch(() => {});
+
+          set((state) => {
+            const next = state.items.map((i) =>
+              i.variantId === variantId ? { ...i, quantity } : i
+            );
+            return {
+              items: next,
+              ...computeTotals(next, state.shippingCost, state.appliedPromotion),
+            };
+          });
+        }
+
+        return true;
       },
 
       applyPromotion: (promotion) => {

@@ -97,8 +97,14 @@ export async function POST(req: NextRequest) {
     } else if (tx.status === "DECLINED" || tx.status === "VOIDED" || tx.status === "ERROR") {
       // ── PAGO RECHAZADO — RB-CHK-05 ───────────────────────
 
-      // Liberar reservas de este pedido
-      await supabase.rpc("release_expired_reservations");
+      // Liberar reservas de este pedido específico — RB-PED-02
+      const sessionId = order.cart_session_id ?? order.wompi_reference;
+      for (const item of order.items) {
+        await supabase.rpc("release_reservations_by_session", {
+          p_variant_id: item.variant_id,
+          p_session_id: sessionId,
+        });
+      }
 
       await supabase
         .from("orders")
