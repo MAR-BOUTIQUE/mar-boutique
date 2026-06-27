@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -63,14 +64,16 @@ export default function NosotrasPage() {
       {/* Historia */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-20">
         <div className="grid md:grid-cols-[2fr_3fr] gap-12 items-start">
-          {/* Imagen placeholder */}
-          <div className="aspect-[3/4] bg-gradient-to-br from-[#EAC9C9]/40 to-[#CEC3AB]/30 flex items-center justify-center">
-            <span
-              className="text-5xl text-[#B5888A]/40"
-              style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
-            >
-              MB
-            </span>
+          {/* Imagen historia */}
+          <div className="relative aspect-[3/4] overflow-hidden">
+            <Image
+              src="/nosotras-historia.jpg"
+              alt="Mar Boutique — Nuestra historia"
+              fill
+              className="object-cover object-top"
+              sizes="(max-width: 768px) 100vw, 40vw"
+              priority
+            />
           </div>
 
           <div>
