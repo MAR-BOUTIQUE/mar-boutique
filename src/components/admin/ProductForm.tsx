@@ -286,8 +286,8 @@ export function ProductForm({ initial, categories, collections, occasions }: Pro
             />
           </div>
           <div>
-            <p className="text-xs font-[600] text-[#3D2B1F]">◈ Marcar como Pre Venta</p>
-            <p className="text-[10px] text-[#897568]">Muestra la etiqueta "PRE VENTA" en la tarjeta del producto</p>
+            <p className="text-xs font-[600] text-[#3D2B1F]">◈ Marcar como Pre Orden</p>
+            <p className="text-[10px] text-[#897568]">Muestra la etiqueta "PRE ORDEN" en la tarjeta del producto</p>
           </div>
         </label>
       </div>

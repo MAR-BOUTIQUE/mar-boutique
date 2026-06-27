@@ -59,7 +59,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             {product.is_pre_sale && (
               <span className="bg-[#F3EDE0] border border-[#3D2B1F] text-[#3D2B1F] text-[9px] tracking-[0.15em] uppercase px-2 py-0.5 font-[700]">
-                ◈ Pre Venta
+                ◈ Pre Orden
               </span>
             )}
             {product.is_best_seller && !isSoldOut && (
