@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDateShort } from "@/lib/utils/format";
+import { ExportPedidosButton } from "@/components/admin/ExportPedidosButton";
 
 const STATUS_OPTIONS = [
   { value: "", label: "Todos los estados" },
@@ -39,7 +40,7 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
 
   let query = supabase
     .from("orders")
-    .select("id, order_number, shipping_name, shipping_email, shipping_city, total, status, created_at, tracking_number")
+    .select("id, order_number, shipping_name, shipping_email, shipping_city, total, status, payment_method, created_at, tracking_number")
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -50,13 +51,14 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <h1
           className="text-3xl text-[#3D2B1F]"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Pedidos
         </h1>
+        <ExportPedidosButton currentStatus={status} />
       </div>
 
       {/* Filtros */}
@@ -81,7 +83,7 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#DDD5C4]">
-              {["Pedido", "Clienta", "Ciudad", "Total", "Estado", "Fecha", ""].map((h) => (
+              {["Pedido", "Clienta", "Ciudad", "Total", "Pago", "Estado", "Fecha", ""].map((h) => (
                 <th key={h} className="text-left text-[9px] tracking-[0.2em] uppercase text-[#897568] font-[600] px-4 py-3">
                   {h}
                 </th>
@@ -98,6 +100,17 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
                 </td>
                 <td className="px-4 py-3 text-[#897568]">{order.shipping_city}</td>
                 <td className="px-4 py-3 font-[500] text-[#3D2B1F]">{formatCOP(order.total)}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`text-[9px] px-2 py-0.5 rounded-full font-[600] tracking-wide uppercase ${
+                      order.payment_method === "contraentrega"
+                        ? "bg-orange-100 text-orange-700"
+                        : "bg-[#EAC9C9]/50 text-[#3D2B1F]"
+                    }`}
+                  >
+                    {order.payment_method === "contraentrega" ? "Contraentrega" : "En línea"}
+                  </span>
+                </td>
                 <td className="px-4 py-3">
                   <span className={`text-[9px] px-2 py-0.5 rounded-full font-[600] tracking-wide uppercase ${STATUS_BADGE[order.status] ?? "bg-gray-100 text-gray-600"}`}>
                     {STATUS_LABEL[order.status] ?? order.status}
