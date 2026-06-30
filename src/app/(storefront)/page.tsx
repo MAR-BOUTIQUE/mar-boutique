@@ -181,10 +181,6 @@ export default async function HomePage() {
         >
           {BRAND_VALUES.map((v) => (
             <div key={v.title}>
-              <span className="block text-[10px] tracking-[0.25em] text-[#CEC3AB] font-[600] mb-3 uppercase">
-                {v.num}
-              </span>
-              <div className="w-6 h-px bg-[#EAC9C9] mx-auto mb-3" />
               <h3
                 className="text-lg text-[#3D2B1F] mb-2"
                 style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
