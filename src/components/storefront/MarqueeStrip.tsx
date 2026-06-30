@@ -3,7 +3,6 @@ const WORDS = [
   "◈ Mar Boutique",
   "◈ Cartagena",
   "◈ Mujeres que visten con intención",
-  "◈ Estilo costero",
   "◈ Hecho con amor",
   "◈ Diseño exclusivo",
 ];
