@@ -5,7 +5,6 @@ const WORDS = [
   "◈ Mujeres que visten con intención",
   "◈ Estilo costero",
   "◈ Hecho con amor",
-  "◈ Verano 2026",
   "◈ Diseño exclusivo",
 ];
 

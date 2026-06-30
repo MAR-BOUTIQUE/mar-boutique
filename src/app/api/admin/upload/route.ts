@@ -40,7 +40,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${uploadExt}`;
+  const prefix = (formData.get("prefix") as string | null) ?? "products";
+  const path = `${prefix}/${Date.now()}-${Math.random().toString(36).slice(2)}.${uploadExt}`;
 
   const service = await createServiceClient();
   const { error } = await service.storage

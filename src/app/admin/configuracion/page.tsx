@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle, ExternalLink } from "lucide-react";
 import { ShippingZoneManager } from "@/components/admin/ShippingZoneManager";
 import { HeroSlideManager } from "@/components/admin/HeroSlideManager";
+import { NosotrasImageManager } from "@/components/admin/NosotrasImageManager";
 
 function EnvRow({ label, envKey, secret }: { label: string; envKey: string; secret?: boolean }) {
   const val = process.env[envKey];
@@ -36,6 +37,17 @@ export default function AdminConfiguracionPage() {
           </p>
         </div>
         <HeroSlideManager />
+      </div>
+
+      {/* Imagen de Nosotras */}
+      <div>
+        <div className="mb-4">
+          <h2 className="text-base font-[600] text-gray-800">Imagen de la página Nosotras</h2>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Foto que aparece junto al texto "Hola Marlover" en la sección de historia de la marca.
+          </p>
+        </div>
+        <NosotrasImageManager />
       </div>
 
       {/* Tarifas de envío */}

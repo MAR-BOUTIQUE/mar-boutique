@@ -2,6 +2,21 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { createServiceClient } from "@/lib/supabase/server";
+
+async function getNosotrasImage(): Promise<string> {
+  try {
+    const db = createServiceClient();
+    const { data } = await db
+      .from("site_settings")
+      .select("value")
+      .eq("key", "nosotras_historia_image")
+      .single();
+    return data?.value || "/nosotras-historia.jpg";
+  } catch {
+    return "/nosotras-historia.jpg";
+  }
+}
 
 export const metadata: Metadata = {
   title: "Nosotras",
@@ -41,7 +56,9 @@ const TEAM = [
   },
 ];
 
-export default function NosotrasPage() {
+export default async function NosotrasPage() {
+  const historiaImage = await getNosotrasImage();
+
   return (
     <>
       {/* Hero */}
@@ -64,15 +81,16 @@ export default function NosotrasPage() {
       {/* Historia */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-20">
         <div className="grid md:grid-cols-[2fr_3fr] gap-12 items-start">
-          {/* Imagen historia */}
+          {/* Imagen historia — configurable desde el panel admin */}
           <div className="relative aspect-[3/4] overflow-hidden">
             <Image
-              src="/nosotras-historia.jpg"
+              src={historiaImage}
               alt="Mar Boutique — Nuestra historia"
               fill
               className="object-cover object-top"
               sizes="(max-width: 768px) 100vw, 40vw"
               priority
+              unoptimized={historiaImage.startsWith("/")}
             />
           </div>
 
