@@ -30,6 +30,11 @@ export function ShippingZoneManager() {
   const [newCity, setNewCity] = useState<Record<string, string>>({});
   const [addingCity, setAddingCity] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showAddZone, setShowAddZone] = useState(false);
+  const [newZoneName, setNewZoneName] = useState("");
+  const [newZoneDesc, setNewZoneDesc] = useState("");
+  const [newZonePrice, setNewZonePrice] = useState("");
+  const [creatingZone, setCreatingZone] = useState(false);
 
   async function load() {
     const res = await fetch("/api/admin/shipping-zones");
@@ -75,6 +80,33 @@ export function ShippingZoneManager() {
       setError(d.error ?? "Error al agregar ciudad");
     }
     setAddingCity(null);
+  }
+
+  async function createZone() {
+    const name = newZoneName.trim();
+    const price = parseFloat(newZonePrice);
+    if (!name || Number.isNaN(price) || price < 0) {
+      setError("Completa el nombre y un precio válido para la nueva zona");
+      return;
+    }
+    setCreatingZone(true);
+    setError(null);
+    const res = await fetch("/api/admin/shipping-zones", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, description: newZoneDesc.trim() || undefined, price }),
+    });
+    if (res.ok) {
+      setNewZoneName("");
+      setNewZoneDesc("");
+      setNewZonePrice("");
+      setShowAddZone(false);
+      await load();
+    } else {
+      const d = await res.json();
+      setError(d.error ?? "Error al crear la zona");
+    }
+    setCreatingZone(false);
   }
 
   async function removeCity(cityId: string) {
@@ -218,6 +250,68 @@ export function ShippingZoneManager() {
           )}
         </div>
       ))}
+
+      {/* Crear nueva zona */}
+      <div className="bg-white border border-gray-200 rounded overflow-hidden">
+        {showAddZone ? (
+          <div className="px-5 py-4 space-y-3">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-gray-400 font-[600]">
+              Nueva zona de envío
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <input
+                type="text"
+                value={newZoneName}
+                onChange={(e) => setNewZoneName(e.target.value)}
+                placeholder="Nombre de la zona (ej. Eje Cafetero)"
+                className="border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#897568] sm:col-span-2"
+              />
+              <input
+                type="text"
+                value={newZoneDesc}
+                onChange={(e) => setNewZoneDesc(e.target.value)}
+                placeholder="Descripción (opcional)"
+                className="border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#897568] sm:col-span-2"
+              />
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-400">$</span>
+                <input
+                  type="number"
+                  value={newZonePrice}
+                  onChange={(e) => setNewZonePrice(e.target.value)}
+                  placeholder="Precio de envío"
+                  min={0}
+                  step={1000}
+                  className="flex-1 border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#897568]"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={createZone}
+                disabled={creatingZone}
+                className="flex items-center gap-1 px-4 py-2 bg-[#3D2B1F] text-white text-xs rounded hover:bg-[#5A3E2E] transition-colors disabled:opacity-50"
+              >
+                {creatingZone ? "Creando…" : "Crear zona"}
+              </button>
+              <button
+                onClick={() => setShowAddZone(false)}
+                className="px-4 py-2 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowAddZone(true)}
+            className="w-full flex items-center justify-center gap-2 px-5 py-4 text-sm text-gray-500 hover:text-[#3D2B1F] hover:bg-gray-50 transition-colors"
+          >
+            <Plus size={15} />
+            Agregar nueva zona
+          </button>
+        )}
+      </div>
     </div>
   );
 }
