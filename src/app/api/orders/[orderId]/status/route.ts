@@ -26,7 +26,7 @@ async function processApprovedPayment(
     });
   }
 
-  // 2. Actualizar pedido
+  // 2. Actualizar pedido — sin guard de status para recuperar pedidos cancelados por timeout
   await supabase
     .from("orders")
     .update({
@@ -35,7 +35,7 @@ async function processApprovedPayment(
       paid_at: new Date().toISOString(),
     })
     .eq("id", order.id)
-    .eq("status", "pending_payment"); // solo si todavía está pendiente (guard idempotencia)
+    .in("status", ["pending_payment", "cancelled"]); // recupera tanto pendientes como cancelados por timeout
 
   // 3. Log
   await supabase.from("order_status_log").insert({

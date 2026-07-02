@@ -41,21 +41,39 @@ function verifySignature(event: WompiWebhookEvent, secret: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  let rawRef = "(sin referencia)";
   try {
     const body: WompiWebhookEvent = await req.json();
     const secret = process.env.WOMPI_EVENTS_SECRET!;
 
+    // Logging para diagnóstico — quitar cuando el webhook sea estable
+    console.log("[wompi_webhook] Evento recibido:", {
+      event: body.event,
+      reference: body.data?.transaction?.reference,
+      status: body.data?.transaction?.status,
+      timestamp: body.timestamp,
+      hasSecret: !!secret,
+    });
+
+    rawRef = body.data?.transaction?.reference ?? "(sin referencia)";
+
     // Validar firma — RB-CHK-04
     if (!verifySignature(body, secret)) {
+      console.error("[wompi_webhook] FIRMA INVÁLIDA para ref:", rawRef,
+        "Verificar WOMPI_EVENTS_SECRET en Vercel → Project Settings → Environment Variables"
+      );
       return NextResponse.json({ error: "Firma inválida" }, { status: 401 });
     }
 
     const { event, data } = body;
     if (event !== "transaction.updated") {
+      console.log("[wompi_webhook] Evento ignorado:", event);
       return NextResponse.json({ ok: true });
     }
 
     const tx = data.transaction;
+    console.log("[wompi_webhook] Procesando transacción:", tx.id, "ref:", tx.reference, "estado:", tx.status);
+
     const supabase = createServiceClient();
 
     // Buscar pedido por referencia
@@ -66,11 +84,15 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (!order) {
+      console.error("[wompi_webhook] Pedido no encontrado para ref:", tx.reference);
       return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
     }
 
+    console.log("[wompi_webhook] Pedido encontrado:", order.order_number, "estado actual:", order.status);
+
     // Idempotencia: si ya está pagado, no hacer nada
     if (order.status === "paid" && tx.status === "APPROVED") {
+      console.log("[wompi_webhook] Idempotencia: pedido ya pagado, nada que hacer");
       return NextResponse.json({ ok: true });
     }
 
@@ -79,15 +101,16 @@ export async function POST(req: NextRequest) {
 
       // 1. Confirmar stock de cada variante — RB-CHK-04 (idempotente)
       for (const item of order.items) {
-        await supabase.rpc("confirm_stock_sale", {
+        const { error: stockErr } = await supabase.rpc("confirm_stock_sale", {
           p_variant_id: item.variant_id,
           p_session_id: order.cart_session_id ?? order.wompi_reference,
           p_quantity: item.quantity,
           p_order_id: order.id,
         });
+        if (stockErr) console.error("[wompi_webhook] confirm_stock_sale error:", stockErr);
       }
 
-      // 2. Actualizar estado del pedido
+      // 2. Actualizar estado del pedido — sin guard de status para recuperar cancelados
       await supabase
         .from("orders")
         .update({
@@ -100,19 +123,35 @@ export async function POST(req: NextRequest) {
       // 3. Log de estado — RB-PED-04
       await supabase.from("order_status_log").insert({
         order_id: order.id,
-        from_status: "pending_payment",
+        from_status: order.status,
         to_status: "paid",
         notes: `Pago confirmado por Wompi. Transacción: ${tx.id}`,
       });
 
+      console.log("[wompi_webhook] Pedido actualizado a PAGADO:", order.order_number);
+
       // 4. Emails — RB-PED-03, RB-PED-05
-      await Promise.allSettled([
-        sendOrderConfirmationEmail(order),
-        sendNewOrderAdminEmail(order),
-      ]);
+      // Refetch para obtener datos completos (puede haber estado en cancelled)
+      const { data: fullOrder } = await supabase
+        .from("orders")
+        .select("*, items:order_items(*)")
+        .eq("id", order.id)
+        .single();
+
+      if (fullOrder) {
+        await Promise.allSettled([
+          sendOrderConfirmationEmail(fullOrder),
+          sendNewOrderAdminEmail(fullOrder),
+        ]);
+      }
 
     } else if (tx.status === "DECLINED" || tx.status === "VOIDED" || tx.status === "ERROR") {
       // ── PAGO RECHAZADO — RB-CHK-05 ───────────────────────
+      // Solo cancelar si el pedido todavía está pendiente — no tocar si ya fue pagado
+      if (order.status !== "pending_payment") {
+        console.log("[wompi_webhook] Transacción rechazada pero pedido ya en estado:", order.status, "— no se cancela");
+        return NextResponse.json({ ok: true });
+      }
 
       // Liberar reservas de este pedido específico — RB-PED-02
       const sessionId = order.cart_session_id ?? order.wompi_reference;
@@ -126,21 +165,25 @@ export async function POST(req: NextRequest) {
       await supabase
         .from("orders")
         .update({ status: "cancelled" })
-        .eq("id", order.id);
+        .eq("id", order.id)
+        .eq("status", "pending_payment");
 
       await supabase.from("order_status_log").insert({
         order_id: order.id,
         from_status: "pending_payment",
         to_status: "cancelled",
-        notes: `Pago rechazado por Wompi. Estado: ${tx.status}`,
+        notes: `Pago rechazado por Wompi. Estado transacción: ${tx.status}`,
       });
 
       await sendPaymentFailedEmail(order);
+      console.log("[wompi_webhook] Pedido cancelado por pago rechazado:", order.order_number);
+    } else {
+      console.log("[wompi_webhook] Estado de transacción no manejado:", tx.status);
     }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[wompi_webhook]", err);
+    console.error("[wompi_webhook] Error inesperado (ref:", rawRef, "):", err);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }

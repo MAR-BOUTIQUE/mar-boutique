@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
 import { OrderStatusActions } from "@/components/admin/OrderStatusActions";
+import { VerifyPaymentButton } from "@/components/admin/VerifyPaymentButton";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -110,6 +111,12 @@ export default async function AdminPedidoDetailPage({ params }: Props) {
           Estado del pedido
         </h2>
         <OrderStatusActions order={order} />
+
+        {/* Verificación manual de pago — solo para pedidos online cancelados o pendientes */}
+        {order.payment_method === "wompi" &&
+          (order.status === "cancelled" || order.status === "pending_payment") && (
+          <VerifyPaymentButton orderId={order.id} orderNumber={order.order_number} />
+        )}
       </div>
 
       {/* Log de estados */}
