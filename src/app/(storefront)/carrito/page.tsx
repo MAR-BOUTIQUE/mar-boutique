@@ -58,6 +58,7 @@ export default function CarritoPage() {
                     src={item.image}
                     alt={item.productName}
                     fill
+                    unoptimized
                     className="object-cover"
                     sizes="80px"
                   />

@@ -45,6 +45,7 @@ export function ProductGallery({ images, name }: Props) {
                 src={src}
                 alt={`${name} imagen ${i + 1}`}
                 fill
+                unoptimized
                 className="object-cover"
                 sizes="64px"
               />
@@ -59,6 +60,7 @@ export function ProductGallery({ images, name }: Props) {
           src={images[active]}
           alt={name}
           fill
+          unoptimized
           className="object-cover"
           sizes="(max-width:1024px) 100vw, 50vw"
           priority
