@@ -17,6 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { toggle, has } = useWishlistStore();
   const wishlisted = has(product.id);
   const [imgIdx, setImgIdx] = useState(0);
+  const [imgError, setImgError] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const price = product.effective_price ?? product.base_price;
@@ -28,7 +29,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* IMAGEN */}
       <Link href={`/producto/${product.slug}`} className="block">
         <div className="relative aspect-[3/4] overflow-hidden bg-[#EAC9C9]/20">
-          {product.images.length > 0 ? (
+          {product.images.length > 0 && !imgError ? (
             <Image
               src={product.images[imgIdx]}
               alt={product.name}
@@ -39,10 +40,9 @@ export function ProductCard({ product }: ProductCardProps) {
                 "group-hover:scale-105",
                 isSoldOut && "opacity-60"
               )}
-              onMouseEnter={() =>
-                product.images.length > 1 && setImgIdx(1)
-              }
+              onMouseEnter={() => product.images.length > 1 && setImgIdx(1)}
               onMouseLeave={() => setImgIdx(0)}
+              onError={() => setImgError(true)}
             />
           ) : (
             <div className="absolute inset-0 bg-[#CEC3AB]/30 flex items-center justify-center">

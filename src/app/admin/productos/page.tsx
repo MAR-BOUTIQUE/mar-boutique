@@ -74,8 +74,10 @@ export default async function AdminProductosPage() {
                           src={product.images[0]}
                           alt={product.name}
                           fill
+                          unoptimized
                           className="object-cover"
                           sizes="40px"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                         />
                       </div>
                     ) : (

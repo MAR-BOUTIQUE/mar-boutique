@@ -145,8 +145,10 @@ export function ImageUploader({ images, onChange, maxImages = 8 }: Props) {
                 src={url}
                 alt={`Imagen ${idx + 1}`}
                 fill
+                unoptimized
                 className="object-cover"
                 sizes="120px"
+                onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
               />
 
               {/* Overlay con acciones */}

@@ -123,8 +123,10 @@ export function HeroSlideManager() {
                 src={slide.image_url}
                 alt={slide.alt_text ?? `Slide ${idx + 1}`}
                 fill
+                unoptimized
                 className="object-cover object-center"
                 sizes="200px"
+                onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
               />
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-between p-1.5">
                 <GripVertical size={14} className="text-white mt-0.5" />
