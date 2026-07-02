@@ -4,11 +4,18 @@ import { CheckCircle, Package, ArrowRight, Truck } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
 import { PaymentPoller } from "@/components/storefront/PaymentPoller";
+import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/email/templates";
 
 interface Props {
   params: Promise<{ orderId: string }>;
-  searchParams: Promise<{ id_wompi?: string }>;
+  // Wompi envía ?id=TRANSACTION_ID al redirigir después del pago
+  searchParams: Promise<{ id?: string }>;
 }
+
+const WOMPI_BASE =
+  process.env.NEXT_PUBLIC_WOMPI_ENV === "production"
+    ? "https://production.wompi.co/v1"
+    : "https://sandbox.wompi.co/v1";
 
 const STATUS_LABELS: Record<string, string> = {
   pending_payment: "Pendiente de pago",
@@ -21,10 +28,106 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_STEPS = ["paid", "preparing", "shipped", "delivered"];
 
-export default async function ConfirmacionPage({ params }: Props) {
+/**
+ * Procesa el pago directamente usando el ID de transacción que Wompi envía
+ * en el redirect (?id=...). Es la confirmación primaria — el webhook es el respaldo.
+ * Retorna true si el pago fue confirmado en esta llamada.
+ */
+async function processWompiRedirect(
+  supabase: ReturnType<typeof createServiceClient>,
+  order: any,
+  transactionId: string
+): Promise<boolean> {
+  // Solo actuar si el pedido todavía no está confirmado
+  if (order.status !== "pending_payment" && order.status !== "cancelled") return false;
+
+  const privateKey = process.env.WOMPI_PRIVATE_KEY;
+  if (!privateKey) {
+    console.error("[confirmacion] WOMPI_PRIVATE_KEY no configurado — no se puede verificar transacción desde redirect");
+    return false;
+  }
+
+  try {
+    const res = await fetch(`${WOMPI_BASE}/transactions/${encodeURIComponent(transactionId)}`, {
+      headers: { Authorization: `Bearer ${privateKey}` },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.error("[confirmacion] Wompi API error:", res.status, "tx:", transactionId);
+      return false;
+    }
+
+    const { data: tx } = await res.json();
+
+    if (!tx || tx.status !== "APPROVED") return false;
+
+    // Verificación de seguridad: la referencia debe coincidir con el pedido
+    if (tx.reference !== order.wompi_reference) {
+      console.error("[confirmacion] Referencia de transacción no coincide:", tx.reference, "vs", order.wompi_reference);
+      return false;
+    }
+
+    // Confirmar stock
+    for (const item of order.items ?? []) {
+      const { error: stockErr } = await supabase.rpc("confirm_stock_sale", {
+        p_variant_id: item.variant_id,
+        p_session_id: order.cart_session_id ?? order.wompi_reference,
+        p_quantity: item.quantity,
+        p_order_id: order.id,
+      });
+      if (stockErr) console.error("[confirmacion] confirm_stock_sale error:", stockErr);
+    }
+
+    // Actualizar pedido — sin guard de status para recuperar cancelados
+    const { error: updateErr } = await supabase
+      .from("orders")
+      .update({
+        status: "paid",
+        wompi_transaction_id: tx.id,
+        paid_at: new Date().toISOString(),
+      })
+      .eq("id", order.id);
+
+    if (updateErr) {
+      console.error("[confirmacion] Error actualizando pedido:", updateErr);
+      return false;
+    }
+
+    await supabase.from("order_status_log").insert({
+      order_id: order.id,
+      from_status: order.status,
+      to_status: "paid",
+      notes: `Pago confirmado desde página de confirmación (redirect Wompi). Transacción: ${tx.id}`,
+    });
+
+    // Enviar emails (best-effort — el webhook puede enviarlos también, el cliente no verá dos
+    // porque si el webhook llega y el pedido ya está en "paid", la lógica de idempotencia lo ignora)
+    const { data: fullOrder } = await supabase
+      .from("orders")
+      .select("*, items:order_items(*)")
+      .eq("id", order.id)
+      .single();
+
+    if (fullOrder) {
+      await Promise.allSettled([
+        sendOrderConfirmationEmail(fullOrder),
+        sendNewOrderAdminEmail(fullOrder),
+      ]);
+    }
+
+    console.log("[confirmacion] Pago confirmado desde redirect para pedido:", order.order_number);
+    return true;
+  } catch (err) {
+    console.error("[confirmacion] Error procesando redirect Wompi:", err);
+    return false;
+  }
+}
+
+export default async function ConfirmacionPage({ params, searchParams }: Props) {
   const { orderId } = await params;
-  // Service client: la página es accesible por guests (sin sesión) y por usuarios
-  // registrados. El orderId (UUID) actúa como token de acceso — imposible de adivinar.
+  const { id: wompiTransactionId } = await searchParams;
+
   const supabase = createServiceClient();
 
   const { data: order } = await supabase
@@ -34,6 +137,21 @@ export default async function ConfirmacionPage({ params }: Props) {
     .single();
 
   if (!order) notFound();
+
+  // Si Wompi redirigió con ?id=TRANSACTION_ID, procesar el pago directamente
+  // sin esperar el webhook. Esto soluciona los casos donde el webhook llega tarde o falla.
+  if (wompiTransactionId && order.payment_method === "wompi") {
+    const confirmed = await processWompiRedirect(supabase, order, wompiTransactionId);
+    if (confirmed) {
+      // Refetch para mostrar el estado actualizado
+      const { data: updated } = await supabase
+        .from("orders")
+        .select("*, items:order_items(*)")
+        .eq("id", orderId)
+        .single();
+      if (updated) Object.assign(order, updated);
+    }
+  }
 
   const currentStep = STATUS_STEPS.indexOf(order.status);
   const isContraentrega = order.payment_method === "contraentrega";
@@ -149,7 +267,7 @@ export default async function ConfirmacionPage({ params }: Props) {
         Te enviamos la confirmación a <strong>{order.shipping_email}</strong>
       </p>
 
-      {/* Polling mientras el webhook de Wompi llega; si agota el tiempo, muestra botón de reintento */}
+      {/* Polling como respaldo: solo si el pago todavía no fue confirmado desde el redirect */}
       {order.status === "pending_payment" && order.payment_method === "wompi" && (
         <PaymentPoller orderId={order.id} createdAt={order.created_at} />
       )}
