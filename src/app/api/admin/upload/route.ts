@@ -43,7 +43,22 @@ export async function POST(req: NextRequest) {
   const prefix = (formData.get("prefix") as string | null) ?? "products";
   const path = `${prefix}/${Date.now()}-${Math.random().toString(36).slice(2)}.${uploadExt}`;
 
-  const service = await createServiceClient();
+  const service = createServiceClient();
+
+  // Garantizar que el bucket existe y es público antes de subir.
+  // Si ya existe lo actualiza; si no existe lo crea.
+  await service.storage.createBucket("product-images", {
+    public: true,
+    fileSizeLimit: 20 * 1024 * 1024,
+    allowedMimeTypes: ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif", "image/avif"],
+  });
+  // Si el bucket ya existe (error 409), lo actualizamos para asegurar public=true
+  await service.storage.updateBucket("product-images", {
+    public: true,
+    fileSizeLimit: 20 * 1024 * 1024,
+    allowedMimeTypes: ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif", "image/avif"],
+  });
+
   const { error } = await service.storage
     .from("product-images")
     .upload(path, buffer, { contentType, upsert: false });
@@ -53,6 +68,11 @@ export async function POST(req: NextRequest) {
   const { data: { publicUrl } } = service.storage
     .from("product-images")
     .getPublicUrl(path);
+
+  // Sanity check: la URL debe contener el hostname de Supabase
+  if (!publicUrl || !publicUrl.startsWith("http")) {
+    return NextResponse.json({ error: "URL de imagen inválida generada por Storage" }, { status: 500 });
+  }
 
   return NextResponse.json({ url: publicUrl, path });
 }
