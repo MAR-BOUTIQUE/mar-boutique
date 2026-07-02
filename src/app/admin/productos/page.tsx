@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Plus } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP } from "@/lib/utils/format";
+import { ProductThumb } from "@/components/admin/ProductThumb";
 
 const STATUS_BADGE: Record<string, string> = {
   active: "bg-[#F3EDE0] text-[#3D2B1F]",
@@ -69,17 +69,7 @@ export default async function AdminProductosPage() {
                 <tr key={product.id} className="border-b border-[#F3EDE0] hover:bg-[#F3EDE0]/50 transition-colors">
                   <td className="px-4 py-3 w-14">
                     {product.images?.[0] ? (
-                      <div className="relative w-10 h-12 overflow-hidden bg-[#EAC9C9]/20">
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          fill
-                          unoptimized
-                          className="object-cover"
-                          sizes="40px"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                        />
-                      </div>
+                      <ProductThumb src={product.images[0]} alt={product.name} />
                     ) : (
                       <div className="w-10 h-12 bg-[#EAC9C9]/20 flex items-center justify-center">
                         <span className="text-[10px] text-[#897568]"
