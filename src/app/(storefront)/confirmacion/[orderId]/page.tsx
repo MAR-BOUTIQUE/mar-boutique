@@ -79,19 +79,29 @@ async function processWompiRedirect(
       if (stockErr) console.error("[confirmacion] confirm_stock_sale error:", stockErr);
     }
 
-    // Actualizar pedido — sin guard de status para recuperar cancelados
-    const { error: updateErr } = await supabase
+    // Update atómico — solo actualiza si el estado sigue siendo confirmable.
+    // Si el webhook llegó primero y ya lo marcó "paid", el update devuelve 0 filas
+    // y saltamos los emails, evitando duplicados.
+    const { data: updateResult, error: updateErr } = await supabase
       .from("orders")
       .update({
         status: "paid",
         wompi_transaction_id: tx.id,
         paid_at: new Date().toISOString(),
       })
-      .eq("id", order.id);
+      .eq("id", order.id)
+      .in("status", ["pending_payment", "cancelled"])
+      .select("id");
 
     if (updateErr) {
       console.error("[confirmacion] Error actualizando pedido:", updateErr);
       return false;
+    }
+
+    if (!updateResult?.length) {
+      // Otra instancia ya confirmó (p.ej. webhook) — el pedido está pagado, no enviamos emails duplicados
+      console.log("[confirmacion] Pedido ya confirmado por otro proceso:", order.order_number);
+      return true;
     }
 
     await supabase.from("order_status_log").insert({
@@ -101,8 +111,6 @@ async function processWompiRedirect(
       notes: `Pago confirmado desde página de confirmación (redirect Wompi). Transacción: ${tx.id}`,
     });
 
-    // Enviar emails (best-effort — el webhook puede enviarlos también, el cliente no verá dos
-    // porque si el webhook llega y el pedido ya está en "paid", la lógica de idempotencia lo ignora)
     const { data: fullOrder } = await supabase
       .from("orders")
       .select("*, items:order_items(*)")

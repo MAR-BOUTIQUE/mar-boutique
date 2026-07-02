@@ -110,15 +110,23 @@ export async function POST(req: NextRequest) {
         if (stockErr) console.error("[wompi_webhook] confirm_stock_sale error:", stockErr);
       }
 
-      // 2. Actualizar estado del pedido — sin guard de status para recuperar cancelados
-      await supabase
+      // 2. Update atómico — solo si el pedido sigue siendo confirmable.
+      // Si la página de confirmación ya lo marcó "paid", el update devuelve 0 filas y no enviamos emails duplicados.
+      const { data: updateResult } = await supabase
         .from("orders")
         .update({
           status: "paid",
           wompi_transaction_id: tx.id,
           paid_at: new Date().toISOString(),
         })
-        .eq("id", order.id);
+        .eq("id", order.id)
+        .in("status", ["pending_payment", "cancelled"])
+        .select("id");
+
+      if (!updateResult?.length) {
+        console.log("[wompi_webhook] Pedido ya confirmado por otro proceso:", order.order_number, "— nada que hacer");
+        return NextResponse.json({ ok: true });
+      }
 
       // 3. Log de estado — RB-PED-04
       await supabase.from("order_status_log").insert({
@@ -131,7 +139,6 @@ export async function POST(req: NextRequest) {
       console.log("[wompi_webhook] Pedido actualizado a PAGADO:", order.order_number);
 
       // 4. Emails — RB-PED-03, RB-PED-05
-      // Refetch para obtener datos completos (puede haber estado en cancelled)
       const { data: fullOrder } = await supabase
         .from("orders")
         .select("*, items:order_items(*)")

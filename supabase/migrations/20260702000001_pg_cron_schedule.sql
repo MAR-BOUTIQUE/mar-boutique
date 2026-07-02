@@ -7,15 +7,18 @@
 -- 3. Verificar con: SELECT * FROM cron.job;
 
 -- Eliminar trabajos previos si existen (evitar duplicados)
-SELECT cron.unschedule('release-expired-reservations') WHERE EXISTS (
-  SELECT 1 FROM cron.job WHERE jobname = 'release-expired-reservations'
-);
-SELECT cron.unschedule('cancel-expired-orders') WHERE EXISTS (
-  SELECT 1 FROM cron.job WHERE jobname = 'cancel-expired-orders'
-);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'release-expired-reservations') THEN
+    PERFORM cron.unschedule('release-expired-reservations');
+  END IF;
+  IF EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'cancel-expired-orders') THEN
+    PERFORM cron.unschedule('cancel-expired-orders');
+  END IF;
+END
+$$;
 
--- Liberar reservas expiradas cada minuto — RB-CHK-01, RB-PED-02
--- (el stock bloqueado por carrito se libera automáticamente a los 10 min)
+-- Liberar reservas de stock expiradas cada minuto — RB-CHK-01, RB-PED-02
 SELECT cron.schedule(
   'release-expired-reservations',
   '* * * * *',
@@ -23,7 +26,6 @@ SELECT cron.schedule(
 );
 
 -- Cancelar pedidos sin pago confirmado pasados 30 minutos — RB-PED-02
--- Corre cada 5 minutos para no dejar pedidos zombie demasiado tiempo
 SELECT cron.schedule(
   'cancel-expired-orders',
   '*/5 * * * *',
