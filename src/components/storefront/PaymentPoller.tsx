@@ -29,13 +29,20 @@ export function PaymentPoller({ orderId, createdAt }: Props) {
         if (!res.ok) return;
         const { status } = await res.json();
 
+        if (status === "payment_failed") {
+          // Transacción rechazada — mostrar opción de reintento de inmediato
+          // sin hacer router.refresh() que causaría un loop (orden sigue pending_payment)
+          clearInterval(interval);
+          setTimedOut(true);
+          return;
+        }
+
         if (
           status === "paid" ||
           status === "preparing" ||
           status === "shipped" ||
           status === "delivered" ||
-          status === "cancelled" ||
-          status === "payment_failed"
+          status === "cancelled"
         ) {
           clearInterval(interval);
           router.refresh();

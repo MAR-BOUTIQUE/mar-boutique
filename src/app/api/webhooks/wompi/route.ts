@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { createServiceClient } from "@/lib/supabase/server";
-import { sendOrderConfirmationEmail, sendNewOrderAdminEmail, sendPaymentFailedEmail } from "@/lib/email/templates";
+import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/email/templates";
 import type { WompiWebhookEvent } from "@/types";
 
 // Verificar firma del webhook — seguridad
@@ -153,37 +153,14 @@ export async function POST(req: NextRequest) {
       }
 
     } else if (tx.status === "DECLINED" || tx.status === "VOIDED" || tx.status === "ERROR") {
-      // ── PAGO RECHAZADO — RB-CHK-05 ───────────────────────
-      // Solo cancelar si el pedido todavía está pendiente — no tocar si ya fue pagado
-      if (order.status !== "pending_payment") {
-        console.log("[wompi_webhook] Transacción rechazada pero pedido ya en estado:", order.status, "— no se cancela");
-        return NextResponse.json({ ok: true });
-      }
-
-      // Liberar reservas de este pedido específico — RB-PED-02
-      const sessionId = order.cart_session_id ?? order.wompi_reference;
-      for (const item of order.items) {
-        await supabase.rpc("release_reservations_by_session", {
-          p_variant_id: item.variant_id,
-          p_session_id: sessionId,
-        });
-      }
-
-      await supabase
-        .from("orders")
-        .update({ status: "cancelled" })
-        .eq("id", order.id)
-        .eq("status", "pending_payment");
-
-      await supabase.from("order_status_log").insert({
-        order_id: order.id,
-        from_status: "pending_payment",
-        to_status: "cancelled",
-        notes: `Pago rechazado por Wompi. Estado transacción: ${tx.status}`,
-      });
-
-      await sendPaymentFailedEmail(order);
-      console.log("[wompi_webhook] Pedido cancelado por pago rechazado:", order.order_number);
+      // ── PAGO RECHAZADO — solo registrar, NO cancelar el pedido ─────────
+      // La clienta puede reintentar en el mismo checkout de Wompi (misma referencia,
+      // nueva transacción). Si cancelamos aquí y el webhook APPROVED llega después,
+      // hay una ventana donde el pedido queda cancelado aunque el pago fue exitoso.
+      // El pg_cron cancel_expired_orders se encarga de limpiar pedidos realmente
+      // abandonados después de 30 minutos sin confirmación de pago.
+      console.log("[wompi_webhook] Transacción rechazada:", tx.id, "estado:", tx.status,
+        "pedido:", order.order_number, "— no se cancela (la clienta puede reintentar).");
     } else {
       console.log("[wompi_webhook] Estado de transacción no manejado:", tx.status);
     }
