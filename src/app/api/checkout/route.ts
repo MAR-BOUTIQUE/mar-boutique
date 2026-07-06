@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/email/templates";
+import { sendEmailsSafe } from "@/lib/email/resend";
 import type { CartItem, CheckoutForm } from "@/types";
 
 interface CheckoutPayload {
@@ -143,10 +144,11 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (fullOrder) {
-        await Promise.allSettled([
+        await sendEmailsSafe(
+          `checkout/contraentrega/${order.order_number}`,
           sendOrderConfirmationEmail(fullOrder),
           sendNewOrderAdminEmail(fullOrder),
-        ]);
+        );
       }
 
       return NextResponse.json({

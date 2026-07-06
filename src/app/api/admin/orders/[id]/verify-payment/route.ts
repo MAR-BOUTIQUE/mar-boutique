@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/email/templates";
+import { sendEmailsSafe } from "@/lib/email/resend";
 
 const WOMPI_BASE =
   process.env.NEXT_PUBLIC_WOMPI_ENV === "production"
@@ -118,10 +119,11 @@ export async function POST(
     .single();
 
   if (fullOrder) {
-    await Promise.allSettled([
+    await sendEmailsSafe(
+      `verify-payment/${order.order_number}`,
       sendOrderConfirmationEmail(fullOrder),
       sendNewOrderAdminEmail(fullOrder),
-    ]);
+    );
   }
 
   return NextResponse.json({

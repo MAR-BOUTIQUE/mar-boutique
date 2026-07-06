@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/email/templates";
+import { sendEmailsSafe } from "@/lib/email/resend";
 import type { WompiWebhookEvent } from "@/types";
 
 // Verificar firma del webhook — seguridad
@@ -146,10 +147,11 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (fullOrder) {
-        await Promise.allSettled([
+        await sendEmailsSafe(
+          `webhook/APPROVED/${order.order_number}`,
           sendOrderConfirmationEmail(fullOrder),
           sendNewOrderAdminEmail(fullOrder),
-        ]);
+        );
       }
 
     } else if (tx.status === "DECLINED" || tx.status === "VOIDED" || tx.status === "ERROR") {

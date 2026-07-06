@@ -5,6 +5,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDate } from "@/lib/utils/format";
 import { PaymentPoller } from "@/components/storefront/PaymentPoller";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/email/templates";
+import { sendEmailsSafe } from "@/lib/email/resend";
 
 interface Props {
   params: Promise<{ orderId: string }>;
@@ -118,10 +119,11 @@ async function processWompiRedirect(
       .single();
 
     if (fullOrder) {
-      await Promise.allSettled([
+      await sendEmailsSafe(
+        `confirmacion/${order.order_number}`,
         sendOrderConfirmationEmail(fullOrder),
         sendNewOrderAdminEmail(fullOrder),
-      ]);
+      );
     }
 
     console.log("[confirmacion] Pago confirmado desde redirect para pedido:", order.order_number);
