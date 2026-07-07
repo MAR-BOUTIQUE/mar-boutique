@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDateShort } from "@/lib/utils/format";
 import { ExportPedidosButton } from "@/components/admin/ExportPedidosButton";
+import { OrderDateFilter } from "@/components/admin/OrderDateFilter";
 
 const STATUS_OPTIONS = [
   { value: "", label: "Todos los estados" },
@@ -31,23 +32,39 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 interface Props {
-  searchParams: Promise<{ status?: string; q?: string }>;
+  searchParams: Promise<{ status?: string; q?: string; date_from?: string; date_to?: string }>;
+}
+
+function buildStatusHref(statusValue: string, dateFrom?: string, dateTo?: string, q?: string) {
+  const p = new URLSearchParams();
+  if (statusValue) p.set("status", statusValue);
+  if (dateFrom) p.set("date_from", dateFrom);
+  if (dateTo) p.set("date_to", dateTo);
+  if (q) p.set("q", q);
+  const qs = p.toString();
+  return qs ? `/admin/pedidos?${qs}` : "/admin/pedidos";
 }
 
 export default async function AdminPedidosPage({ searchParams }: Props) {
-  const { status, q } = await searchParams;
+  const { status, q, date_from, date_to } = await searchParams;
   const supabase = createServiceClient();
 
   let query = supabase
     .from("orders")
     .select("id, order_number, shipping_name, shipping_email, shipping_city, total, status, payment_method, created_at, tracking_number")
     .order("created_at", { ascending: false })
-    .limit(100);
+    .limit(200);
 
   if (status) query = query.eq("status", status);
   if (q) query = query.ilike("order_number", `%${q}%`);
 
+  // Colombia = UTC-5: filtrar el día completo en hora local
+  if (date_from) query = query.gte("created_at", `${date_from}T00:00:00-05:00`);
+  if (date_to) query = query.lte("created_at", `${date_to}T23:59:59-05:00`);
+
   const { data: orders } = await query;
+
+  const hasDateFilter = !!(date_from || date_to);
 
   return (
     <div>
@@ -61,12 +78,12 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
         <ExportPedidosButton currentStatus={status} />
       </div>
 
-      {/* Filtros */}
-      <div className="flex gap-3 mb-6 flex-wrap">
+      {/* Filtros de estado */}
+      <div className="flex gap-3 mb-4 flex-wrap">
         {STATUS_OPTIONS.map((opt) => (
           <Link
             key={opt.value}
-            href={opt.value ? `/admin/pedidos?status=${opt.value}` : "/admin/pedidos"}
+            href={buildStatusHref(opt.value, date_from, date_to, q)}
             className={`text-[10px] tracking-[0.15em] uppercase px-4 py-2 border font-[500] transition-colors ${
               (status ?? "") === opt.value
                 ? "bg-[#3D2B1F] text-[#F3EDE0] border-[#3D2B1F]"
@@ -76,6 +93,16 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
             {opt.label}
           </Link>
         ))}
+      </div>
+
+      {/* Filtro de fecha */}
+      <div className={`flex items-center gap-4 mb-6 px-4 py-3 border flex-wrap ${hasDateFilter ? "border-[#EAC9C9] bg-[#EAC9C9]/10" : "border-[#DDD5C4] bg-white"}`}>
+        <OrderDateFilter />
+        {hasDateFilter && (
+          <span className="text-[10px] text-[#897568]">
+            {(orders ?? []).length} pedido{(orders ?? []).length !== 1 ? "s" : ""} en el período
+          </span>
+        )}
       </div>
 
       {/* Tabla */}
