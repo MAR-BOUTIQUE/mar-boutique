@@ -4,16 +4,22 @@ import Image from "next/image";
 import { useState } from "react";
 
 interface Props {
-  src: string;
+  /** Puede venir vacío: `images[0]` de un producto sin fotos es undefined. */
+  src: string | undefined;
   alt: string;
+  /** "md" para las tarjetas de inventario en celular, donde 40px se queda corto. */
+  size?: "sm" | "md";
 }
 
-export function ProductThumb({ src, alt }: Props) {
+const BOX = { sm: "w-10 h-12", md: "w-16 h-20" };
+const SIZES = { sm: "40px", md: "64px" };
+
+export function ProductThumb({ src, alt, size = "sm" }: Props) {
   const [error, setError] = useState(false);
 
-  if (error) {
+  if (!src || error) {
     return (
-      <div className="w-10 h-12 bg-[#EAC9C9]/20 flex items-center justify-center">
+      <div className={`${BOX[size]} shrink-0 bg-[#EAC9C9]/20 flex items-center justify-center`}>
         <span
           className="text-[10px] text-[#897568]"
           style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
@@ -25,14 +31,14 @@ export function ProductThumb({ src, alt }: Props) {
   }
 
   return (
-    <div className="relative w-10 h-12 overflow-hidden bg-[#EAC9C9]/20">
+    <div className={`relative ${BOX[size]} shrink-0 overflow-hidden bg-[#EAC9C9]/20`}>
       <Image
         src={src}
         alt={alt}
         fill
         unoptimized
         className="object-cover"
-        sizes="40px"
+        sizes={SIZES[size]}
         onError={() => setError(true)}
       />
     </div>

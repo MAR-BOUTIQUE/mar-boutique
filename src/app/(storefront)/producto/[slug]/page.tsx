@@ -1,3 +1,7 @@
+// El stock cambia desde el admin (ajuste manual) y desde el checkout; esta
+// página nunca debe servirse desde caché o mostraría disponibilidad vieja.
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";

@@ -1,3 +1,7 @@
+// El stock cambia desde el admin (ajuste manual) y desde el checkout; el
+// catálogo nunca debe servirse desde caché o marcaría "Agotado" con retraso.
+export const dynamic = "force-dynamic";
+
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/storefront/ProductCard";

@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Package, ShoppingBag, Users,
-  Tag, BarChart2, Settings, Archive, LogOut, Layers, FolderOpen,
+  Tag, BarChart2, Settings, Archive, LogOut, Layers, FolderOpen, Menu, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/supabase/client";
@@ -26,6 +27,7 @@ const NAV = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -34,7 +36,39 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-60 bg-[#3D2B1F] flex flex-col z-40">
+    <>
+      {/* Barra superior solo en celular */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#3D2B1F] flex items-center px-3 z-50">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={open}
+          className="h-11 w-11 flex items-center justify-center text-[#F3EDE0]"
+        >
+          {open ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
+        </button>
+        <span
+          className="text-lg text-[#F3EDE0] ml-1"
+          style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
+        >
+          Mar Boutique
+        </span>
+      </div>
+
+      {open && (
+        <button
+          aria-label="Cerrar menú"
+          onClick={() => setOpen(false)}
+          className="md:hidden fixed inset-0 bg-black/40 z-40"
+        />
+      )}
+
+      <aside
+        className={cn(
+          "fixed left-0 top-0 h-full w-60 bg-[#3D2B1F] flex flex-col z-50 transition-transform md:z-40 md:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
       {/* Logo */}
       <div className="px-6 py-6 border-b border-[#4D3B2F]">
         <Link href="/" target="_blank">
@@ -58,6 +92,7 @@ export function AdminSidebar() {
             <Link
               key={href}
               href={href}
+              onClick={() => setOpen(false)}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm transition-colors",
                 active
@@ -82,6 +117,7 @@ export function AdminSidebar() {
           Cerrar sesión
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
