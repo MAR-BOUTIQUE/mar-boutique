@@ -387,6 +387,7 @@ export function ProductForm({ initial, categories, collections, occasions }: Pro
           variants={form.variants}
           onChange={(v) => set("variants", v)}
           basePrice={parseFloat(form.base_price) || 0}
+          productName={form.name}
         />
       </div>
 

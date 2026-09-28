@@ -11,6 +11,7 @@
  */
 
 import * as XLSX from "xlsx";
+import { buildSku } from "@/lib/utils/sku";
 
 export interface ImportRow {
   rowIndex: number; // 1-based, matching sheet row
@@ -134,7 +135,7 @@ export function parseImportFile(buffer: ArrayBuffer): ParseResult {
     const stock = stockRaw !== null ? Math.max(0, Math.round(stockRaw)) : 0;
 
     const skuRaw = str(r["sku"]);
-    const sku = skuRaw || autoSku(nombre, talla, color);
+    const sku = skuRaw || buildSku(nombre, talla, color);
 
     const row: ImportRow = {
       rowIndex,
@@ -171,12 +172,6 @@ export function parseImportFile(buffer: ArrayBuffer): ParseResult {
   });
 
   return { rows, errors };
-}
-
-function autoSku(nombre: string, talla: string, color: string): string {
-  const clean = (s: string) =>
-    s.toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "").slice(0, 4);
-  return `${clean(nombre)}-${clean(talla)}-${clean(color)}`;
 }
 
 /** Groups import rows by product name */

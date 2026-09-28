@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
   // 3. Variantes
   if (body.variants?.length) {
-    await service.from("product_variants").insert(
+    const { error: variantError } = await service.from("product_variants").insert(
       body.variants.map((v: any) => ({
         product_id: pid,
         sku: v.sku,
@@ -67,6 +67,19 @@ export async function POST(req: NextRequest) {
         attributes: v.attributes,
       }))
     );
+
+    // El SKU es unique en toda la tabla. Sin este control el producto quedaba
+    // creado y sin variantes, con respuesta 200: un fallo invisible.
+    if (variantError) {
+      await service.from("products").delete().eq("id", pid);
+      if (variantError.code === "23505") {
+        return NextResponse.json(
+          { error: "Uno de los SKU ya existe en otro producto. Revisa la columna SKU de las variantes." },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json({ error: variantError.message }, { status: 500 });
+    }
   }
 
   // Log de auditoría

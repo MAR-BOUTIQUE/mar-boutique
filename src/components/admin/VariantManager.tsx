@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { buildSku } from "@/lib/utils/sku";
 
 export interface VariantRow {
   sku: string;
@@ -15,17 +16,13 @@ interface Props {
   variants: VariantRow[];
   onChange: (variants: VariantRow[]) => void;
   basePrice: number;
+  /** Nombre del producto: prefijo del SKU autogenerado. */
+  productName: string;
 }
 
 const TALLAS_DEFAULT = ["XS", "S", "M", "L", "XL", "XXL"];
 
-function generateSKU(name: string, talla: string, color: string): string {
-  const clean = (s: string) =>
-    s.toUpperCase().replace(/\s+/g, "").slice(0, 4);
-  return `${clean(name)}-${clean(talla)}-${clean(color)}`;
-}
-
-export function VariantManager({ variants, onChange, basePrice }: Props) {
+export function VariantManager({ variants, onChange, basePrice, productName }: Props) {
   const [tallas, setTallas] = useState<string[]>([]);
   const [colores, setColores] = useState<string[]>([]);
   const [newTalla, setNewTalla] = useState("");
@@ -49,7 +46,7 @@ export function VariantManager({ variants, onChange, basePrice }: Props) {
         );
         next.push(
           existing ?? {
-            sku: generateSKU("MB", t, c),
+            sku: buildSku(productName, t, c),
             attributes: { talla: t, color: c },
             stock: 0,
             price: null,
