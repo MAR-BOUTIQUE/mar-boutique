@@ -89,6 +89,15 @@ export async function PUT(req: NextRequest, { params }: Params) {
     );
   }
 
+  // 4. Costo al por mayor (tabla privada product_costs). Vacío = borrar el costo.
+  if (body.cost_price !== null && body.cost_price !== undefined && body.cost_price !== "") {
+    await service
+      .from("product_costs")
+      .upsert({ product_id: id, cost: Number(body.cost_price), updated_at: new Date().toISOString() });
+  } else {
+    await service.from("product_costs").delete().eq("product_id", id);
+  }
+
   return NextResponse.json({ id, slug });
 }
 

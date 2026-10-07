@@ -14,6 +14,7 @@ export default async function EditarProductoPage({ params }: Props) {
     { data: categories },
     { data: collections },
     { data: occasions },
+    { data: cost },
   ] = await Promise.all([
     service
       .from("products")
@@ -29,6 +30,7 @@ export default async function EditarProductoPage({ params }: Props) {
     service.from("categories").select("id, name, slug").order("name"),
     service.from("collections").select("id, name, slug").order("name"),
     service.from("occasions").select("id, name, slug").order("name"),
+    service.from("product_costs").select("cost").eq("product_id", id).maybeSingle(),
   ]);
 
   if (!product) notFound();
@@ -41,6 +43,7 @@ export default async function EditarProductoPage({ params }: Props) {
     care_instructions: product.care_instructions ?? "",
     base_price: String(product.base_price),
     compare_price: product.compare_price ? String(product.compare_price) : "",
+    cost_price: cost ? String(cost.cost) : "",
     status: product.status as "draft" | "active" | "archived",
     is_best_seller: product.is_best_seller ?? false,
     is_pre_sale: product.is_pre_sale ?? false,

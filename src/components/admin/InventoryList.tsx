@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { formatCOP } from "@/lib/utils/format";
 import { ProductThumb } from "@/components/admin/ProductThumb";
 import { StockAdjuster } from "@/components/admin/StockAdjuster";
 
@@ -12,6 +14,11 @@ export interface InventoryRow {
   stock: number;
   reserved: number;
   attributes: Record<string, string> | null;
+  productId: string | null;
+  /** Precio de venta efectivo (precio de la variante o, si no tiene, el base). */
+  price: number;
+  /** Costo al por mayor; null si aún no se ha registrado. */
+  cost: number | null;
   productName: string;
   image?: string;
 }
@@ -33,6 +40,11 @@ function norm(s: string) {
     .replace(/[̀-ͯ]/g, "");
 }
 
+/** Margen sobre el precio de venta. */
+function marginPct(price: number, cost: number) {
+  return price > 0 ? ((price - cost) / price) * 100 : 0;
+}
+
 function attrsText(attributes: Record<string, string> | null) {
   return Object.entries(attributes ?? {})
     .map(([k, v]) => `${k}: ${v}`)
@@ -42,6 +54,7 @@ function attrsText(attributes: Record<string, string> | null) {
 export function InventoryList({ rows, truncated }: { rows: InventoryRow[]; truncated: boolean }) {
   const [query, setQuery] = useState("");
   const [estado, setEstado] = useState<Estado>("todos");
+  const [soloSinCosto, setSoloSinCosto] = useState(false);
 
   // El índice de búsqueda se calcula una vez por lista, no en cada tecla.
   const indexed = useMemo(
@@ -72,9 +85,44 @@ export function InventoryList({ rows, truncated }: { rows: InventoryRow[]; trunc
       if (estado === "agotados" && v.available !== 0) return false;
       if (estado === "bajo" && !(v.available > 0 && v.available <= 3)) return false;
       if (estado === "ok" && v.available <= 3) return false;
+      if (soloSinCosto && v.cost !== null) return false;
       return terms.every((t) => v.haystack.includes(t));
     });
-  }, [indexed, query, estado]);
+  }, [indexed, query, estado, soloSinCosto]);
+
+  // Se valoriza el stock físico (incluye lo reservado en pedidos sin pagar: sigue
+  // siendo mercancía de la tienda). Sigue a los filtros para poder valorizar,
+  // por ejemplo, solo lo que coincide con una búsqueda.
+  const totals = useMemo(() => {
+    let units = 0;
+    let saleValue = 0;
+    let costValue = 0;
+    let costedSale = 0;
+    let missingCost = 0;
+
+    for (const v of visible) {
+      units += v.stock;
+      saleValue += v.stock * v.price;
+      if (v.cost === null) {
+        missingCost++;
+      } else {
+        costValue += v.stock * v.cost;
+        costedSale += v.stock * v.price;
+      }
+    }
+
+    const profit = costedSale - costValue;
+    return {
+      units,
+      saleValue,
+      costValue,
+      profit,
+      margin: costedSale > 0 ? (profit / costedSale) * 100 : 0,
+      missingCost,
+    };
+  }, [visible]);
+
+  const filtered = query !== "" || estado !== "todos" || soloSinCosto;
 
   const tone = (available: number) =>
     available === 0 ? "text-red-500" : available <= 3 ? "text-[#B5888A]" : "text-green-700";
@@ -84,6 +132,45 @@ export function InventoryList({ rows, truncated }: { rows: InventoryRow[]; trunc
       <p className="text-sm text-[#897568] mb-5">
         {counts.agotados} agotados · {counts.bajo} con stock bajo · {counts.ok} OK
       </p>
+
+      {/* Inventario valorizado */}
+      <section className="bg-white border border-[#DDD5C4] p-4 mb-5">
+        <div className="flex items-baseline justify-between gap-3 mb-3">
+          <h2 className="text-sm font-[600] text-[#3D2B1F] tracking-wide">Inventario valorizado</h2>
+          <span className="text-[10px] tracking-[0.15em] uppercase text-[#897568]">
+            {filtered ? `Filtrado · ${visible.length} variantes` : "Todo el inventario"}
+          </span>
+        </div>
+
+        <dl className="grid grid-cols-2 md:grid-cols-5 gap-x-4 gap-y-3">
+          {[
+            { label: "Unidades", value: totals.units.toLocaleString("es-CO") },
+            { label: "Valor al costo", value: formatCOP(totals.costValue) },
+            { label: "Valor de venta", value: formatCOP(totals.saleValue) },
+            { label: "Ganancia potencial", value: formatCOP(totals.profit) },
+            { label: "Margen", value: `${totals.margin.toFixed(1)}%` },
+          ].map((k) => (
+            <div key={k.label}>
+              <dt className="text-[9px] tracking-[0.2em] uppercase text-[#897568]">{k.label}</dt>
+              <dd className="text-lg font-[600] text-[#3D2B1F]">{k.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        {(totals.missingCost > 0 || soloSinCosto) && (
+          <p className="mt-3 text-xs text-[#897568]">
+            {totals.missingCost} variantes sin costo registrado no entran en el valor al costo, la
+            ganancia ni el margen.{" "}
+            <button
+              type="button"
+              onClick={() => setSoloSinCosto((x) => !x)}
+              className="underline text-[#3D2B1F]"
+            >
+              {soloSinCosto ? "Ver todas" : "Ver solo sin costo"}
+            </button>
+          </p>
+        )}
+      </section>
 
       {/* Búsqueda instantánea: filtra mientras se escribe, sin recargar */}
       <div className="relative mb-4">
@@ -162,6 +249,16 @@ export function InventoryList({ rows, truncated }: { rows: InventoryRow[]; trunc
                         {v.available}
                       </span>
                     </p>
+                    <p className="mt-1 text-xs text-[#897568]">
+                      Venta {formatCOP(v.price)} ·{" "}
+                      {v.cost === null ? (
+                        <MissingCost productId={v.productId} />
+                      ) : (
+                        <>
+                          Costo {formatCOP(v.cost)} · <Margin price={v.price} cost={v.cost} />
+                        </>
+                      )}
+                    </p>
                   </div>
                 </div>
 
@@ -177,7 +274,7 @@ export function InventoryList({ rows, truncated }: { rows: InventoryRow[]; trunc
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#DDD5C4]">
-                  {["", "Producto", "Atributos", "SKU", "Disponible", "Ajustar stock"].map((h, i) => (
+                  {["", "Producto", "Atributos", "SKU", "Costo", "Precio venta", "Margen", "Disponible", "Ajustar stock"].map((h, i) => (
                     <th
                       key={i}
                       className="text-left text-[9px] tracking-[0.2em] uppercase text-[#897568] font-[600] px-4 py-2"
@@ -196,6 +293,13 @@ export function InventoryList({ rows, truncated }: { rows: InventoryRow[]; trunc
                     <td className="px-4 py-3 text-[#3D2B1F]">{v.productName}</td>
                     <td className="px-4 py-3 text-xs text-[#897568]">{attrsText(v.attributes)}</td>
                     <td className="px-4 py-3 font-mono text-xs text-[#897568]">{v.sku}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-[#3D2B1F]">
+                      {v.cost === null ? <MissingCost productId={v.productId} /> : formatCOP(v.cost)}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-[#3D2B1F]">{formatCOP(v.price)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {v.cost === null ? "—" : <Margin price={v.price} cost={v.cost} />}
+                    </td>
                     <td className={cn("px-4 py-3 font-[600]", tone(v.available))}>{v.available}</td>
                     <td className="px-4 py-3">
                       <StockAdjuster variantId={v.id} stock={v.stock} reserved={v.reserved} />
@@ -208,5 +312,23 @@ export function InventoryList({ rows, truncated }: { rows: InventoryRow[]; trunc
         </>
       )}
     </div>
+  );
+}
+
+function Margin({ price, cost }: { price: number; cost: number }) {
+  const profit = price - cost;
+  return (
+    <span className={cn("font-[600]", profit < 0 ? "text-red-500" : "text-green-700")}>
+      {formatCOP(profit)} ({marginPct(price, cost).toFixed(1)}%)
+    </span>
+  );
+}
+
+function MissingCost({ productId }: { productId: string | null }) {
+  if (!productId) return <span className="text-[#B5888A]">Sin costo</span>;
+  return (
+    <Link href={`/admin/productos/${productId}`} className="text-[#B5888A] underline">
+      Sin costo
+    </Link>
   );
 }

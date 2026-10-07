@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ImageUploader } from "./ImageUploader";
 import { VariantManager, type VariantRow } from "./VariantManager";
 import { cn } from "@/lib/utils/cn";
-import { slugify } from "@/lib/utils/format";
+import { formatCOP, slugify } from "@/lib/utils/format";
 
 interface TaxonomyItem {
   id: string;
@@ -21,6 +21,7 @@ interface ProductFormData {
   care_instructions: string;
   base_price: string;
   compare_price: string;
+  cost_price: string;
   status: "draft" | "active" | "archived";
   is_best_seller: boolean;
   is_pre_sale: boolean;
@@ -45,6 +46,7 @@ const EMPTY: ProductFormData = {
   care_instructions: "",
   base_price: "",
   compare_price: "",
+  cost_price: "",
   status: "draft",
   is_best_seller: false,
   is_pre_sale: false,
@@ -108,6 +110,7 @@ export function ProductForm({ initial, categories, collections, occasions }: Pro
           slug: form.slug || slugify(form.name),
           base_price: parseFloat(form.base_price),
           compare_price: form.compare_price ? parseFloat(form.compare_price) : null,
+          cost_price: form.cost_price ? parseFloat(form.cost_price) : null,
         }),
       });
 
@@ -217,7 +220,26 @@ export function ProductForm({ initial, categories, collections, occasions }: Pro
               className={inputCls}
             />
           </div>
+          <div>
+            <label className={labelCls}>Costo al por mayor (COP)</label>
+            <input
+              type="number"
+              min={0}
+              step={100}
+              value={form.cost_price}
+              onChange={(e) => set("cost_price", e.target.value)}
+              placeholder="60000"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <span className={labelCls}>Margen de ganancia</span>
+            <MarginPreview price={form.base_price} cost={form.cost_price} />
+          </div>
         </div>
+        <p className="text-xs text-[#897568]">
+          El costo es privado: solo se ve en el panel admin y se usa para el inventario valorizado.
+        </p>
       </div>
 
       {/* Estado */}
@@ -421,5 +443,22 @@ export function ProductForm({ initial, categories, collections, occasions }: Pro
         </button>
       </div>
     </form>
+  );
+}
+
+/** Margen sobre el precio de venta, calculado mientras se escribe. */
+function MarginPreview({ price, cost }: { price: string; cost: string }) {
+  const p = parseFloat(price);
+  const c = parseFloat(cost);
+
+  if (!(p > 0) || !(c >= 0) || cost === "") {
+    return <p className="py-2 text-sm text-[#CEC3AB]">Ingresa precio y costo</p>;
+  }
+
+  const profit = p - c;
+  return (
+    <p className={cn("py-2 text-sm font-[600]", profit < 0 ? "text-red-500" : "text-green-700")}>
+      {formatCOP(profit)} · {((profit / p) * 100).toFixed(1)}%
+    </p>
   );
 }

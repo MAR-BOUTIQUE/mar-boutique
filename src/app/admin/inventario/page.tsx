@@ -9,23 +9,29 @@ const LIMIT = 1000;
 interface VariantRow {
   id: string;
   sku: string;
+  price: number | null;
   stock: number;
   reserved: number;
   attributes: Record<string, string> | null;
-  product: { id: string; name: string; images: string[] | null } | null;
+  product: { id: string; name: string; images: string[] | null; base_price: number } | null;
 }
 
 export default async function AdminInventarioPage() {
   const supabase = createServiceClient();
 
-  const { data: variants } = await supabase
-    .from("product_variants")
-    .select(`
-      id, sku, stock, reserved, attributes,
-      product:products(id, name, images)
-    `)
-    .order("stock", { ascending: true })
-    .limit(LIMIT);
+  const [{ data: variants }, { data: costs }] = await Promise.all([
+    supabase
+      .from("product_variants")
+      .select(`
+        id, sku, price, stock, reserved, attributes,
+        product:products(id, name, images, base_price)
+      `)
+      .order("stock", { ascending: true })
+      .limit(LIMIT),
+    supabase.from("product_costs").select("product_id, cost"),
+  ]);
+
+  const costByProduct = new Map((costs ?? []).map((c) => [c.product_id, Number(c.cost)]));
 
   const rows: InventoryRow[] = ((variants ?? []) as unknown as VariantRow[]).map((v) => ({
     id: v.id,
@@ -33,6 +39,10 @@ export default async function AdminInventarioPage() {
     stock: v.stock,
     reserved: v.reserved,
     attributes: v.attributes,
+    productId: v.product?.id ?? null,
+    // El precio de la variante, si existe, reemplaza al precio base del producto
+    price: Number(v.price ?? v.product?.base_price ?? 0),
+    cost: v.product ? costByProduct.get(v.product.id) ?? null : null,
     productName: v.product?.name ?? "—",
     image: v.product?.images?.[0],
   }));

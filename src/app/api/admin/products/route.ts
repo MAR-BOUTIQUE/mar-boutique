@@ -82,6 +82,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // 4. Costo al por mayor (tabla privada product_costs). Vacío = sin registrar.
+  if (body.cost_price !== null && body.cost_price !== undefined && body.cost_price !== "") {
+    await service
+      .from("product_costs")
+      .upsert({ product_id: pid, cost: Number(body.cost_price), updated_at: new Date().toISOString() });
+  }
+
   // Log de auditoría
   await service.from("stock_movements").insert(
     (body.variants ?? [])
