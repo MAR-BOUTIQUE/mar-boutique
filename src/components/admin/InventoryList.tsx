@@ -25,6 +25,7 @@ export interface InventoryRow {
 
 const ESTADOS = [
   { value: "todos", label: "Todos" },
+  { value: "disponibles", label: "Disponibles" },
   { value: "agotados", label: "Agotados" },
   { value: "bajo", label: "Stock bajo" },
   { value: "ok", label: "En stock" },
@@ -70,6 +71,7 @@ export function InventoryList({ rows, truncated }: { rows: InventoryRow[]; trunc
   const counts = useMemo(
     () => ({
       todos: indexed.length,
+      disponibles: indexed.filter((v) => v.available > 0).length,
       agotados: indexed.filter((v) => v.available === 0).length,
       bajo: indexed.filter((v) => v.available > 0 && v.available <= 3).length,
       ok: indexed.filter((v) => v.available > 3).length,
@@ -82,6 +84,7 @@ export function InventoryList({ rows, truncated }: { rows: InventoryRow[]; trunc
     const terms = norm(query).split(/\s+/).filter(Boolean);
 
     return indexed.filter((v) => {
+      if (estado === "disponibles" && v.available === 0) return false;
       if (estado === "agotados" && v.available !== 0) return false;
       if (estado === "bajo" && !(v.available > 0 && v.available <= 3)) return false;
       if (estado === "ok" && v.available <= 3) return false;
