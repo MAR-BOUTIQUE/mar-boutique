@@ -1,7 +1,27 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
+const WHATSAPP_NUMBER = "573042346723";
+
 export function WhatsAppButton() {
+  const pathname = usePathname();
+
+  // Desde la página de un producto el mensaje ya viene con el link de esa prenda:
+  // la clienta no tiene que explicar de cuál habla y el agente (o una persona) lo
+  // identifica por el slug.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  const isProduct = pathname.startsWith("/producto/");
+  const href =
+    isProduct && siteUrl
+      ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+          `Hola 🌸 Me interesa esta prenda: ${siteUrl}${pathname}`
+        )}`
+      : `https://wa.me/${WHATSAPP_NUMBER}`;
+
   return (
     <a
-      href="https://wa.me/573042346723"
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Escríbenos por WhatsApp"

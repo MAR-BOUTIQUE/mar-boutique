@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# permitir el ejemplo de variables de entorno
+!.env.example
