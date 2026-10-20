@@ -7,7 +7,7 @@
 // campo por campo aquí.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getVariantStock, norm, searchProducts } from "@/lib/mcp/inventory-tools";
+import { getProductImages, getVariantStock, norm, searchProducts } from "@/lib/mcp/inventory-tools";
 
 type Db = SupabaseClient;
 
@@ -15,6 +15,8 @@ export interface AgentToolContext {
   db: Db;
   conversationId: string;
   siteUrl: string;
+  /** Recibe las fotos que deben ir adjuntas a la respuesta (las pone el código, no el modelo). */
+  onImages?: (urls: string[]) => void;
 }
 
 /** Definición en el formato de tool use de la API de Anthropic. */
@@ -33,6 +35,9 @@ export interface AgentTool {
 // Borradores y archivados no se ofrecen a clientas.
 const SELLABLE_STATUS = "active";
 
+// Fotos por respuesta: suficiente para ver la prenda sin inundar el chat.
+const MAX_PHOTOS = 3;
+
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 
 const ORDER_STATUS_ES: Record<string, string> = {
@@ -48,7 +53,7 @@ const ORDER_STATUS_ES: Record<string, string> = {
   refunded: "Reembolsado",
 };
 
-export function createAgentTools({ db, conversationId, siteUrl }: AgentToolContext): AgentTool[] {
+export function createAgentTools({ db, conversationId, siteUrl, onImages }: AgentToolContext): AgentTool[] {
   const productUrl = (slug: string) => `${siteUrl.replace(/\/$/, "")}/producto/${slug}`;
 
   return [
@@ -118,6 +123,55 @@ export function createAgentTools({ db, conversationId, siteUrl }: AgentToolConte
             .filter((p) => p.status === SELLABLE_STATUS)
             .map((p) => ({ name: p.name, url: productUrl(p.slug), price: p.base_price })),
         };
+      },
+    },
+
+    {
+      name: "show_photos",
+      description:
+        "Adjunta fotos de una prenda a tu respuesta. Úsala cuando la clienta pregunte por una prenda en " +
+        "específico, pida fotos o quiera ver cómo es. Las fotos se envían solas junto a tu mensaje: no escribas " +
+        "ningún link de foto. Solo funciona con una prenda a la vez.",
+      input_schema: {
+        type: "object",
+        properties: {
+          product: { type: "string", description: "Nombre o slug de la prenda" },
+          again: {
+            type: "boolean",
+            description: "true solo si la clienta pide ver las fotos otra vez, aunque ya se enviaron",
+          },
+        },
+        required: ["product"],
+      },
+      run: async (input) => {
+        const product = str(input.product);
+        if (!product) return { error: "Falta el nombre de la prenda." };
+
+        const found = (await getProductImages(db, product)).filter(
+          (p) => p.status === SELLABLE_STATUS && p.images.length > 0
+        );
+        if (found.length === 0) return { error: "No encontré fotos de esa prenda." };
+        if (found.length > 1) {
+          return { ambiguous: true, products: found.map((p) => p.name), message: "Hay varias prendas así: pregunta cuál." };
+        }
+
+        const [item] = found;
+
+        // No repetir las mismas fotos en la misma conversación, salvo que la clienta las pida de nuevo.
+        const { data: sent } = input.again === true ? { data: null } : await db
+          .from("agent_messages")
+          .select("id")
+          .eq("conversation_id", conversationId)
+          .eq("tool_name", "show_photos")
+          .ilike("content", `%"slug":"${item.slug.replace(/[%_]/g, "")}"%`)
+          .limit(1);
+        if (sent && sent.length > 0) {
+          return { ok: true, slug: item.slug, already_sent: true, message: "Ya se enviaron las fotos de esta prenda antes." };
+        }
+
+        const urls = item.images.slice(0, MAX_PHOTOS);
+        onImages?.(urls);
+        return { ok: true, slug: item.slug, product: item.name, photos_sent: urls.length };
       },
     },
 

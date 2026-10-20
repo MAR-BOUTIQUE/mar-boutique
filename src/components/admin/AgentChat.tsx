@@ -6,6 +6,7 @@ import { Send, RotateCcw } from "lucide-react";
 interface Msg {
   role: "user" | "assistant";
   text: string;
+  images?: string[];
 }
 
 export function AgentChat() {
@@ -44,7 +45,7 @@ export function AgentChat() {
 
       setConversationId(data.conversationId);
       setHandoff(Boolean(data.handoff));
-      setMessages((m) => [...m, { role: "assistant", text: data.reply }]);
+      setMessages((m) => [...m, { role: "assistant", text: data.reply, images: data.images ?? [] }]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error");
     } finally {
@@ -79,6 +80,14 @@ export function AgentChat() {
                 m.role === "user" ? "bg-[#3D2B1F] text-[#F3EDE0]" : "bg-[#F3EDE0] text-[#3D2B1F]"
               }`}
             >
+              {m.images && m.images.length > 0 && (
+                <div className="flex gap-1.5 mb-2">
+                  {m.images.map((src) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={src} src={src} alt="" className="h-28 w-auto object-cover" />
+                  ))}
+                </div>
+              )}
               {m.text}
             </div>
           </div>

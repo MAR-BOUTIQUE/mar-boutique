@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
       onHandoff: sendHandoffEmail,
     });
-    return NextResponse.json({ conversationId, reply: reply.text, handoff: reply.handoff });
+    return NextResponse.json({ conversationId, reply: reply.text, handoff: reply.handoff, images: reply.images });
   } catch (e) {
     console.error("[api/agent/chat]", e);
     return NextResponse.json({ error: "El agente no pudo responder" }, { status: 500 });

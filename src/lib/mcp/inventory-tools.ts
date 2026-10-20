@@ -328,3 +328,23 @@ export async function getInventorySummary(db: Db) {
     products_with_stock_but_no_cost: productsWithStockNoCost.size,
   };
 }
+
+/** Fotos de los productos que coinciden con la búsqueda (la URL pública de cada imagen). */
+export async function getProductImages(db: Db, product: string) {
+  const matches = matchProducts(await allProducts(db), product);
+  if (matches.length === 0) return [];
+
+  const { data, error } = await db
+    .from("products")
+    .select("id, images")
+    .in("id", matches.map((p) => p.id));
+  if (error) throw new Error(error.message);
+
+  const byId = new Map((data ?? []).map((r) => [r.id as string, (r.images ?? []) as string[]]));
+  return matches.map((p) => ({
+    name: p.name.trim(),
+    slug: p.slug,
+    status: p.status,
+    images: (byId.get(p.id) ?? []).filter((u) => /^https:\/\//.test(u)),
+  }));
+}

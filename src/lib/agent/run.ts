@@ -27,6 +27,8 @@ export interface AgentReply {
   text: string;
   /** true si la conversación quedó (o ya estaba) en manos de una persona. */
   handoff: boolean;
+  /** URLs públicas de fotos a enviar junto al texto. El canal decide cómo mostrarlas. */
+  images: string[];
 }
 
 export interface RunAgentOptions {
@@ -45,7 +47,7 @@ export async function runAgent(
   { siteUrl, onHandoff }: RunAgentOptions
 ): Promise<AgentReply> {
   const text = userText.trim().slice(0, MAX_USER_CHARS);
-  if (!text) return { text: "Hola linda 🌸 ¿En qué te puedo ayudar?", handoff: false };
+  if (!text) return { text: "Hola linda 🌸 ¿En qué te puedo ayudar?", handoff: false, images: [] };
 
   const { data: conv, error: convErr } = await db
     .from("agent_conversations")
@@ -59,7 +61,7 @@ export async function runAgent(
   // Una vez en manos de una persona, el agente no vuelve a contestar: evita pisarla.
   if (conv.status === "handoff") {
     await saveMessage(db, conversationId, { role: "assistant", content: HANDOFF_TEXT });
-    return { text: HANDOFF_TEXT, handoff: true };
+    return { text: HANDOFF_TEXT, handoff: true, images: [] };
   }
 
   // Historial de la conversación: solo texto de clienta y asistente. Los resultados de
@@ -80,7 +82,15 @@ export async function runAgent(
   // La API exige que el primer mensaje sea de la clienta; el recorte por límite podría dejar uno del asistente.
   while (messages.length && messages[0].role !== "user") messages.shift();
 
-  const tools = createAgentTools({ db, conversationId, siteUrl });
+  const images: string[] = [];
+  const tools = createAgentTools({
+    db,
+    conversationId,
+    siteUrl,
+    onImages: (urls) => {
+      for (const u of urls) if (!images.includes(u)) images.push(u);
+    },
+  });
   const toolDefs: Anthropic.Tool[] = tools.map(({ name, description, input_schema }) => ({
     name,
     description,
@@ -165,14 +175,14 @@ export async function runAgent(
     // Si el modelo falló, la clienta no se queda sin respuesta: se pasa a una persona.
     await escalate(db, conversationId, "Error técnico del agente", text, onHandoff);
     await saveMessage(db, conversationId, { role: "assistant", content: FALLBACK_TEXT });
-    return { text: FALLBACK_TEXT, handoff: true };
+    return { text: FALLBACK_TEXT, handoff: true, images: [] };
   }
 
   if (!finalText) {
     // Se agotaron las vueltas sin respuesta de texto: mejor una persona que un silencio.
     await escalate(db, conversationId, "El agente no logró responder", text, onHandoff);
     await saveMessage(db, conversationId, { role: "assistant", content: FALLBACK_TEXT });
-    return { text: FALLBACK_TEXT, handoff: true };
+    return { text: FALLBACK_TEXT, handoff: true, images: [] };
   }
 
   await saveMessage(db, conversationId, {
@@ -186,7 +196,7 @@ export async function runAgent(
     .update({ updated_at: new Date().toISOString() })
     .eq("id", conversationId);
 
-  return { text: finalText, handoff };
+  return { text: finalText, handoff, images };
 }
 
 async function saveMessage(
