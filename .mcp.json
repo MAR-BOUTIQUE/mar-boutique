@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "mar-inventory": {
+      "command": "bash",
+      "args": ["mcp/run.sh"]
+    }
+  }
+}
