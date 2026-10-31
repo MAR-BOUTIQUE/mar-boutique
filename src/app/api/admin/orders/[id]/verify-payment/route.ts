@@ -79,7 +79,25 @@ export async function POST(
   }
 
   // Pago aprobado en Wompi — confirmar en la BD
-  // 1. Confirmar stock de cada variante
+  // 1. Actualizar pedido a "paid" de forma atómica: solo desde pendiente o cancelado
+  // (recupera cancelados). Quien gana el UPDATE descuenta stock y envía emails; si otro
+  // proceso ya lo confirmó, devuelve 0 filas y no se repite nada.
+  const { data: updated } = await supabase
+    .from("orders")
+    .update({
+      status: "paid",
+      wompi_transaction_id: approvedTx.id,
+      paid_at: new Date().toISOString(),
+    })
+    .eq("id", order.id)
+    .in("status", ["pending_payment", "cancelled"])
+    .select("id");
+
+  if (!updated?.length) {
+    return NextResponse.json({ ok: true, message: "El pedido ya había sido confirmado por otro proceso", status: "paid" });
+  }
+
+  // 2. Confirmar stock de cada variante
   for (const item of order.items ?? []) {
     const { error: stockErr } = await supabase.rpc("confirm_stock_sale", {
       p_variant_id: item.variant_id,
@@ -91,16 +109,6 @@ export async function POST(
       console.error("[verify-payment] confirm_stock_sale error:", stockErr);
     }
   }
-
-  // 2. Actualizar pedido a "paid" — sin guard de status para poder recuperar cancelados
-  await supabase
-    .from("orders")
-    .update({
-      status: "paid",
-      wompi_transaction_id: approvedTx.id,
-      paid_at: new Date().toISOString(),
-    })
-    .eq("id", order.id);
 
   // 3. Log auditable
   await supabase.from("order_status_log").insert({

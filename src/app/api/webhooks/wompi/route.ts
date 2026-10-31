@@ -1,51 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "crypto";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/email/templates";
 import { sendEmailsSafe } from "@/lib/email/resend";
+import { verifyWompiSignature } from "@/lib/payments/wompi-signature";
 import type { WompiWebhookEvent } from "@/types";
-
-// Verificar firma del webhook — seguridad
-// Wompi envía properties como "data.transaction.id" — rutas desde la RAÍZ del evento
-function verifySignature(event: WompiWebhookEvent, secret: string): boolean {
-  if (!secret) {
-    console.error("[wompi_webhook] WOMPI_EVENTS_SECRET no está configurado");
-    return false;
-  }
-
-  const { properties, checksum } = event.signature;
-
-  const values = properties.map((prop) => {
-    const parts = prop.split(".");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let value: any = event; // ← raíz del evento, no event.data
-    for (const part of parts) {
-      value = value?.[part];
-    }
-    return value ?? "";
-  });
-
-  const str = [...values, event.timestamp, secret].join("");
-  const expected = createHash("sha256").update(str).digest("hex");
-
-  if (expected !== checksum) {
-    console.error("[wompi_webhook] Firma inválida", {
-      properties,
-      values,
-      timestamp: event.timestamp,
-      expected,
-      received: checksum,
-    });
-  }
-
-  return expected === checksum;
-}
 
 export async function POST(req: NextRequest) {
   let rawRef = "(sin referencia)";
   try {
     const body: WompiWebhookEvent = await req.json();
-    const secret = process.env.WOMPI_EVENTS_SECRET!;
+    const secret = process.env.WOMPI_EVENTS_SECRET ?? "";
 
     // Logging para diagnóstico — quitar cuando el webhook sea estable
     console.log("[wompi_webhook] Evento recibido:", {
@@ -59,7 +23,7 @@ export async function POST(req: NextRequest) {
     rawRef = body.data?.transaction?.reference ?? "(sin referencia)";
 
     // Validar firma — RB-CHK-04
-    if (!verifySignature(body, secret)) {
+    if (!verifyWompiSignature(body, secret)) {
       console.error("[wompi_webhook] FIRMA INVÁLIDA para ref:", rawRef,
         "Verificar WOMPI_EVENTS_SECRET en Vercel → Project Settings → Environment Variables"
       );
@@ -100,19 +64,9 @@ export async function POST(req: NextRequest) {
     if (tx.status === "APPROVED") {
       // ── PAGO APROBADO ──────────────────────────────────────
 
-      // 1. Confirmar stock de cada variante — RB-CHK-04 (idempotente)
-      for (const item of order.items) {
-        const { error: stockErr } = await supabase.rpc("confirm_stock_sale", {
-          p_variant_id: item.variant_id,
-          p_session_id: order.cart_session_id ?? order.wompi_reference,
-          p_quantity: item.quantity,
-          p_order_id: order.id,
-        });
-        if (stockErr) console.error("[wompi_webhook] confirm_stock_sale error:", stockErr);
-      }
-
-      // 2. Update atómico — solo si el pedido sigue siendo confirmable.
-      // Si la página de confirmación ya lo marcó "paid", el update devuelve 0 filas y no enviamos emails duplicados.
+      // 1. Update atómico — solo si el pedido sigue siendo confirmable.
+      // Solo quien gana este UPDATE descuenta stock y envía emails; si la redirección o
+      // "Verificar pago" ya lo marcaron "paid", devuelve 0 filas y no se repite nada.
       const { data: updateResult } = await supabase
         .from("orders")
         .update({
@@ -127,6 +81,17 @@ export async function POST(req: NextRequest) {
       if (!updateResult?.length) {
         console.log("[wompi_webhook] Pedido ya confirmado por otro proceso:", order.order_number, "— nada que hacer");
         return NextResponse.json({ ok: true });
+      }
+
+      // 2. Confirmar stock de cada variante — RB-CHK-04 (solo el ganador del UPDATE)
+      for (const item of order.items) {
+        const { error: stockErr } = await supabase.rpc("confirm_stock_sale", {
+          p_variant_id: item.variant_id,
+          p_session_id: order.cart_session_id ?? order.wompi_reference,
+          p_quantity: item.quantity,
+          p_order_id: order.id,
+        });
+        if (stockErr) console.error("[wompi_webhook] confirm_stock_sale error:", stockErr);
       }
 
       // 3. Log de estado — RB-PED-04

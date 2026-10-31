@@ -3,6 +3,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { formatCOP, formatDateShort } from "@/lib/utils/format";
 import { ExportPedidosButton } from "@/components/admin/ExportPedidosButton";
 import { OrderDateFilter } from "@/components/admin/OrderDateFilter";
+import { ReconcilePaymentsButton } from "@/components/admin/ReconcilePaymentsButton";
 
 const STATUS_OPTIONS = [
   { value: "", label: "Todos los estados" },
@@ -75,7 +76,10 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
         >
           Pedidos
         </h1>
-        <ExportPedidosButton currentStatus={status} />
+        <div className="flex items-center gap-3 flex-wrap">
+          <ReconcilePaymentsButton />
+          <ExportPedidosButton currentStatus={status} />
+        </div>
       </div>
 
       {/* Filtros de estado */}

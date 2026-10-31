@@ -55,7 +55,20 @@ export async function GET(req: NextRequest) {
         const approvedTx = (txs ?? []).find((tx: any) => tx.status === "APPROVED");
         if (!approvedTx) continue;
 
-        // Pago aprobado en Wompi pero no registrado en BD — corregir
+        // Pago aprobado en Wompi pero no registrado en BD — corregir.
+        // UPDATE atómico primero: solo quien lo gana descuenta stock y envía emails.
+        const { data: updated } = await supabase
+          .from("orders")
+          .update({
+            status: "paid",
+            wompi_transaction_id: approvedTx.id,
+            paid_at: new Date().toISOString(),
+          })
+          .eq("id", order.id)
+          .in("status", ["pending_payment", "cancelled"])
+          .select("id");
+        if (!updated?.length) continue;
+
         for (const item of order.items ?? []) {
           await supabase.rpc("confirm_stock_sale", {
             p_variant_id: item.variant_id,
@@ -64,15 +77,6 @@ export async function GET(req: NextRequest) {
             p_order_id: order.id,
           });
         }
-
-        await supabase
-          .from("orders")
-          .update({
-            status: "paid",
-            wompi_transaction_id: approvedTx.id,
-            paid_at: new Date().toISOString(),
-          })
-          .eq("id", order.id);
 
         await supabase.from("order_status_log").insert({
           order_id: order.id,

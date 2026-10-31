@@ -6,6 +6,7 @@ import { formatCOP, formatDate } from "@/lib/utils/format";
 import { PaymentPoller } from "@/components/storefront/PaymentPoller";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/email/templates";
 import { sendEmailsSafe } from "@/lib/email/resend";
+import { reconcileOrderWithWompi } from "@/lib/payments/wompi-reconcile";
 
 interface Props {
   params: Promise<{ orderId: string }>;
@@ -69,20 +70,9 @@ async function processWompiRedirect(
       return false;
     }
 
-    // Confirmar stock
-    for (const item of order.items ?? []) {
-      const { error: stockErr } = await supabase.rpc("confirm_stock_sale", {
-        p_variant_id: item.variant_id,
-        p_session_id: order.cart_session_id ?? order.wompi_reference,
-        p_quantity: item.quantity,
-        p_order_id: order.id,
-      });
-      if (stockErr) console.error("[confirmacion] confirm_stock_sale error:", stockErr);
-    }
-
     // Update atómico — solo actualiza si el estado sigue siendo confirmable.
-    // Si el webhook llegó primero y ya lo marcó "paid", el update devuelve 0 filas
-    // y saltamos los emails, evitando duplicados.
+    // Si el webhook llegó primero y ya lo marcó "paid", el update devuelve 0 filas:
+    // no se descuenta stock ni se envían emails por segunda vez.
     const { data: updateResult, error: updateErr } = await supabase
       .from("orders")
       .update({
@@ -100,9 +90,19 @@ async function processWompiRedirect(
     }
 
     if (!updateResult?.length) {
-      // Otra instancia ya confirmó (p.ej. webhook) — el pedido está pagado, no enviamos emails duplicados
       console.log("[confirmacion] Pedido ya confirmado por otro proceso:", order.order_number);
       return true;
+    }
+
+    // Confirmar stock (solo el ganador del UPDATE)
+    for (const item of order.items ?? []) {
+      const { error: stockErr } = await supabase.rpc("confirm_stock_sale", {
+        p_variant_id: item.variant_id,
+        p_session_id: order.cart_session_id ?? order.wompi_reference,
+        p_quantity: item.quantity,
+        p_order_id: order.id,
+      });
+      if (stockErr) console.error("[confirmacion] confirm_stock_sale error:", stockErr);
     }
 
     await supabase.from("order_status_log").insert({
@@ -154,6 +154,23 @@ export default async function ConfirmacionPage({ params, searchParams }: Props) 
     const confirmed = await processWompiRedirect(supabase, order, wompiTransactionId);
     if (confirmed) {
       // Refetch para mostrar el estado actualizado
+      const { data: updated } = await supabase
+        .from("orders")
+        .select("*, items:order_items(*)")
+        .eq("id", orderId)
+        .single();
+      if (updated) Object.assign(order, updated);
+    }
+  }
+
+  // Respaldo sin ?id= (la clienta volvió por otro camino, o el pedido ya fue cancelado por
+  // timeout): consultar Wompi por la referencia del pedido. No cancela nada.
+  if (
+    order.payment_method === "wompi" &&
+    (order.status === "pending_payment" || order.status === "cancelled")
+  ) {
+    const result = await reconcileOrderWithWompi(supabase, order, "confirmacion");
+    if (result.outcome === "confirmed" || result.outcome === "already_paid") {
       const { data: updated } = await supabase
         .from("orders")
         .select("*, items:order_items(*)")
