@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
-:root{--brown:#2D1B0E;--cream:#F8F5F0;--gold:#C9A96E;--text:#2D2010;--muted:#7A7A7A;--white:#FFFFFF;--border:#E8DDD0;--light-gold:#F2EAD8}
+:root{--brown:#252525;--cream:#FFFFFF;--gold:#C9A96E;--text:#252525;--muted:#7A7A7A;--white:#FFFFFF;--border:#EDE3E0;--light-gold:#F6EFED}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Cormorant Garamond','Georgia',serif;background:var(--cream);color:var(--text);font-size:17px;line-height:1.75}
 a{color:var(--brown);text-decoration:none}

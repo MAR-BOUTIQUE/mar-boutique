@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/storefront/ProductCard";
@@ -19,12 +20,68 @@ type FeaturedSection = {
   products: Product[];
 };
 
-const BRAND_VALUES = [
-  { num: "01", title: "Intencional", desc: "Con propósito detrás de cada costura. Cada prenda nace desde el amor." },
-  { num: "02", title: "Versátil", desc: "De los días simples a los momentos especiales. Prendas que se adaptan a tu día a día." },
-  { num: "03", title: "Femenina", desc: "Diseños que resaltan tu esencia. Delicadeza, confianza y estilo en cada detalle." },
-  { num: "04", title: "Auténtica", desc: "Cada prenda refleja quién quieres ser." },
-];
+const WHATSAPP_ADVISORY_URL = `https://wa.me/573042346723?text=${encodeURIComponent(
+  "Hola 🌸 Quisiera una asesoría para elegir mi outfit"
+)}`;
+
+type CategoryTile = { id: string; name: string; slug: string; image: string | null };
+
+const PRODUCT_FIELDS = `
+  id, name, slug, base_price, compare_price, images,
+  is_on_sale, effective_price, is_sold_out, is_best_seller, is_pre_sale
+`;
+
+async function getCategoryTiles(): Promise<CategoryTile[]> {
+  const db = createServiceClient();
+  const { data: cats } = await db
+    .from("categories")
+    .select("id, name, slug, image_url")
+    .order("sort_order")
+    .limit(4);
+
+  // Una sola consulta para las categorías sin imagen propia (evita N+1)
+  const missing = (cats ?? []).filter((c: any) => !c.image_url).map((c: any) => c.id);
+  const fallback = new Map<string, string>();
+  if (missing.length > 0) {
+    const { data: rows } = await db
+      .from("product_categories")
+      .select("category_id, products!inner(images, status)")
+      .in("category_id", missing)
+      .eq("products.status", "active")
+      .limit(200);
+    for (const r of (rows ?? []) as any[]) {
+      const img = r.products?.images?.[0];
+      if (img && !fallback.has(r.category_id)) fallback.set(r.category_id, img);
+    }
+  }
+
+  return (cats ?? []).map((c: any) => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    image: c.image_url ?? fallback.get(c.id) ?? null,
+  }));
+}
+
+async function getRecommended(): Promise<Product[]> {
+  const db = createServiceClient();
+  const { data } = await db
+    .from("products")
+    .select(PRODUCT_FIELDS)
+    .eq("status", "active")
+    .eq("is_best_seller", true)
+    .order("created_at", { ascending: false })
+    .limit(4);
+  if (data && data.length > 0) return data as Product[];
+
+  const { data: latest } = await db
+    .from("products")
+    .select(PRODUCT_FIELDS)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(4);
+  return (latest ?? []) as Product[];
+}
 
 async function getHeroSlides(): Promise<HeroSlide[]> {
   const db = createServiceClient();
@@ -90,9 +147,11 @@ async function getFeaturedSection(): Promise<FeaturedSection> {
 }
 
 export default async function HomePage() {
-  const [featured, heroSlides] = await Promise.all([
+  const [featured, heroSlides, categories, recommended] = await Promise.all([
     getFeaturedSection(),
     getHeroSlides(),
+    getCategoryTiles(),
+    getRecommended(),
   ]);
 
   const hasSlides = heroSlides.length > 0;
@@ -101,14 +160,14 @@ export default async function HomePage() {
     <>
       {/* ── HERO ───────────────────────────────────────────────── */}
       <section
-        className={`relative min-h-[92vh] flex items-center justify-center overflow-hidden ${
-          hasSlides ? "bg-[#3D2B1F]" : "bg-[#F3EDE0]"
+        className={`relative -mt-20 min-h-[92vh] flex items-center justify-center overflow-hidden ${
+          hasSlides ? "bg-[#252525]" : "bg-[#FFFFFF]"
         }`}
       >
         {hasSlides ? (
           <HeroSlider slides={heroSlides} />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#F3EDE0] via-[#EAC9C9]/20 to-[#CEC3AB]/30" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#FFFFFF] via-[#ECD6D1]/20 to-[#E3CFCA]/30" />
         )}
 
         <div className="relative z-10 text-center px-4 max-w-2xl mx-auto">
@@ -125,12 +184,7 @@ export default async function HomePage() {
             className="text-5xl sm:text-6xl md:text-7xl mb-4 leading-[1.05]"
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontStyle: "italic",
-              color: hasSlides ? "#ffffff" : "#3D2B1F",
-              ...(hasSlides && {
-                textShadow:
-                  "0 1px 3px rgba(0,0,0,0.95), 0 3px 20px rgba(0,0,0,0.75), 0 6px 50px rgba(0,0,0,0.5)",
-              }),
+              color: hasSlides ? "#ffffff" : "#252525",
             }}
           >
             Mar Boutique
@@ -138,7 +192,7 @@ export default async function HomePage() {
 
           <p
             className={`text-base mb-10 leading-relaxed font-[300] ${
-              hasSlides ? "text-white/90" : "text-[#897568]"
+              hasSlides ? "text-white/90" : "text-[#7B7B7B]"
             }`}
             style={hasSlides ? { textShadow: "0 1px 6px rgba(0,0,0,0.9), 0 2px 20px rgba(0,0,0,0.6)" } : undefined}
           >
@@ -150,8 +204,8 @@ export default async function HomePage() {
               href="/catalogo"
               className={`inline-flex items-center gap-2 px-8 py-3 text-[11px] tracking-[0.2em] uppercase font-[500] transition-colors rounded-none ${
                 hasSlides
-                  ? "bg-white text-[#3D2B1F] hover:bg-[#F3EDE0]"
-                  : "bg-[#3D2B1F] text-[#F3EDE0] hover:bg-[#5A3E2E]"
+                  ? "bg-white text-[#252525] hover:bg-[#FFFFFF]"
+                  : "bg-[#252525] text-[#FFFFFF] hover:bg-[#444444]"
               }`}
             >
               Ver catálogo <ArrowRight size={14} />
@@ -160,8 +214,8 @@ export default async function HomePage() {
               href="/colecciones"
               className={`inline-flex items-center gap-2 px-8 py-3 text-[11px] tracking-[0.2em] uppercase font-[500] transition-colors rounded-none ${
                 hasSlides
-                  ? "border border-white text-white hover:bg-white hover:text-[#3D2B1F]"
-                  : "border border-[#3D2B1F] text-[#3D2B1F] hover:bg-[#3D2B1F] hover:text-[#F3EDE0]"
+                  ? "border border-white text-white hover:bg-white hover:text-[#252525]"
+                  : "border border-[#252525] text-[#252525] hover:bg-[#252525] hover:text-[#FFFFFF]"
               }`}
             >
               Colecciones
@@ -173,51 +227,119 @@ export default async function HomePage() {
       {/* ── MARQUEE ────────────────────────────────────────────── */}
       <MarqueeStrip />
 
-      {/* ── VALORES DE MARCA ───────────────────────────────────── */}
-      <section className="bg-[#F3EDE0] border-b border-[#DDD5C4] py-16 overflow-hidden">
-        <StaggeredGrid
-          className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
-          itemDelay={120}
-        >
-          {BRAND_VALUES.map((v) => (
-            <div key={v.title}>
-              <h3
-                className="text-lg text-[#3D2B1F] mb-2"
-                style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
+      {/* ── CATEGORÍAS ─────────────────────────────────────────── */}
+      {categories.length > 0 && (
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-24 bg-white">
+          <ScrollReveal variant="fadeUp" className="mb-12 text-center">
+            <span className="text-[10px] tracking-[0.25em] uppercase text-[#B5888A] font-[500]">
+              Explora
+            </span>
+            <h2
+              className="text-4xl sm:text-5xl text-[#252525] mt-1"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Categorías
+            </h2>
+          </ScrollReveal>
+
+          <StaggeredGrid className="grid grid-cols-2 md:grid-cols-4 gap-1" itemDelay={100}>
+            {categories.map((c) => (
+              <Link
+                key={c.id}
+                href={`/catalogo?categoria=${c.slug}`}
+                className="group relative block aspect-[3/4] overflow-hidden bg-[#ECD6D1]/30"
               >
-                {v.title}
-              </h3>
-              <p className="text-xs text-[#897568] leading-relaxed">{v.desc}</p>
-            </div>
-          ))}
-        </StaggeredGrid>
+                {c.image && (
+                  <Image
+                    src={c.image}
+                    alt={c.name}
+                    fill
+                    sizes="(min-width: 768px) 25vw, 50vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                )}
+                <div className="absolute inset-0 bg-black/25 group-hover:bg-black/35 transition-colors" />
+                <span
+                  className="absolute inset-0 flex items-center justify-center px-3 text-center text-xl sm:text-2xl tracking-[0.12em] uppercase text-white"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  {c.name}
+                </span>
+              </Link>
+            ))}
+          </StaggeredGrid>
+        </section>
+      )}
+
+      {/* ── CATÁLOGO + ASESORÍA ────────────────────────────────── */}
+      <section className="w-full px-6 sm:px-10 lg:px-16 py-20 bg-[#ECD6D1]">
+        <ScrollReveal variant="fadeUp" className="max-w-5xl mx-auto grid gap-px md:grid-cols-2 bg-[#252525]/10">
+          <div className="bg-[#ECD6D1] text-center px-6 py-10 md:py-14 md:pr-12">
+            <span className="text-[10px] tracking-[0.25em] uppercase text-[#252525]/70 font-[500]">
+              Explora
+            </span>
+            <h3
+              className="text-3xl sm:text-4xl text-[#252525] mt-2 mb-3"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Visita nuestro catálogo
+            </h3>
+            <p className="text-sm text-[#252525]/75 leading-relaxed font-[300] max-w-sm mx-auto mb-7">
+              Todas nuestras prendas en un solo lugar: filtra por talla, color y categoría.
+            </p>
+            <Link
+              href="/catalogo"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-[#252525] text-white text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#444444] transition-colors"
+            >
+              Ver catálogo <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="bg-[#ECD6D1] text-center px-6 py-10 md:py-14 md:pl-12">
+            <span className="text-[10px] tracking-[0.25em] uppercase text-[#252525]/70 font-[500]">
+              Asesoría personalizada
+            </span>
+            <h3
+              className="text-3xl sm:text-4xl text-[#252525] mt-2 mb-3"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              ¿No sabes qué elegir?
+            </h3>
+            <p className="text-sm text-[#252525]/75 leading-relaxed font-[300] max-w-sm mx-auto mb-7">
+              Escríbenos por WhatsApp y te ayudamos a encontrar la prenda y la talla ideal para ti.
+            </p>
+            <a
+              href={WHATSAPP_ADVISORY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-3 border border-[#252525] text-[#252525] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#252525] hover:text-white transition-colors"
+            >
+              Hablar por WhatsApp <ArrowRight size={14} />
+            </a>
+          </div>
+        </ScrollReveal>
       </section>
 
       {/* ── COLECCIÓN DESTACADA ────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <ScrollReveal variant="fadeUp" className="flex items-end justify-between mb-12">
+      <section className="w-full px-8 sm:px-16 lg:px-28 py-24 bg-white">
+        <div className="w-full">
+        <ScrollReveal variant="fadeUp" className="mb-12 text-center">
           <div>
             <span className="text-[10px] tracking-[0.25em] uppercase text-[#B5888A] font-[500]">
               Nueva colección
             </span>
             <h2
-              className="text-4xl sm:text-5xl text-[#3D2B1F] mt-1"
+              className="text-4xl sm:text-5xl text-[#252525] mt-1"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               {featured.collectionName}
             </h2>
             {featured.collectionDesc && (
-              <p className="text-sm text-[#897568] leading-relaxed font-[300] mt-2 max-w-md">
+              <p className="text-sm text-[#7B7B7B] leading-relaxed font-[300] mt-2 max-w-md mx-auto">
                 {featured.collectionDesc}
               </p>
             )}
           </div>
-          <Link
-            href={featured.collectionSlug ? `/coleccion/${featured.collectionSlug}` : "/catalogo"}
-            className="hidden sm:inline-flex items-center gap-1.5 text-[11px] tracking-[0.15em] uppercase text-[#897568] hover:text-[#3D2B1F] transition-colors font-[500]"
-          >
-            Ver todo <ArrowRight size={12} />
-          </Link>
         </ScrollReveal>
 
         {featured.products.length > 0 ? (
@@ -232,80 +354,53 @@ export default async function HomePage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="aspect-[3/4] bg-[#EAC9C9]/30 animate-pulse" />
+              <div key={i} className="aspect-[3/4] bg-[#ECD6D1]/30 animate-pulse" />
             ))}
           </div>
         )}
 
-        <div className="text-center mt-10 sm:hidden">
+        <div className="text-center mt-10">
           <Link
             href={featured.collectionSlug ? `/coleccion/${featured.collectionSlug}` : "/catalogo"}
-            className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.15em] uppercase text-[#897568] hover:text-[#3D2B1F] transition-colors font-[500]"
+            className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.15em] uppercase text-[#7B7B7B] hover:text-[#252525] transition-colors font-[500]"
           >
             Ver todo <ArrowRight size={12} />
           </Link>
         </div>
+        </div>
       </section>
 
-      {/* ── MARQUEE CLARO ──────────────────────────────────────── */}
-      <MarqueeStrip inverted />
+      {/* ── RECOMENDADOS ───────────────────────────────────────── */}
+      {recommended.length > 0 && (
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-24 bg-white">
+          <ScrollReveal variant="fadeUp" className="mb-12 text-center">
+            <span className="text-[10px] tracking-[0.25em] uppercase text-[#B5888A] font-[500]">
+              Lo más amado
+            </span>
+            <h2
+              className="text-4xl sm:text-5xl text-[#252525] mt-1"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Recomendados
+            </h2>
+          </ScrollReveal>
 
-      {/* ── BANNER NOSOTRAS ────────────────────────────────────── */}
-      <section className="relative bg-[#3D2B1F] py-28 overflow-hidden">
-        {/* Texto decorativo de fondo */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 flex items-center justify-center text-[18vw] font-[700] text-white/[0.03] leading-none select-none"
-          style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
-        >
-          Mar
-        </span>
+          <StaggeredGrid className="grid grid-cols-2 md:grid-cols-4 gap-4" itemDelay={100}>
+            {recommended.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </StaggeredGrid>
 
-        <ScrollReveal variant="fadeUp" className="relative z-10 max-w-2xl mx-auto text-center px-4">
-          <span className="text-[10px] tracking-[0.35em] uppercase text-[#B5888A] font-[500]">
-            Nuestra historia
-          </span>
-          <h2
-            className="text-5xl sm:text-6xl mt-3 mb-6 leading-tight"
-            style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", color: "#ffffff" }}
-          >
-            Nosotras
-          </h2>
-          <p className="text-sm text-[#CEC3AB] font-[300] leading-relaxed mb-8 max-w-sm mx-auto">
-            Una marca nacida en Cartagena, con el alma del mar y el propósito de vestir mujeres que brillan.
-          </p>
-          <Link
-            href="/nosotras"
-            className="inline-flex items-center gap-2 px-8 py-3 border border-[#EAC9C9]/60 text-[#EAC9C9] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#EAC9C9] hover:text-[#3D2B1F] transition-colors"
-          >
-            Conocernos <ArrowRight size={12} />
-          </Link>
-        </ScrollReveal>
-      </section>
-
-      {/* ── CTA WISHLIST ───────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-        <ScrollReveal variant="scale" duration={800}>
-          <span className="block text-[10px] tracking-[0.3em] uppercase text-[#B5888A] font-[500] mb-4">
-            Tu lista de deseos
-          </span>
-          <h2
-            className="text-4xl sm:text-5xl text-[#3D2B1F] mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Guarda tus favoritos
-          </h2>
-          <p className="text-sm text-[#897568] mb-10 font-[300] max-w-sm mx-auto leading-relaxed">
-            Añade prendas a tu wishlist y te avisamos cuando baje el precio.
-          </p>
-          <Link
-            href="/cuenta/wishlist"
-            className="inline-flex items-center gap-2 px-10 py-3.5 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#5A3E2E] transition-colors"
-          >
-            Ver wishlist <ArrowRight size={12} />
-          </Link>
-        </ScrollReveal>
-      </section>
+          <div className="text-center mt-10">
+            <Link
+              href="/best-sellers"
+              className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.15em] uppercase text-[#7B7B7B] hover:text-[#252525] transition-colors font-[500]"
+            >
+              Ver todo <ArrowRight size={12} />
+            </Link>
+          </div>
+        </section>
+      )}
     </>
   );
 }

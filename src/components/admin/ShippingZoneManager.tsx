@@ -16,8 +16,8 @@ type Zone = {
 };
 
 const ZONE_COLORS: Record<string, string> = {
-  local: "bg-[#EAC9C9]/50 text-[#B5888A]",
-  main_cities: "bg-[#F3EDE0] text-[#897568]",
+  local: "bg-[#ECD6D1]/50 text-[#B5888A]",
+  main_cities: "bg-[#FFFFFF] text-[#7B7B7B]",
   municipalities: "bg-gray-100 text-gray-500",
 };
 
@@ -154,7 +154,7 @@ export function ShippingZoneManager() {
                     type="number"
                     value={editPrice}
                     onChange={(e) => setEditPrice(e.target.value)}
-                    className="w-28 border border-gray-200 px-2 py-1 text-sm text-gray-800 focus:outline-none focus:border-[#897568]"
+                    className="w-28 border border-gray-200 px-2 py-1 text-sm text-gray-800 focus:outline-none focus:border-[#7B7B7B]"
                     min={0}
                     step={1000}
                     autoFocus
@@ -177,7 +177,7 @@ export function ShippingZoneManager() {
                 </>
               ) : (
                 <>
-                  <span className="text-sm font-[600] text-[#3D2B1F]">{formatCOP(zone.price)}</span>
+                  <span className="text-sm font-[600] text-[#252525]">{formatCOP(zone.price)}</span>
                   <button
                     onClick={() => { setEditingZone(zone.id); setEditPrice(String(zone.price)); }}
                     className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
@@ -227,12 +227,12 @@ export function ShippingZoneManager() {
                   onChange={(e) => setNewCity((prev) => ({ ...prev, [zone.id]: e.target.value }))}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCity(zone.id); } }}
                   placeholder="Agregar ciudad…"
-                  className="flex-1 border border-gray-200 px-3 py-1.5 text-xs text-gray-700 focus:outline-none focus:border-[#897568] transition-colors"
+                  className="flex-1 border border-gray-200 px-3 py-1.5 text-xs text-gray-700 focus:outline-none focus:border-[#7B7B7B] transition-colors"
                 />
                 <button
                   onClick={() => addCity(zone.id)}
                   disabled={addingCity === zone.id || !newCity[zone.id]?.trim()}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-[#3D2B1F] text-white text-xs rounded hover:bg-[#5A3E2E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-[#252525] text-white text-xs rounded hover:bg-[#444444] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus size={12} />
                   {addingCity === zone.id ? "…" : "Agregar"}
@@ -264,14 +264,14 @@ export function ShippingZoneManager() {
                 value={newZoneName}
                 onChange={(e) => setNewZoneName(e.target.value)}
                 placeholder="Nombre de la zona (ej. Eje Cafetero)"
-                className="border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#897568] sm:col-span-2"
+                className="border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#7B7B7B] sm:col-span-2"
               />
               <input
                 type="text"
                 value={newZoneDesc}
                 onChange={(e) => setNewZoneDesc(e.target.value)}
                 placeholder="Descripción (opcional)"
-                className="border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#897568] sm:col-span-2"
+                className="border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#7B7B7B] sm:col-span-2"
               />
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-400">$</span>
@@ -282,7 +282,7 @@ export function ShippingZoneManager() {
                   placeholder="Precio de envío"
                   min={0}
                   step={1000}
-                  className="flex-1 border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#897568]"
+                  className="flex-1 border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#7B7B7B]"
                 />
               </div>
             </div>
@@ -290,7 +290,7 @@ export function ShippingZoneManager() {
               <button
                 onClick={createZone}
                 disabled={creatingZone}
-                className="flex items-center gap-1 px-4 py-2 bg-[#3D2B1F] text-white text-xs rounded hover:bg-[#5A3E2E] transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 px-4 py-2 bg-[#252525] text-white text-xs rounded hover:bg-[#444444] transition-colors disabled:opacity-50"
               >
                 {creatingZone ? "Creando…" : "Crear zona"}
               </button>
@@ -305,7 +305,7 @@ export function ShippingZoneManager() {
         ) : (
           <button
             onClick={() => setShowAddZone(true)}
-            className="w-full flex items-center justify-center gap-2 px-5 py-4 text-sm text-gray-500 hover:text-[#3D2B1F] hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-5 py-4 text-sm text-gray-500 hover:text-[#252525] hover:bg-gray-50 transition-colors"
           >
             <Plus size={15} />
             Agregar nueva zona

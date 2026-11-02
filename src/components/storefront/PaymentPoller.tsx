@@ -65,7 +65,7 @@ export function PaymentPoller({ orderId, createdAt }: Props) {
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 text-xs text-[#897568] mt-4 mb-6 animate-pulse">
+    <div className="flex items-center justify-center gap-2 text-xs text-[#7B7B7B] mt-4 mb-6 animate-pulse">
       <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#B5888A] animate-bounce" />
       Verificando confirmación de pago…
     </div>

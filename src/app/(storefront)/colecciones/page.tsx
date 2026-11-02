@@ -26,12 +26,12 @@ export default async function ColeccionesPage() {
           Mar Boutique
         </span>
         <h1
-          className="text-5xl text-[#3D2B1F] mt-1"
+          className="text-5xl text-[#252525] mt-1"
           style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
         >
           Colecciones
         </h1>
-        <p className="text-sm text-[#897568] mt-4 max-w-md mx-auto">
+        <p className="text-sm text-[#7B7B7B] mt-4 max-w-md mx-auto">
           Cada colección es un universo de estilo pensado para la mujer que vive el mar con elegancia.
         </p>
       </div>
@@ -39,17 +39,17 @@ export default async function ColeccionesPage() {
       {items.length === 0 ? (
         <div className="text-center py-24">
           <p
-            className="text-2xl text-[#897568]"
+            className="text-2xl text-[#7B7B7B]"
             style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
           >
             Próximamente
           </p>
-          <p className="text-sm text-[#897568] mt-2">
+          <p className="text-sm text-[#7B7B7B] mt-2">
             Estamos preparando nuestras colecciones. Vuelve pronto.
           </p>
           <Link
             href="/catalogo"
-            className="inline-block mt-6 text-[11px] tracking-[0.2em] uppercase font-[500] text-[#3D2B1F] border border-[#3D2B1F] px-8 py-3 hover:bg-[#3D2B1F] hover:text-[#F3EDE0] transition-colors"
+            className="inline-block mt-6 text-[11px] tracking-[0.2em] uppercase font-[500] text-[#252525] border border-[#252525] px-8 py-3 hover:bg-[#252525] hover:text-[#FFFFFF] transition-colors"
           >
             Ver catálogo completo
           </Link>
@@ -63,7 +63,7 @@ export default async function ColeccionesPage() {
               className="group block relative overflow-hidden"
             >
               {/* Imagen / fondo */}
-              <div className="aspect-[3/4] relative overflow-hidden bg-[#EAC9C9]/30">
+              <div className="aspect-[3/4] relative overflow-hidden bg-[#ECD6D1]/30">
                 {col.hero_url ? (
                   <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
@@ -72,9 +72,9 @@ export default async function ColeccionesPage() {
                 ) : (
                   <div className="absolute inset-0 flex items-end justify-start p-0">
                     {/* Gradiente decorativo cuando no hay imagen */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#EAC9C9]/60 via-[#F3EDE0] to-[#DDD5C4]/60" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#ECD6D1]/60 via-[#FFFFFF] to-[#EDE3E0]/60" />
                     <span
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl text-[#3D2B1F]/20 select-none"
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl text-[#252525]/20 select-none"
                       style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
                     >
                       MB
@@ -83,7 +83,7 @@ export default async function ColeccionesPage() {
                 )}
 
                 {/* Overlay oscuro al hover */}
-                <div className="absolute inset-0 bg-[#3D2B1F]/0 group-hover:bg-[#3D2B1F]/25 transition-colors duration-500" />
+                <div className="absolute inset-0 bg-[#252525]/0 group-hover:bg-[#252525]/25 transition-colors duration-500" />
 
                 {/* Texto sobre imagen */}
                 <div className="absolute inset-0 flex flex-col justify-end p-6">
@@ -110,13 +110,13 @@ export default async function ColeccionesPage() {
               {!col.hero_url && (
                 <div className="pt-4 pb-2">
                   <h2
-                    className="text-xl text-[#3D2B1F]"
+                    className="text-xl text-[#252525]"
                     style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
                   >
                     {col.name}
                   </h2>
                   {col.description && (
-                    <p className="text-xs text-[#897568] mt-1 line-clamp-2">{col.description}</p>
+                    <p className="text-xs text-[#7B7B7B] mt-1 line-clamp-2">{col.description}</p>
                   )}
                   <span className="text-[10px] tracking-[0.2em] uppercase text-[#B5888A] font-[500] mt-2 inline-block">
                     Ver colección →
@@ -133,7 +133,7 @@ export default async function ColeccionesPage() {
         <div className="text-center mt-16">
           <Link
             href="/catalogo"
-            className="inline-block text-[11px] tracking-[0.2em] uppercase font-[500] text-[#897568] border border-[#DDD5C4] px-8 py-3 hover:border-[#3D2B1F] hover:text-[#3D2B1F] transition-colors"
+            className="inline-block text-[11px] tracking-[0.2em] uppercase font-[500] text-[#7B7B7B] border border-[#EDE3E0] px-8 py-3 hover:border-[#252525] hover:text-[#252525] transition-colors"
           >
             Ver catálogo completo
           </Link>

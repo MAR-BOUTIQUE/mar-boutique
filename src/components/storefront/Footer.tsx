@@ -41,19 +41,19 @@ const SOCIAL = [
 
 export function Footer() {
   return (
-    <footer className="bg-[#3D2B1F] text-[#CEC3AB] mt-auto">
+    <footer className="bg-[#ECD6D1] text-[#252525] mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 
           {/* MARCA */}
           <div className="sm:col-span-2 md:col-span-2">
             <span
-              className="block text-2xl text-white mb-3"
+              className="block text-2xl text-[#252525] mb-3"
               style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
             >
               Mar Boutique
             </span>
-            <p className="text-sm leading-relaxed text-[#897568] max-w-xs">
+            <p className="text-sm leading-relaxed text-[#555555] max-w-xs">
               Mujeres que visten con intención. Ropa femenina con alma costera
               desde Cartagena, Colombia.
             </p>
@@ -65,7 +65,7 @@ export function Footer() {
                   target={href.startsWith("mailto") ? undefined : "_blank"}
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="text-[#897568] hover:text-[#EAC9C9] transition-colors"
+                  className="text-[#555555] hover:text-[#252525] transition-colors"
                 >
                   {icon}
                 </a>
@@ -75,7 +75,7 @@ export function Footer() {
 
           {/* TIENDA */}
           <div>
-            <h4 className="text-[10px] tracking-[0.2em] uppercase text-[#EAC9C9] mb-4 font-[500]">
+            <h4 className="text-[10px] tracking-[0.2em] uppercase text-[#252525] mb-4 font-[500]">
               Tienda
             </h4>
             <ul className="space-y-2.5">
@@ -88,7 +88,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#897568] hover:text-[#CEC3AB] transition-colors"
+                    className="text-sm text-[#555555] hover:text-[#252525] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -99,7 +99,7 @@ export function Footer() {
 
           {/* INFORMACIÓN */}
           <div>
-            <h4 className="text-[10px] tracking-[0.2em] uppercase text-[#EAC9C9] mb-4 font-[500]">
+            <h4 className="text-[10px] tracking-[0.2em] uppercase text-[#252525] mb-4 font-[500]">
               Información
             </h4>
             <ul className="space-y-2.5">
@@ -112,7 +112,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#897568] hover:text-[#CEC3AB] transition-colors"
+                    className="text-sm text-[#555555] hover:text-[#252525] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -122,11 +122,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-[#4D3B2F] mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-xs text-[#6B5548]">
+        <div className="border-t border-[#D9BFB9] mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-xs text-[#555555]">
             © {new Date().getFullYear()} Mar Boutique. Todos los derechos reservados.
           </p>
-          <p className="text-xs text-[#6B5548]">
+          <p className="text-xs text-[#555555]">
             Cartagena, Colombia 🇨🇴
           </p>
         </div>

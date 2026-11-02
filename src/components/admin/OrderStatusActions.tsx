@@ -68,8 +68,8 @@ export function OrderStatusActions({ order }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <span className="text-sm text-[#897568]">Estado actual:</span>
-        <span className="text-sm font-[600] text-[#3D2B1F]">
+        <span className="text-sm text-[#7B7B7B]">Estado actual:</span>
+        <span className="text-sm font-[600] text-[#252525]">
           {STATUS_LABEL[order.status] ?? order.status}
         </span>
       </div>
@@ -78,7 +78,7 @@ export function OrderStatusActions({ order }: Props) {
       {(order.status === "preparing" || order.status === "paid") && (
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-[10px] uppercase tracking-[0.15em] text-[#897568] font-[600] block mb-1.5">
+            <label className="text-[10px] uppercase tracking-[0.15em] text-[#7B7B7B] font-[600] block mb-1.5">
               Número de guía
             </label>
             <input
@@ -86,11 +86,11 @@ export function OrderStatusActions({ order }: Props) {
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
               placeholder="123456789"
-              className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2 text-sm text-[#3D2B1F] outline-none focus:border-[#897568]"
+              className="w-full border border-[#EDE3E0] bg-[#FFFFFF] px-3 py-2 text-sm text-[#252525] outline-none focus:border-[#7B7B7B]"
             />
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-[0.15em] text-[#897568] font-[600] block mb-1.5">
+            <label className="text-[10px] uppercase tracking-[0.15em] text-[#7B7B7B] font-[600] block mb-1.5">
               Courier
             </label>
             <input
@@ -98,7 +98,7 @@ export function OrderStatusActions({ order }: Props) {
               value={courier}
               onChange={(e) => setCourier(e.target.value)}
               placeholder="Coordinadora, Servientrega…"
-              className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2 text-sm text-[#3D2B1F] outline-none focus:border-[#897568]"
+              className="w-full border border-[#EDE3E0] bg-[#FFFFFF] px-3 py-2 text-sm text-[#252525] outline-none focus:border-[#7B7B7B]"
             />
           </div>
         </div>
@@ -115,7 +115,7 @@ export function OrderStatusActions({ order }: Props) {
               "px-5 py-2.5 text-[11px] tracking-[0.15em] uppercase font-[500] transition-colors disabled:opacity-50",
               next === "cancelled"
                 ? "border border-red-300 text-red-600 hover:bg-red-50"
-                : "bg-[#3D2B1F] text-[#F3EDE0] hover:bg-[#5A3E2E]"
+                : "bg-[#252525] text-[#FFFFFF] hover:bg-[#444444]"
             )}
           >
             {loading ? "Actualizando…" : label}
@@ -124,13 +124,13 @@ export function OrderStatusActions({ order }: Props) {
       </div>
 
       {error && (
-        <p className="text-xs text-[#B5888A] bg-[#EAC9C9]/30 border border-[#EAC9C9] px-3 py-2">
+        <p className="text-xs text-[#B5888A] bg-[#ECD6D1]/30 border border-[#ECD6D1] px-3 py-2">
           {error}
         </p>
       )}
 
       {transitions.length === 0 && (
-        <p className="text-xs text-[#CEC3AB]">Este pedido no admite más cambios de estado.</p>
+        <p className="text-xs text-[#E3CFCA]">Este pedido no admite más cambios de estado.</p>
       )}
     </div>
   );

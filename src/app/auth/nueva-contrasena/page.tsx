@@ -44,24 +44,24 @@ export default function NuevaContrasenaPage() {
     setTimeout(() => router.push("/auth/login"), 3000);
   }
 
-  const inputCls = "w-full border border-[#DDD5C4] bg-white px-4 py-3 text-sm text-[#3D2B1F] focus:outline-none focus:border-[#897568] transition-colors placeholder:text-[#CEC3AB]";
+  const inputCls = "w-full border border-[#EDE3E0] bg-white px-4 py-3 text-sm text-[#252525] focus:outline-none focus:border-[#7B7B7B] transition-colors placeholder:text-[#E3CFCA]";
 
   if (done) {
     return (
       <div className="w-full max-w-md text-center">
-        <div className="bg-white border border-[#DDD5C4] p-10 space-y-4">
+        <div className="bg-white border border-[#EDE3E0] p-10 space-y-4">
           <h1
-            className="text-2xl text-[#3D2B1F]"
+            className="text-2xl text-[#252525]"
             style={{ fontFamily: "var(--font-playfair), 'Playfair Display', serif" }}
           >
             ¡Contraseña actualizada!
           </h1>
-          <p className="text-sm text-[#897568]">
+          <p className="text-sm text-[#7B7B7B]">
             Tu contraseña se actualizó correctamente. Redirigiendo al inicio de sesión…
           </p>
           <Link
             href="/auth/login"
-            className="inline-block text-[11px] tracking-[0.18em] uppercase font-[600] text-[#B5888A] hover:text-[#3D2B1F] transition-colors"
+            className="inline-block text-[11px] tracking-[0.18em] uppercase font-[600] text-[#B5888A] hover:text-[#252525] transition-colors"
           >
             Ir al login →
           </Link>
@@ -74,18 +74,18 @@ export default function NuevaContrasenaPage() {
     <div className="w-full max-w-md">
       <div className="mb-8 text-center">
         <h1
-          className="text-3xl text-[#3D2B1F] mb-2"
+          className="text-3xl text-[#252525] mb-2"
           style={{ fontFamily: "var(--font-playfair), 'Playfair Display', serif" }}
         >
           Nueva contraseña
         </h1>
-        <p className="text-sm text-[#897568]">Elige una contraseña segura para tu cuenta.</p>
+        <p className="text-sm text-[#7B7B7B]">Elige una contraseña segura para tu cuenta.</p>
       </div>
 
-      <div className="bg-white border border-[#DDD5C4] p-8 space-y-5">
+      <div className="bg-white border border-[#EDE3E0] p-8 space-y-5">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[10px] tracking-[0.18em] uppercase text-[#897568] font-[600] mb-1.5">
+            <label className="block text-[10px] tracking-[0.18em] uppercase text-[#7B7B7B] font-[600] mb-1.5">
               Nueva contraseña
             </label>
             <div className="relative">
@@ -100,7 +100,7 @@ export default function NuevaContrasenaPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#CEC3AB] hover:text-[#897568]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#E3CFCA] hover:text-[#7B7B7B]"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -108,7 +108,7 @@ export default function NuevaContrasenaPage() {
           </div>
 
           <div>
-            <label className="block text-[10px] tracking-[0.18em] uppercase text-[#897568] font-[600] mb-1.5">
+            <label className="block text-[10px] tracking-[0.18em] uppercase text-[#7B7B7B] font-[600] mb-1.5">
               Confirmar contraseña
             </label>
             <input
@@ -122,7 +122,7 @@ export default function NuevaContrasenaPage() {
           </div>
 
           {error && (
-            <p className="text-xs text-[#B5888A] bg-[#EAC9C9]/20 border border-[#EAC9C9] px-3 py-2">
+            <p className="text-xs text-[#B5888A] bg-[#ECD6D1]/20 border border-[#ECD6D1] px-3 py-2">
               {error}
             </p>
           )}
@@ -130,7 +130,7 @@ export default function NuevaContrasenaPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#3D2B1F] text-[#F3EDE0] py-3 text-[11px] tracking-[0.2em] uppercase font-[600] hover:bg-[#B5888A] transition-colors disabled:opacity-50"
+            className="w-full bg-[#252525] text-[#FFFFFF] py-3 text-[11px] tracking-[0.2em] uppercase font-[600] hover:bg-[#B5888A] transition-colors disabled:opacity-50"
           >
             {loading ? "Actualizando…" : "Actualizar contraseña"}
           </button>

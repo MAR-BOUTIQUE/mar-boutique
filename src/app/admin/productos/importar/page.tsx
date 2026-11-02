@@ -8,12 +8,12 @@ export default function ImportarProductosPage() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1
-            className="text-3xl text-[#3D2B1F]"
+            className="text-3xl text-[#252525]"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             Carga masiva de productos
           </h1>
-          <p className="text-sm text-[#897568] mt-1">
+          <p className="text-sm text-[#7B7B7B] mt-1">
             Importa múltiples productos desde un archivo Excel o CSV.
           </p>
         </div>
@@ -21,13 +21,13 @@ export default function ImportarProductosPage() {
         <div className="flex items-center gap-3">
           <a
             href="/api/admin/import/template"
-            className="inline-flex items-center gap-2 text-[11px] tracking-[0.15em] uppercase border border-[#DDD5C4] text-[#897568] px-4 py-2 hover:border-[#897568] hover:text-[#3D2B1F] transition-colors font-[500]"
+            className="inline-flex items-center gap-2 text-[11px] tracking-[0.15em] uppercase border border-[#EDE3E0] text-[#7B7B7B] px-4 py-2 hover:border-[#7B7B7B] hover:text-[#252525] transition-colors font-[500]"
           >
             <Download size={13} /> Descargar plantilla
           </a>
           <Link
             href="/admin/productos"
-            className="text-xs text-[#897568] hover:text-[#3D2B1F] transition-colors"
+            className="text-xs text-[#7B7B7B] hover:text-[#252525] transition-colors"
           >
             ← Volver
           </Link>
@@ -35,8 +35,8 @@ export default function ImportarProductosPage() {
       </div>
 
       {/* Advertencias antes de importar */}
-      <div className="border border-[#DDD5C4] bg-[#F3EDE0] p-4 mb-6 text-xs text-[#897568] space-y-1.5">
-        <p className="font-[500] text-[#3D2B1F] text-[11px] tracking-[0.12em] uppercase mb-2">
+      <div className="border border-[#EDE3E0] bg-[#FFFFFF] p-4 mb-6 text-xs text-[#7B7B7B] space-y-1.5">
+        <p className="font-[500] text-[#252525] text-[11px] tracking-[0.12em] uppercase mb-2">
           Antes de importar
         </p>
         <p>• <strong>Categorías, colecciones y ocasiones</strong> deben estar creadas en el panel antes de importar. Los nombres deben coincidir exactamente.</p>

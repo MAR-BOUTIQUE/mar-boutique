@@ -28,7 +28,7 @@ export function CountdownTimer({ expiresAt }: Props) {
   return (
     <p
       className={`flex items-center gap-1 text-[10px] mt-1 font-[500] ${
-        urgent ? "text-[#B5888A]" : "text-[#897568]"
+        urgent ? "text-[#B5888A]" : "text-[#7B7B7B]"
       }`}
     >
       <Clock size={10} />

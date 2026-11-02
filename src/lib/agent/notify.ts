@@ -31,7 +31,7 @@ export async function sendHandoffEmail(info: {
 
   const link = SITE_URL ? `${SITE_URL}/admin/agente?c=${info.conversationId}` : null;
   const html = `
-    <div style="font-family:Arial,sans-serif;color:#3D2B1F;max-width:520px">
+    <div style="font-family:Arial,sans-serif;color:#252525;max-width:520px">
       <h2 style="font-weight:600">Una clienta necesita atención</h2>
       <p><strong>Motivo:</strong> ${esc(info.reason)}</p>
       ${info.summary ? `<p><strong>Resumen:</strong> ${esc(info.summary)}</p>` : ""}

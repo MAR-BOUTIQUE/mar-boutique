@@ -75,26 +75,26 @@ export default async function CuentaDashboard() {
           <Link
             key={href}
             href={href}
-            className="bg-white border border-[#DDD5C4] p-4 hover:border-[#B5888A] transition-colors group"
+            className="bg-white border border-[#EDE3E0] p-4 hover:border-[#B5888A] transition-colors group"
           >
             <Icon size={18} className="text-[#B5888A] mb-2" />
-            <p className="text-[11px] font-[600] text-[#3D2B1F] uppercase tracking-[0.1em]">
+            <p className="text-[11px] font-[600] text-[#252525] uppercase tracking-[0.1em]">
               {label}
             </p>
-            <p className="text-[11px] text-[#897568] mt-0.5">{sub}</p>
+            <p className="text-[11px] text-[#7B7B7B] mt-0.5">{sub}</p>
           </Link>
         ))}
       </div>
 
       {/* Pedidos recientes */}
-      <div className="bg-white border border-[#DDD5C4]">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#F3EDE0]">
-          <p className="text-[11px] uppercase tracking-[0.15em] font-[600] text-[#3D2B1F]">
+      <div className="bg-white border border-[#EDE3E0]">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#FFFFFF]">
+          <p className="text-[11px] uppercase tracking-[0.15em] font-[600] text-[#252525]">
             Pedidos recientes
           </p>
           <Link
             href="/cuenta/pedidos"
-            className="inline-flex items-center gap-1 text-[11px] text-[#897568] hover:text-[#3D2B1F] transition-colors tracking-wide"
+            className="inline-flex items-center gap-1 text-[11px] text-[#7B7B7B] hover:text-[#252525] transition-colors tracking-wide"
           >
             Ver todos <ArrowRight size={11} />
           </Link>
@@ -102,11 +102,11 @@ export default async function CuentaDashboard() {
 
         {orders.length === 0 ? (
           <div className="py-12 text-center">
-            <Package size={32} className="mx-auto mb-3 text-[#CEC3AB]" />
-            <p className="text-sm text-[#897568]">Aún no tienes pedidos.</p>
+            <Package size={32} className="mx-auto mb-3 text-[#E3CFCA]" />
+            <p className="text-sm text-[#7B7B7B]">Aún no tienes pedidos.</p>
             <Link
               href="/catalogo"
-              className="inline-block mt-3 text-[11px] uppercase tracking-[0.15em] text-[#3D2B1F] border-b border-[#3D2B1F] pb-0.5"
+              className="inline-block mt-3 text-[11px] uppercase tracking-[0.15em] text-[#252525] border-b border-[#252525] pb-0.5"
             >
               Ir al catálogo
             </Link>
@@ -119,11 +119,11 @@ export default async function CuentaDashboard() {
               <Link
                 key={order.id}
                 href={`/cuenta/pedidos/${order.id}`}
-                className="flex items-center justify-between px-5 py-4 border-b border-[#F3EDE0] last:border-0 hover:bg-[#F3EDE0]/50 transition-colors"
+                className="flex items-center justify-between px-5 py-4 border-b border-[#FFFFFF] last:border-0 hover:bg-[#FFFFFF]/50 transition-colors"
               >
                 <div>
-                  <p className="text-sm font-[600] text-[#3D2B1F]">{order.order_number}</p>
-                  <p className="text-[11px] text-[#897568] mt-0.5">{formatDate(order.created_at)}</p>
+                  <p className="text-sm font-[600] text-[#252525]">{order.order_number}</p>
+                  <p className="text-[11px] text-[#7B7B7B] mt-0.5">{formatDate(order.created_at)}</p>
                 </div>
                 <div className="text-right">
                   <span
@@ -131,7 +131,7 @@ export default async function CuentaDashboard() {
                   >
                     {s.label}
                   </span>
-                  <p className="text-sm font-[600] text-[#3D2B1F] mt-1">{formatCOP(order.total)}</p>
+                  <p className="text-sm font-[600] text-[#252525] mt-1">{formatCOP(order.total)}</p>
                 </div>
               </Link>
             );

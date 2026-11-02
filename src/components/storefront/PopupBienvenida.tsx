@@ -59,22 +59,22 @@ export function PopupBienvenida() {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(61,43,31,0.55)", backdropFilter: "blur(3px)" }}
+      style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)" }}
     >
       <div
         className="relative w-full max-w-md bg-white"
         style={{
-          border: "1px solid #EAC9C9",
+          border: "1px solid #ECD6D1",
           animation: "popupIn 0.35s cubic-bezier(.22,1,.36,1) both",
         }}
       >
         {/* Franja superior */}
-        <div style={{ height: 4, background: "linear-gradient(90deg,#EAC9C9,#B5888A,#EAC9C9)" }} />
+        <div style={{ height: 4, background: "linear-gradient(90deg,#ECD6D1,#B5888A,#ECD6D1)" }} />
 
         {/* Botón cerrar */}
         <button
           onClick={dismiss}
-          className="absolute top-4 right-4 text-[#CEC3AB] hover:text-[#3D2B1F] transition-colors"
+          className="absolute top-4 right-4 text-[#E3CFCA] hover:text-[#252525] transition-colors"
           aria-label="Cerrar"
         >
           <X size={18} strokeWidth={1.5} />
@@ -86,20 +86,20 @@ export function PopupBienvenida() {
             <>
               <CheckCircle size={44} className="mx-auto mb-4 text-[#B5888A]" strokeWidth={1} />
               <h2
-                className="text-3xl text-[#3D2B1F] mb-2"
+                className="text-3xl text-[#252525] mb-2"
                 style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
               >
                 ¡Ya casi!
               </h2>
-              <p className="text-sm text-[#897568] leading-relaxed mb-6">
+              <p className="text-sm text-[#7B7B7B] leading-relaxed mb-6">
                 Te enviamos el código de descuento a{" "}
-                <strong className="text-[#3D2B1F]">{email}</strong>.
+                <strong className="text-[#252525]">{email}</strong>.
                 <br />
                 Revisa tu correo y úsalo al hacer checkout.
               </p>
               <button
                 onClick={dismiss}
-                className="w-full py-3.5 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#B5888A] transition-colors"
+                className="w-full py-3.5 bg-[#252525] text-[#FFFFFF] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#B5888A] transition-colors"
               >
                 Explorar colección
               </button>
@@ -112,21 +112,21 @@ export function PopupBienvenida() {
               </span>
 
               <h2
-                className="text-4xl text-[#3D2B1F] mb-1 leading-tight"
+                className="text-4xl text-[#252525] mb-1 leading-tight"
                 style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
               >
                 10% de descuento
               </h2>
               <p
-                className="text-xl text-[#3D2B1F] mb-4"
+                className="text-xl text-[#252525] mb-4"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 en tu primer pedido
               </p>
 
-              <div className="w-10 h-px bg-[#EAC9C9] mx-auto mb-4" />
+              <div className="w-10 h-px bg-[#ECD6D1] mx-auto mb-4" />
 
-              <p className="text-sm text-[#897568] leading-relaxed mb-5 font-[300]">
+              <p className="text-sm text-[#7B7B7B] leading-relaxed mb-5 font-[300]">
                 Déjanos tu correo y te enviamos el código de descuento al instante.
               </p>
 
@@ -136,17 +136,17 @@ export function PopupBienvenida() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Tu nombre (opcional)"
-                  className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-4 py-2.5 text-sm text-[#3D2B1F] placeholder:text-[#CEC3AB] outline-none focus:border-[#897568] transition-colors"
+                  className="w-full border border-[#EDE3E0] bg-[#FFFFFF] px-4 py-2.5 text-sm text-[#252525] placeholder:text-[#E3CFCA] outline-none focus:border-[#7B7B7B] transition-colors"
                 />
                 <div className="relative">
-                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#CEC3AB]" strokeWidth={1.5} />
+                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#E3CFCA]" strokeWidth={1.5} />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => { setEmail(e.target.value); setError(null); }}
                     placeholder="Tu correo electrónico *"
                     required
-                    className="w-full border border-[#DDD5C4] bg-[#F3EDE0] pl-9 pr-4 py-2.5 text-sm text-[#3D2B1F] placeholder:text-[#CEC3AB] outline-none focus:border-[#897568] transition-colors"
+                    className="w-full border border-[#EDE3E0] bg-[#FFFFFF] pl-9 pr-4 py-2.5 text-sm text-[#252525] placeholder:text-[#E3CFCA] outline-none focus:border-[#7B7B7B] transition-colors"
                   />
                 </div>
 
@@ -157,7 +157,7 @@ export function PopupBienvenida() {
                 <button
                   type="submit"
                   disabled={state === "submitting"}
-                  className="w-full py-3.5 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#B5888A] disabled:bg-[#CEC3AB] disabled:cursor-not-allowed transition-colors"
+                  className="w-full py-3.5 bg-[#252525] text-[#FFFFFF] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#B5888A] disabled:bg-[#E3CFCA] disabled:cursor-not-allowed transition-colors"
                 >
                   {state === "submitting" ? "Enviando…" : "Enviarme mi código"}
                 </button>
@@ -165,7 +165,7 @@ export function PopupBienvenida() {
 
               <button
                 onClick={dismiss}
-                className="mt-4 text-[11px] text-[#CEC3AB] hover:text-[#897568] transition-colors tracking-wide"
+                className="mt-4 text-[11px] text-[#E3CFCA] hover:text-[#7B7B7B] transition-colors tracking-wide"
               >
                 No gracias, seguir sin descuento
               </button>
