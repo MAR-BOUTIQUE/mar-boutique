@@ -67,8 +67,8 @@ export default async function ProductPage({ params }: Props) {
   const isOnSale = product.is_on_sale && product.compare_price;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
 
         {/* ── GALERÍA ── */}
         <ProductGallery images={product.images} name={product.name} />
@@ -77,14 +77,14 @@ export default async function ProductPage({ params }: Props) {
         <div className="flex flex-col">
           {/* Breadcrumb colección */}
           {product.collections?.[0] && (
-            <span className="text-[9px] tracking-[0.25em] uppercase text-[#B5888A] font-[500] mb-3">
+            <span className="text-xs tracking-[0.25em] uppercase text-[#B5888A] font-[500] mb-3">
               {product.collections[0].name}
             </span>
           )}
 
           {/* Nombre */}
           <h1
-            className="text-3xl sm:text-4xl text-[#3D2B1F] leading-tight mb-4"
+            className="text-4xl sm:text-5xl text-[#252525] leading-tight mb-5"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {product.name}
@@ -92,12 +92,12 @@ export default async function ProductPage({ params }: Props) {
 
           {/* Precio */}
           <div className="flex items-baseline gap-3 mb-6">
-            <span className="text-2xl text-[#3D2B1F] font-[500]">
+            <span className="text-3xl text-[#252525] font-[500]">
               {formatCOP(price)}
             </span>
             {isOnSale && product.compare_price && (
               <>
-                <span className="text-base text-[#897568] line-through">
+                <span className="text-base text-[#7B7B7B] line-through">
                   {formatCOP(product.compare_price)}
                 </span>
                 <span className="text-xs bg-[#B5888A] text-white px-2 py-0.5 font-[500]">
@@ -111,15 +111,15 @@ export default async function ProductPage({ params }: Props) {
           <VariantSelector product={product} />
 
           {/* Separador */}
-          <div className="border-t border-[#DDD5C4] my-6" />
+          <div className="border-t border-[#EDE3E0] my-6" />
 
           {/* Descripción */}
           {product.description && (
             <div className="mb-6">
-              <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-3">
+              <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-3">
                 Descripción
               </h2>
-              <div className="space-y-3 text-sm text-[#3D2B1F] leading-relaxed font-[300]">
+              <div className="space-y-3 text-base text-[#252525] leading-relaxed font-[300]">
                 {product.description.split(/\n\n+/).map((paragraph, i) => (
                   <p key={i}>
                     {paragraph.split("\n").map((line, j, arr) => (
@@ -137,10 +137,10 @@ export default async function ProductPage({ params }: Props) {
           {/* Cuidado de la prenda */}
           {product.care_instructions && (
             <div className="mb-6">
-              <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-3">
+              <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-3">
                 Cuidado de la prenda
               </h2>
-              <div className="space-y-3 text-sm text-[#897568] leading-relaxed font-[300]">
+              <div className="space-y-3 text-base text-[#7B7B7B] leading-relaxed font-[300]">
                 {product.care_instructions.split(/\n\n+/).map((paragraph, i) => (
                   <p key={i}>
                     {paragraph.split("\n").map((line, j, arr) => (
@@ -156,7 +156,7 @@ export default async function ProductPage({ params }: Props) {
           )}
 
           {/* Envío info */}
-          <div className="bg-[#EAC9C9]/20 border border-[#DDD5C4] p-4 text-xs text-[#897568] leading-relaxed">
+          <div className="bg-[#ECD6D1]/20 border border-[#EDE3E0] p-4 text-xs text-[#7B7B7B] leading-relaxed">
             <p>📦 Envío a todo Colombia. Tiempo estimado 3-5 días hábiles.</p>
             <p className="mt-1">🔒 Pago 100% seguro con Wompi.</p>
           </div>

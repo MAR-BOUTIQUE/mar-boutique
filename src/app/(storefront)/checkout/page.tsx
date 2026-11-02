@@ -256,11 +256,11 @@ export default function CheckoutPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/carrito" className="text-[#897568] hover:text-[#3D2B1F] transition-colors">
+        <Link href="/carrito" className="text-[#7B7B7B] hover:text-[#252525] transition-colors">
           <ArrowLeft size={18} strokeWidth={1.5} />
         </Link>
         <h1
-          className="text-3xl text-[#3D2B1F]"
+          className="text-3xl text-[#252525]"
           style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
         >
           Checkout
@@ -276,15 +276,15 @@ export default function CheckoutPage() {
 
             {/* Banner cliente existente */}
             {existingCustomer && (
-              <div className="flex items-start gap-3 bg-white border border-[#EAC9C9] px-4 py-3.5">
+              <div className="flex items-start gap-3 bg-white border border-[#ECD6D1] px-4 py-3.5">
                 <UserCheck size={16} className="text-[#B5888A] shrink-0 mt-0.5" strokeWidth={1.5} />
                 <div className="flex-1">
-                  <p className="text-xs text-[#3D2B1F] font-[500]">¿Ya tienes cuenta en Mar Boutique?</p>
-                  <p className="text-[11px] text-[#897568] mt-0.5">Inicia sesión para cargar tus datos automáticamente.</p>
+                  <p className="text-xs text-[#252525] font-[500]">¿Ya tienes cuenta en Mar Boutique?</p>
+                  <p className="text-[11px] text-[#7B7B7B] mt-0.5">Inicia sesión para cargar tus datos automáticamente.</p>
                 </div>
                 <Link
                   href="/auth/login?redirect=/checkout"
-                  className="shrink-0 text-[10px] tracking-[0.12em] uppercase font-[600] text-[#B5888A] hover:text-[#3D2B1F] transition-colors whitespace-nowrap"
+                  className="shrink-0 text-[10px] tracking-[0.12em] uppercase font-[600] text-[#B5888A] hover:text-[#252525] transition-colors whitespace-nowrap"
                 >
                   Iniciar sesión
                 </Link>
@@ -326,7 +326,7 @@ export default function CheckoutPage() {
                     id="id_type"
                     value={form.id_type}
                     onChange={(e) => set("id_type", e.target.value)}
-                    className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2.5 text-sm text-[#3D2B1F] outline-none focus:border-[#897568] transition-colors"
+                    className="w-full border border-[#EDE3E0] bg-[#FFFFFF] px-3 py-2.5 text-sm text-[#252525] outline-none focus:border-[#7B7B7B] transition-colors"
                   >
                     <option value="CC">CC</option>
                     <option value="CE">CE</option>
@@ -368,7 +368,7 @@ export default function CheckoutPage() {
                       setPaymentMethod("wompi");
                       setError(null);
                     }}
-                    className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2.5 text-sm text-[#3D2B1F] outline-none focus:border-[#897568] transition-colors"
+                    className="w-full border border-[#EDE3E0] bg-[#FFFFFF] px-3 py-2.5 text-sm text-[#252525] outline-none focus:border-[#7B7B7B] transition-colors"
                   >
                     <option value="">Seleccionar…</option>
                     {DEPARTAMENTOS.map((d) => (
@@ -382,7 +382,7 @@ export default function CheckoutPage() {
                     value={form.city}
                     disabled={!form.department}
                     onChange={(e) => set("city", e.target.value)}
-                    className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2.5 text-sm text-[#3D2B1F] outline-none focus:border-[#897568] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full border border-[#EDE3E0] bg-[#FFFFFF] px-3 py-2.5 text-sm text-[#252525] outline-none focus:border-[#7B7B7B] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="">
                       {form.department ? "Seleccionar…" : "Primero el departamento"}
@@ -408,7 +408,7 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={applyCoupon}
                   disabled={couponLoading || !!appliedPromotion}
-                  className="px-5 py-2.5 border border-[#DDD5C4] text-[11px] tracking-[0.15em] uppercase text-[#897568] hover:border-[#897568] hover:text-[#3D2B1F] transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2.5 border border-[#EDE3E0] text-[11px] tracking-[0.15em] uppercase text-[#7B7B7B] hover:border-[#7B7B7B] hover:text-[#252525] transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {couponLoading ? "…" : "Aplicar"}
                 </button>
@@ -424,22 +424,22 @@ export default function CheckoutPage() {
             {cityEligible && (
               <div className="space-y-3">
                 {/* Aviso entrega */}
-                <div className={`flex items-start gap-3 px-4 py-3 border ${sameDayStatus.beforeCutoff ? "bg-[#F3EDE0] border-[#CEC3AB]" : "bg-white border-[#DDD5C4]"}`}>
+                <div className={`flex items-start gap-3 px-4 py-3 border ${sameDayStatus.beforeCutoff ? "bg-[#FFFFFF] border-[#E3CFCA]" : "bg-white border-[#EDE3E0]"}`}>
                   {sameDayStatus.beforeCutoff ? (
-                    <Clock size={15} className="text-[#897568] shrink-0 mt-0.5" strokeWidth={1.5} />
+                    <Clock size={15} className="text-[#7B7B7B] shrink-0 mt-0.5" strokeWidth={1.5} />
                   ) : (
-                    <Truck size={15} className="text-[#CEC3AB] shrink-0 mt-0.5" strokeWidth={1.5} />
+                    <Truck size={15} className="text-[#E3CFCA] shrink-0 mt-0.5" strokeWidth={1.5} />
                   )}
                   <div>
                     {sameDayStatus.beforeCutoff ? (
                       <>
-                        <p className="text-xs font-[600] text-[#3D2B1F]">Entrega hoy en Cartagena</p>
-                        <p className="text-[11px] text-[#897568] mt-0.5">Pedidos antes de las 4:00 PM llegan antes de las 6:00 PM.</p>
+                        <p className="text-xs font-[600] text-[#252525]">Entrega hoy en Cartagena</p>
+                        <p className="text-[11px] text-[#7B7B7B] mt-0.5">Pedidos antes de las 4:00 PM llegan antes de las 6:00 PM.</p>
                       </>
                     ) : (
                       <>
-                        <p className="text-xs font-[600] text-[#897568]">Pedidos después de las 4:00 PM</p>
-                        <p className="text-[11px] text-[#897568] mt-0.5">Tu pedido llegará mañana en Cartagena o Turbaco.</p>
+                        <p className="text-xs font-[600] text-[#7B7B7B]">Pedidos después de las 4:00 PM</p>
+                        <p className="text-[11px] text-[#7B7B7B] mt-0.5">Tu pedido llegará mañana en Cartagena o Turbaco.</p>
                       </>
                     )}
                   </div>
@@ -447,33 +447,33 @@ export default function CheckoutPage() {
 
                 {/* Selector método de pago */}
                 <div className="space-y-2">
-                  <p className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600]">Método de pago</p>
-                  <label className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-colors ${paymentMethod === "wompi" ? "border-[#3D2B1F] bg-[#F3EDE0]" : "border-[#DDD5C4] bg-white hover:border-[#897568]"}`}>
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600]">Método de pago</p>
+                  <label className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-colors ${paymentMethod === "wompi" ? "border-[#252525] bg-[#FFFFFF]" : "border-[#EDE3E0] bg-white hover:border-[#7B7B7B]"}`}>
                     <input
                       type="radio"
                       name="payment_method"
                       value="wompi"
                       checked={paymentMethod === "wompi"}
                       onChange={() => setPaymentMethod("wompi")}
-                      className="accent-[#3D2B1F]"
+                      className="accent-[#252525]"
                     />
                     <div>
-                      <p className="text-sm text-[#3D2B1F] font-[500]">Tarjeta / PSE / Nequi</p>
-                      <p className="text-[11px] text-[#897568]">Pago en línea seguro via Wompi</p>
+                      <p className="text-sm text-[#252525] font-[500]">Tarjeta / PSE / Nequi</p>
+                      <p className="text-[11px] text-[#7B7B7B]">Pago en línea seguro via Wompi</p>
                     </div>
                   </label>
-                  <label className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-colors ${paymentMethod === "contraentrega" ? "border-[#3D2B1F] bg-[#F3EDE0]" : "border-[#DDD5C4] bg-white hover:border-[#897568]"}`}>
+                  <label className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-colors ${paymentMethod === "contraentrega" ? "border-[#252525] bg-[#FFFFFF]" : "border-[#EDE3E0] bg-white hover:border-[#7B7B7B]"}`}>
                     <input
                       type="radio"
                       name="payment_method"
                       value="contraentrega"
                       checked={paymentMethod === "contraentrega"}
                       onChange={() => setPaymentMethod("contraentrega")}
-                      className="accent-[#3D2B1F]"
+                      className="accent-[#252525]"
                     />
                     <div>
-                      <p className="text-sm text-[#3D2B1F] font-[500]">Contraentrega</p>
-                      <p className="text-[11px] text-[#897568]">Pagas en efectivo cuando recibas tu pedido</p>
+                      <p className="text-sm text-[#252525] font-[500]">Contraentrega</p>
+                      <p className="text-[11px] text-[#7B7B7B]">Pagas en efectivo cuando recibas tu pedido</p>
                     </div>
                   </label>
                 </div>
@@ -487,9 +487,9 @@ export default function CheckoutPage() {
                   type="checkbox"
                   checked={form.terms_accepted}
                   onChange={(e) => set("terms_accepted", e.target.checked)}
-                  className="mt-0.5 accent-[#3D2B1F]"
+                  className="mt-0.5 accent-[#252525]"
                 />
-                <span className="text-xs text-[#897568] leading-relaxed">
+                <span className="text-xs text-[#7B7B7B] leading-relaxed">
                   He leído y acepto los{" "}
                   <Link href="/terminos" target="_blank" className="text-[#B5888A] underline underline-offset-2">
                     Términos y Condiciones
@@ -506,16 +506,16 @@ export default function CheckoutPage() {
                   type="checkbox"
                   checked={form.save_address ?? false}
                   onChange={(e) => set("save_address", e.target.checked)}
-                  className="mt-0.5 accent-[#3D2B1F]"
+                  className="mt-0.5 accent-[#252525]"
                 />
-                <span className="text-xs text-[#897568]">
+                <span className="text-xs text-[#7B7B7B]">
                   Deseo recibir novedades y ofertas por correo electrónico.
                 </span>
               </label>
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 text-sm text-[#B5888A] bg-[#EAC9C9]/30 border border-[#EAC9C9] px-4 py-3">
+              <div className="flex items-center gap-2 text-sm text-[#B5888A] bg-[#ECD6D1]/30 border border-[#ECD6D1] px-4 py-3">
                 <AlertCircle size={15} />
                 {error}
               </div>
@@ -524,7 +524,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 py-4 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#5A3E2E] disabled:bg-[#CEC3AB] disabled:cursor-not-allowed transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-4 bg-[#252525] text-[#FFFFFF] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#444444] disabled:bg-[#E3CFCA] disabled:cursor-not-allowed transition-colors"
             >
               {paymentMethod === "contraentrega" ? (
                 <Truck size={13} strokeWidth={1.5} />
@@ -539,11 +539,11 @@ export default function CheckoutPage() {
             </button>
 
             {paymentMethod === "contraentrega" ? (
-              <p className="text-[10px] text-center text-[#897568] flex items-center justify-center gap-1.5">
+              <p className="text-[10px] text-center text-[#7B7B7B] flex items-center justify-center gap-1.5">
                 <Truck size={10} /> Ten el efectivo listo cuando llegue tu domicilio
               </p>
             ) : (
-              <p className="text-[10px] text-center text-[#897568] flex items-center justify-center gap-1.5">
+              <p className="text-[10px] text-center text-[#7B7B7B] flex items-center justify-center gap-1.5">
                 <Lock size={10} /> Pago seguro procesado por Wompi (Bancolombia)
               </p>
             )}
@@ -551,27 +551,27 @@ export default function CheckoutPage() {
 
           {/* ── RESUMEN ── */}
           <div className="lg:col-span-2">
-            <div className="bg-[#EAC9C9]/15 border border-[#DDD5C4] p-5 sticky top-24">
-              <h2 className="text-[10px] tracking-[0.25em] uppercase text-[#897568] font-[600] mb-4">
+            <div className="bg-[#ECD6D1]/15 border border-[#EDE3E0] p-5 sticky top-24">
+              <h2 className="text-[10px] tracking-[0.25em] uppercase text-[#7B7B7B] font-[600] mb-4">
                 Tu pedido ({items.length} {items.length === 1 ? "prenda" : "prendas"})
               </h2>
 
               <div className="space-y-3 mb-5">
                 {items.map((item) => (
                   <div key={item.variantId} className="flex justify-between gap-2 text-xs">
-                    <span className="text-[#3D2B1F] leading-snug">
+                    <span className="text-[#252525] leading-snug">
                       {item.productName}{" "}
-                      <span className="text-[#897568]">× {item.quantity}</span>
+                      <span className="text-[#7B7B7B]">× {item.quantity}</span>
                     </span>
-                    <span className="text-[#3D2B1F] font-[500] shrink-0">
+                    <span className="text-[#252525] font-[500] shrink-0">
                       {formatCOP(item.unitPrice * item.quantity)}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-[#DDD5C4] pt-4 space-y-2 text-sm">
-                <div className="flex justify-between text-[#897568]">
+              <div className="border-t border-[#EDE3E0] pt-4 space-y-2 text-sm">
+                <div className="flex justify-between text-[#7B7B7B]">
                   <span>Subtotal</span>
                   <span>{formatCOP(subtotal)}</span>
                 </div>
@@ -581,20 +581,20 @@ export default function CheckoutPage() {
                     <span>−{formatCOP(discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-[#897568]">
+                <div className="flex justify-between text-[#7B7B7B]">
                   <div>
                     <span>Envío</span>
                     {shippingZone && (
-                      <p className="text-[10px] text-[#CEC3AB]">{shippingZone.name}</p>
+                      <p className="text-[10px] text-[#E3CFCA]">{shippingZone.name}</p>
                     )}
                   </div>
                   <span className="text-right text-xs">
                     {shippingCost > 0 ? formatCOP(shippingCost) : (
-                      <span className="text-[#CEC3AB]">Selecciona ciudad</span>
+                      <span className="text-[#E3CFCA]">Selecciona ciudad</span>
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between font-[600] text-[#3D2B1F] text-base pt-1 border-t border-[#DDD5C4]">
+                <div className="flex justify-between font-[600] text-[#252525] text-base pt-1 border-t border-[#EDE3E0]">
                   <span>Total</span>
                   <span>{formatCOP(total)}</span>
                 </div>
@@ -612,7 +612,7 @@ export default function CheckoutPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-4">
-      <h2 className="text-[10px] tracking-[0.25em] uppercase text-[#897568] font-[600] border-b border-[#DDD5C4] pb-2">
+      <h2 className="text-[10px] tracking-[0.25em] uppercase text-[#7B7B7B] font-[600] border-b border-[#EDE3E0] pb-2">
         {title}
       </h2>
       {children}
@@ -623,7 +623,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-xs text-[#897568] mb-1.5 font-[500]">
+      <label htmlFor={id} className="block text-xs text-[#7B7B7B] mb-1.5 font-[500]">
         {label}
       </label>
       {children}
@@ -642,7 +642,7 @@ function Input({
       id={id} type={type} value={value} autoComplete={autoComplete}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full border border-[#DDD5C4] bg-[#F3EDE0] px-3 py-2.5 text-sm text-[#3D2B1F] placeholder:text-[#CEC3AB] outline-none focus:border-[#897568] transition-colors"
+      className="w-full border border-[#EDE3E0] bg-[#FFFFFF] px-3 py-2.5 text-sm text-[#252525] placeholder:text-[#E3CFCA] outline-none focus:border-[#7B7B7B] transition-colors"
     />
   );
 }
@@ -652,12 +652,12 @@ function WompiWidget({ data }: { data: NonNullable<ReturnType<typeof useState<an
     <div className="max-w-md mx-auto text-center py-16">
       <div className="mb-6">
         <h2
-          className="text-3xl text-[#3D2B1F] mb-2"
+          className="text-3xl text-[#252525] mb-2"
           style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
         >
           Completa tu pago
         </h2>
-        <p className="text-sm text-[#897568]">
+        <p className="text-sm text-[#7B7B7B]">
           Total a pagar: <strong>{formatCOP(data.amountInCents / 100)}</strong>
         </p>
       </div>
@@ -672,14 +672,14 @@ function WompiWidget({ data }: { data: NonNullable<ReturnType<typeof useState<an
 
         <button
           type="submit"
-          className="w-full py-4 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#5A3E2E] transition-colors flex items-center justify-center gap-2"
+          className="w-full py-4 bg-[#252525] text-[#FFFFFF] text-[11px] tracking-[0.2em] uppercase font-[500] hover:bg-[#444444] transition-colors flex items-center justify-center gap-2"
         >
           <Lock size={13} strokeWidth={1.5} />
           Pagar con Wompi
         </button>
       </form>
 
-      <p className="mt-4 text-[10px] text-[#897568]">
+      <p className="mt-4 text-[10px] text-[#7B7B7B]">
         Tarjeta de crédito/débito · PSE · Nequi · Daviplata
       </p>
     </div>

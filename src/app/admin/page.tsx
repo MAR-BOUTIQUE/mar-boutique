@@ -59,7 +59,7 @@ const STATUS_BADGE: Record<string, string> = {
   paid: "bg-green-100 text-green-800",
   preparing: "bg-blue-100 text-blue-800",
   shipped: "bg-purple-100 text-purple-800",
-  delivered: "bg-[#EAC9C9] text-[#3D2B1F]",
+  delivered: "bg-[#ECD6D1] text-[#252525]",
   cancelled: "bg-red-100 text-red-700",
 };
 const STATUS_LABEL: Record<string, string> = {
@@ -79,12 +79,12 @@ export default async function AdminDashboard() {
       {/* Header */}
       <div className="mb-8">
         <h1
-          className="text-3xl text-[#3D2B1F]"
+          className="text-3xl text-[#252525]"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Dashboard
         </h1>
-        <p className="text-sm text-[#897568] mt-1">Resumen de operaciones de Mar Boutique</p>
+        <p className="text-sm text-[#7B7B7B] mt-1">Resumen de operaciones de Mar Boutique</p>
       </div>
 
       {/* KPIs */}
@@ -118,12 +118,12 @@ export default async function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* PEDIDOS RECIENTES */}
-        <div className="lg:col-span-2 bg-white border border-[#DDD5C4] p-6">
+        <div className="lg:col-span-2 bg-white border border-[#EDE3E0] p-6">
           <div className="flex justify-between items-center mb-5">
-            <h2 className="text-[10px] tracking-[0.25em] uppercase text-[#897568] font-[600]">
+            <h2 className="text-[10px] tracking-[0.25em] uppercase text-[#7B7B7B] font-[600]">
               Pedidos recientes
             </h2>
-            <a href="/admin/pedidos" className="text-xs text-[#B5888A] hover:text-[#3D2B1F]">
+            <a href="/admin/pedidos" className="text-xs text-[#B5888A] hover:text-[#252525]">
               Ver todos →
             </a>
           </div>
@@ -132,17 +132,17 @@ export default async function AdminDashboard() {
               <a
                 key={order.id}
                 href={`/admin/pedidos/${order.id}`}
-                className={`flex items-center justify-between py-3 hover:bg-[#F3EDE0] -mx-2 px-2 transition-colors ${idx !== 0 ? "border-t border-[#F3EDE0]" : ""}`}
+                className={`flex items-center justify-between py-3 hover:bg-[#FFFFFF] -mx-2 px-2 transition-colors ${idx !== 0 ? "border-t border-[#FFFFFF]" : ""}`}
               >
                 <div>
-                  <p className="text-sm text-[#3D2B1F] font-[500]">{order.order_number}</p>
-                  <p className="text-xs text-[#897568]">{order.shipping_name}</p>
+                  <p className="text-sm text-[#252525] font-[500]">{order.order_number}</p>
+                  <p className="text-xs text-[#7B7B7B]">{order.shipping_name}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`text-[9px] px-2 py-0.5 rounded-full font-[600] tracking-wide uppercase ${STATUS_BADGE[order.status] ?? "bg-gray-100 text-gray-600"}`}>
                     {STATUS_LABEL[order.status] ?? order.status}
                   </span>
-                  <span className="text-sm text-[#3D2B1F] font-[500]">
+                  <span className="text-sm text-[#252525] font-[500]">
                     {formatCOP(order.total)}
                   </span>
                 </div>
@@ -152,22 +152,22 @@ export default async function AdminDashboard() {
         </div>
 
         {/* STOCK BAJO */}
-        <div className="bg-white border border-[#DDD5C4] p-6">
-          <h2 className="text-[10px] tracking-[0.25em] uppercase text-[#897568] font-[600] mb-5">
+        <div className="bg-white border border-[#EDE3E0] p-6">
+          <h2 className="text-[10px] tracking-[0.25em] uppercase text-[#7B7B7B] font-[600] mb-5">
             Stock bajo (≤ 3 uds)
           </h2>
           {stats.lowStock.length === 0 ? (
-            <p className="text-sm text-[#CEC3AB]">Sin alertas de stock.</p>
+            <p className="text-sm text-[#E3CFCA]">Sin alertas de stock.</p>
           ) : (
             <div className="space-y-3">
               {stats.lowStock.map((v: any) => (
                 <div key={v.id} className="flex items-start gap-2">
                   <AlertTriangle size={14} className="text-[#B5888A] shrink-0 mt-0.5" strokeWidth={1.5} />
                   <div>
-                    <p className="text-xs text-[#3D2B1F] font-[500] leading-snug">
+                    <p className="text-xs text-[#252525] font-[500] leading-snug">
                       {v.products?.name ?? v.sku}
                     </p>
-                    <p className="text-[10px] text-[#897568]">
+                    <p className="text-[10px] text-[#7B7B7B]">
                       {v.sku} · {v.stock} disponibles
                     </p>
                   </div>
@@ -177,7 +177,7 @@ export default async function AdminDashboard() {
           )}
           <a
             href="/admin/inventario"
-            className="block mt-4 text-xs text-[#B5888A] hover:text-[#3D2B1F]"
+            className="block mt-4 text-xs text-[#B5888A] hover:text-[#252525]"
           >
             Ver inventario completo →
           </a>
@@ -193,13 +193,13 @@ function StatCard({
   title: string; value: string; sub: string; icon: React.ReactNode; alert?: boolean;
 }) {
   return (
-    <div className={`bg-white border p-5 ${alert ? "border-[#B5888A]" : "border-[#DDD5C4]"}`}>
+    <div className={`bg-white border p-5 ${alert ? "border-[#B5888A]" : "border-[#EDE3E0]"}`}>
       <div className="flex justify-between items-start mb-3">
-        <p className="text-[9px] tracking-[0.2em] uppercase text-[#897568] font-[600]">{title}</p>
+        <p className="text-[9px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600]">{title}</p>
         {icon}
       </div>
-      <p className="text-2xl text-[#3D2B1F] font-[600] leading-none mb-1">{value}</p>
-      <p className="text-xs text-[#897568]">{sub}</p>
+      <p className="text-2xl text-[#252525] font-[600] leading-none mb-1">{value}</p>
+      <p className="text-xs text-[#7B7B7B]">{sub}</p>
     </div>
   );
 }

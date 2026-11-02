@@ -40,18 +40,18 @@ export function VerifyPaymentButton({ orderId, orderNumber }: Props) {
   }
 
   return (
-    <div className="mt-4 pt-4 border-t border-[#DDD5C4]">
-      <p className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-3">
+    <div className="mt-4 pt-4 border-t border-[#EDE3E0]">
+      <p className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-3">
         Verificación manual de pago Wompi
       </p>
-      <p className="text-xs text-[#897568] mb-3">
+      <p className="text-xs text-[#7B7B7B] mb-3">
         Si la clienta pagó pero el pedido no se confirmó, usa este botón para consultar Wompi directamente y actualizar el estado.
       </p>
 
       <button
         onClick={handleVerify}
         disabled={loading}
-        className="flex items-center gap-2 px-4 py-2.5 bg-[#3D2B1F] text-white text-xs rounded hover:bg-[#5A3E2E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 px-4 py-2.5 bg-[#252525] text-white text-xs rounded hover:bg-[#444444] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? (
           <Loader2 size={13} className="animate-spin" />

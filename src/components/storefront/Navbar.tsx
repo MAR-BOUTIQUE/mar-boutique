@@ -60,60 +60,66 @@ export function Navbar() {
     router.push(`/catalogo?q=${encodeURIComponent(q)}`);
   }
 
+  // Sobre el hero (portada, sin scroll) el texto va en blanco con sombra para que se lea sobre la foto
+  const overlay = pathname === "/" && !scrolled && !menuOpen;
+  const ink = overlay
+    ? "text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
+    : "text-[#252525]";
+
   return (
     <header
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
-        scrolled
-          ? "bg-[#F3EDE0]/95 backdrop-blur-md shadow-[0_1px_12px_rgba(61,43,31,0.08)]"
-          : "bg-[#F3EDE0]"
+        scrolled || menuOpen
+          ? "bg-[#FFFFFF]/95 backdrop-blur-md shadow-[0_1px_12px_rgba(0,0,0,0.08)]"
+          : overlay
+          ? "bg-gradient-to-b from-black/40 to-transparent"
+          : "bg-transparent"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8">
+      <div className="w-full px-4 sm:px-6 xl:px-8">
         {/* Grid 3 columnas: [nav] [logo] [iconos] */}
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-20">
 
           {/* COLUMNA IZQUIERDA */}
           <div className="flex items-center min-w-0">
+            <Link
+              href="/"
+              className={cn(ink, "text-[22px] sm:text-[28px] tracking-tight leading-none select-none whitespace-nowrap shrink-0")}
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Mar Boutique
+            </Link>
+
             {/* Móvil y tablet (< 1280px): hamburger */}
             <button
-              className="xl:hidden text-[#3D2B1F] shrink-0"
+              className={cn(ink, "xl:hidden ml-4 shrink-0")}
               aria-label="Menú"
               onClick={() => setMenuOpen((v) => !v)}
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
-
-            {/* Desktop (≥ 1280px): links de navegación */}
-            <nav className="hidden xl:flex items-center gap-7 2xl:gap-9 min-w-0">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "text-[10px] 2xl:text-[11px] tracking-[0.15em] 2xl:tracking-[0.2em] uppercase font-[500] transition-colors duration-200 whitespace-nowrap",
-                    pathname === link.href
-                      ? "text-[#3D2B1F]"
-                      : link.hot
-                      ? "text-[#B5888A] hover:text-[#3D2B1F]"
-                      : "text-[#897568] hover:text-[#3D2B1F]"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
           </div>
 
-          {/* COLUMNA CENTRAL: Logo — siempre centrado */}
-          <Link href="/" className="flex items-center justify-center px-3">
-            <span
-              className="text-[19px] sm:text-[21px] text-[#3D2B1F] tracking-tight leading-none select-none whitespace-nowrap"
-              style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
-            >
-              Mar Boutique
-            </span>
-          </Link>
+          {/* COLUMNA CENTRAL: links de navegación — Desktop (≥ 1280px) */}
+          <nav className="hidden xl:flex items-center gap-6 2xl:gap-9 min-w-0">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "text-[17px] 2xl:text-[19px] tracking-[0.1em] 2xl:tracking-[0.15em] uppercase font-[500] transition-colors duration-200 whitespace-nowrap",
+                  link.hot && pathname !== link.href
+                    ? overlay
+                      ? "text-[#F8D3D6] drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
+                      : "text-[#9C6468] hover:text-[#252525]"
+                    : cn(ink, "hover:text-[#B5888A]")
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
 
           {/* COLUMNA DERECHA */}
           <div className="flex items-center justify-end gap-3 sm:gap-4">
@@ -122,14 +128,14 @@ export function Navbar() {
               <button
                 aria-label="Buscar"
                 onClick={() => setSearchOpen(true)}
-                className="text-[#897568] hover:text-[#3D2B1F] transition-colors"
+                className={cn(ink, "hover:text-[#B5888A] transition-colors")}
               >
                 <Search size={18} strokeWidth={1.5} />
               </button>
               <Link
                 href="/carrito"
                 aria-label={`Carrito (${itemCount} productos)`}
-                className="relative text-[#897568] hover:text-[#3D2B1F] transition-colors"
+                className={cn(ink, "relative hover:text-[#B5888A] transition-colors")}
               >
                 <ShoppingBag size={18} strokeWidth={1.5} />
                 {itemCount > 0 && (
@@ -145,7 +151,7 @@ export function Navbar() {
               <button
                 aria-label="Buscar"
                 onClick={() => setSearchOpen(true)}
-                className="text-[#897568] hover:text-[#3D2B1F] transition-colors"
+                className={cn(ink, "hover:text-[#B5888A] transition-colors")}
               >
                 <Search size={18} strokeWidth={1.5} />
               </button>
@@ -153,7 +159,7 @@ export function Navbar() {
               <Link
                 href="/cuenta/wishlist"
                 aria-label="Wishlist"
-                className="text-[#897568] hover:text-[#3D2B1F] transition-colors"
+                className={cn(ink, "hover:text-[#B5888A] transition-colors")}
               >
                 <Heart size={18} strokeWidth={1.5} />
               </Link>
@@ -161,7 +167,7 @@ export function Navbar() {
               <Link
                 href="/cuenta"
                 aria-label="Mi cuenta"
-                className="text-[#897568] hover:text-[#3D2B1F] transition-colors"
+                className={cn(ink, "hover:text-[#B5888A] transition-colors")}
               >
                 <User size={18} strokeWidth={1.5} />
               </Link>
@@ -169,7 +175,7 @@ export function Navbar() {
               <Link
                 href="/carrito"
                 aria-label={`Carrito (${itemCount} productos)`}
-                className="relative text-[#897568] hover:text-[#3D2B1F] transition-colors"
+                className={cn(ink, "relative hover:text-[#B5888A] transition-colors")}
               >
                 <ShoppingBag size={18} strokeWidth={1.5} />
                 {itemCount > 0 && (
@@ -187,24 +193,24 @@ export function Navbar() {
       {searchOpen && (
         <div className="fixed inset-0 z-50 flex flex-col">
           <div
-            className="absolute inset-0 bg-[#3D2B1F]/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#252525]/40 backdrop-blur-sm"
             onClick={() => setSearchOpen(false)}
           />
-          <div className="relative bg-[#F3EDE0] border-b border-[#DDD5C4] px-4 sm:px-8 py-5">
+          <div className="relative bg-[#FFFFFF] border-b border-[#EDE3E0] px-4 sm:px-8 py-5">
             <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex items-center gap-4">
-              <Search size={18} className="text-[#897568] shrink-0" strokeWidth={1.5} />
+              <Search size={18} className="text-[#252525] shrink-0" strokeWidth={1.5} />
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar prendas..."
-                className="flex-1 bg-transparent text-lg text-[#3D2B1F] placeholder:text-[#CEC3AB] focus:outline-none"
+                className="flex-1 bg-transparent text-lg text-[#252525] placeholder:text-[#E3CFCA] focus:outline-none"
               />
               <button
                 type="button"
                 onClick={() => setSearchOpen(false)}
-                className="text-[#897568] hover:text-[#3D2B1F] transition-colors"
+                className="text-[#252525] hover:text-[#B5888A] transition-colors"
                 aria-label="Cerrar búsqueda"
               >
                 <X size={20} strokeWidth={1.5} />
@@ -216,29 +222,29 @@ export function Navbar() {
 
       {/* MENÚ MÓVIL/TABLET — drawer (< 1280px) */}
       {menuOpen && (
-        <div className="xl:hidden bg-[#F3EDE0] border-t border-[#DDD5C4] px-6 py-6 flex flex-col gap-5">
+        <div className="xl:hidden bg-[#FFFFFF] border-t border-[#EDE3E0] px-6 py-6 flex flex-col gap-5">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
               className={cn(
-                "text-[13px] tracking-[0.18em] uppercase font-[500]",
+                "text-[18px] tracking-[0.15em] uppercase font-[500]",
                 pathname === link.href
-                  ? "text-[#3D2B1F]"
+                  ? "text-[#252525]"
                   : link.hot
-                  ? "text-[#B5888A]"
-                  : "text-[#897568]"
+                  ? "text-[#9C6468]"
+                  : "text-[#252525]"
               )}
             >
               {link.label}
             </Link>
           ))}
-          <div className="border-t border-[#DDD5C4] pt-5 flex gap-6">
-            <Link href="/cuenta/wishlist" onClick={() => setMenuOpen(false)} className="text-[#897568]">
+          <div className="border-t border-[#EDE3E0] pt-5 flex gap-6">
+            <Link href="/cuenta/wishlist" onClick={() => setMenuOpen(false)} className="text-[#252525]">
               <Heart size={20} strokeWidth={1.5} />
             </Link>
-            <Link href="/cuenta" onClick={() => setMenuOpen(false)} className="text-[#897568]">
+            <Link href="/cuenta" onClick={() => setMenuOpen(false)} className="text-[#252525]">
               <User size={20} strokeWidth={1.5} />
             </Link>
           </div>

@@ -52,7 +52,7 @@ export default function WishlistPage() {
     return (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-24 bg-white border border-[#DDD5C4] animate-pulse" />
+          <div key={i} className="h-24 bg-white border border-[#EDE3E0] animate-pulse" />
         ))}
       </div>
     );
@@ -61,19 +61,19 @@ export default function WishlistPage() {
   return (
     <div>
       <h2
-        className="text-xl text-[#3D2B1F] mb-5"
+        className="text-xl text-[#252525] mb-5"
         style={{ fontFamily: "'Playfair Display', serif" }}
       >
         Wishlist
       </h2>
 
       {products.length === 0 ? (
-        <div className="bg-white border border-[#DDD5C4] py-16 text-center">
-          <Heart size={40} className="mx-auto mb-4 text-[#CEC3AB]" />
-          <p className="text-sm text-[#897568] mb-4">Tu wishlist está vacía.</p>
+        <div className="bg-white border border-[#EDE3E0] py-16 text-center">
+          <Heart size={40} className="mx-auto mb-4 text-[#E3CFCA]" />
+          <p className="text-sm text-[#7B7B7B] mb-4">Tu wishlist está vacía.</p>
           <Link
             href="/catalogo"
-            className="inline-block text-[11px] uppercase tracking-[0.15em] text-[#3D2B1F] border-b border-[#3D2B1F] pb-0.5"
+            className="inline-block text-[11px] uppercase tracking-[0.15em] text-[#252525] border-b border-[#252525] pb-0.5"
           >
             Explorar catálogo
           </Link>
@@ -87,10 +87,10 @@ export default function WishlistPage() {
             return (
               <div
                 key={p.id}
-                className="bg-white border border-[#DDD5C4] flex items-center gap-4 p-4"
+                className="bg-white border border-[#EDE3E0] flex items-center gap-4 p-4"
               >
                 {/* Imagen */}
-                <div className="w-16 h-20 shrink-0 overflow-hidden bg-[#F3EDE0] relative">
+                <div className="w-16 h-20 shrink-0 overflow-hidden bg-[#FFFFFF] relative">
                   {img ? (
                     <Image
                       src={img}
@@ -101,7 +101,7 @@ export default function WishlistPage() {
                       className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-[#EAC9C9]/30" />
+                    <div className="w-full h-full bg-[#ECD6D1]/30" />
                   )}
                 </div>
 
@@ -109,16 +109,16 @@ export default function WishlistPage() {
                 <div className="flex-1 min-w-0">
                   <Link
                     href={`/producto/${p.slug}`}
-                    className="text-sm font-[500] text-[#3D2B1F] hover:text-[#B5888A] transition-colors line-clamp-2 block"
+                    className="text-sm font-[500] text-[#252525] hover:text-[#B5888A] transition-colors line-clamp-2 block"
                   >
                     {p.name}
                   </Link>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm font-[600] text-[#3D2B1F]">
+                    <span className="text-sm font-[600] text-[#252525]">
                       {formatCOP(p.base_price)}
                     </span>
                     {p.compare_price && p.compare_price > p.base_price && (
-                      <span className="text-xs text-[#897568] line-through">
+                      <span className="text-xs text-[#7B7B7B] line-through">
                         {formatCOP(p.compare_price)}
                       </span>
                     )}
@@ -135,7 +135,7 @@ export default function WishlistPage() {
                   {isAvailable && (
                     <Link
                       href={`/producto/${p.slug}`}
-                      className="inline-flex items-center gap-1 px-3 py-2 bg-[#3D2B1F] text-[#F3EDE0] text-[10px] uppercase tracking-[0.12em] font-[500] hover:bg-[#B5888A] transition-colors"
+                      className="inline-flex items-center gap-1 px-3 py-2 bg-[#252525] text-[#FFFFFF] text-[10px] uppercase tracking-[0.12em] font-[500] hover:bg-[#B5888A] transition-colors"
                     >
                       <ShoppingBag size={11} /> Ver
                     </Link>
@@ -143,7 +143,7 @@ export default function WishlistPage() {
                   <button
                     onClick={() => toggle(p.id)}
                     title="Eliminar de wishlist"
-                    className="p-1.5 text-[#CEC3AB] hover:text-[#B5888A] transition-colors"
+                    className="p-1.5 text-[#E3CFCA] hover:text-[#B5888A] transition-colors"
                   >
                     <Trash2 size={14} />
                   </button>

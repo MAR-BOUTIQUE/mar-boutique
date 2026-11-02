@@ -18,13 +18,13 @@ export function RetryPaymentBanner({ orderId, createdAt }: Props) {
 
   if (isExpired) {
     return (
-      <div className="border border-[#DDD5C4] bg-[#F3EDE0]/40 px-5 py-5 mb-6 text-center">
-        <p className="text-sm text-[#897568] mb-3">
+      <div className="border border-[#EDE3E0] bg-[#FFFFFF]/40 px-5 py-5 mb-6 text-center">
+        <p className="text-sm text-[#7B7B7B] mb-3">
           El tiempo para completar el pago expiró. Este pedido será cancelado automáticamente.
         </p>
         <Link
           href="/catalogo"
-          className="inline-flex items-center justify-center px-6 py-2.5 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.15em] uppercase font-[500] hover:bg-[#5A3E2E] transition-colors"
+          className="inline-flex items-center justify-center px-6 py-2.5 bg-[#252525] text-[#FFFFFF] text-[11px] tracking-[0.15em] uppercase font-[500] hover:bg-[#444444] transition-colors"
         >
           Ver catálogo
         </Link>
@@ -80,15 +80,15 @@ export function RetryPaymentBanner({ orderId, createdAt }: Props) {
 
   return (
     <div className="border border-amber-200 bg-amber-50 px-5 py-5 mb-6 text-center">
-      <p className="text-sm text-[#3D2B1F] font-[500] mb-1">Pago pendiente</p>
-      <p className="text-xs text-[#897568] mb-4">
+      <p className="text-sm text-[#252525] font-[500] mb-1">Pago pendiente</p>
+      <p className="text-xs text-[#7B7B7B] mb-4">
         Tu pedido está reservado. Tienes unos minutos para completar el pago.
       </p>
       {error && <p className="text-xs text-red-600 mb-3">{error}</p>}
       <button
         onClick={handleRetry}
         disabled={retrying}
-        className="px-6 py-2.5 bg-[#3D2B1F] text-[#F3EDE0] text-[11px] tracking-[0.15em] uppercase font-[500] hover:bg-[#5A3E2E] transition-colors disabled:opacity-50"
+        className="px-6 py-2.5 bg-[#252525] text-[#FFFFFF] text-[11px] tracking-[0.15em] uppercase font-[500] hover:bg-[#444444] transition-colors disabled:opacity-50"
       >
         {retrying ? "Preparando pago…" : "Completar pago"}
       </button>

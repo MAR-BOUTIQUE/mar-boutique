@@ -26,7 +26,7 @@ const EMPTY: Omit<Collection, "id"> = {
   featured_on_home: false,
 };
 
-const INPUT = "w-full border border-[#e5e7eb] bg-white px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-[#897568] transition-colors placeholder:text-gray-300";
+const INPUT = "w-full border border-[#e5e7eb] bg-white px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-[#7B7B7B] transition-colors placeholder:text-gray-300";
 const LABEL = "block text-xs font-[500] text-gray-500 mb-1";
 
 export default function AdminColeccionesPage() {
@@ -122,7 +122,7 @@ export default function AdminColeccionesPage() {
         <h1 className="text-xl font-semibold text-gray-800">Colecciones</h1>
         <button
           onClick={openNew}
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3D2B1F] text-white text-xs rounded hover:bg-[#5A3E2E] transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#252525] text-white text-xs rounded hover:bg-[#444444] transition-colors"
         >
           <Plus size={14} /> Nueva colección
         </button>
@@ -193,7 +193,7 @@ export default function AdminColeccionesPage() {
                   type="checkbox"
                   checked={form.is_active}
                   onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                  className="accent-[#3D2B1F]"
+                  className="accent-[#252525]"
                 />
                 <span className="text-xs text-gray-600">Colección activa (visible en el storefront)</span>
               </label>
@@ -221,7 +221,7 @@ export default function AdminColeccionesPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-5 py-2 bg-[#3D2B1F] text-white text-xs rounded hover:bg-[#5A3E2E] transition-colors disabled:opacity-50"
+                className="px-5 py-2 bg-[#252525] text-white text-xs rounded hover:bg-[#444444] transition-colors disabled:opacity-50"
               >
                 {saving ? "Guardando…" : "Guardar"}
               </button>
@@ -269,7 +269,7 @@ export default function AdminColeccionesPage() {
                   <td className="px-4 py-3 text-center text-gray-500">{c.sort_order}</td>
                   <td className="px-4 py-3 text-center">
                     {c.featured_on_home && (
-                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-[500] bg-[#EAC9C9]/60 text-[#B5888A]">
+                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-[500] bg-[#ECD6D1]/60 text-[#B5888A]">
                         <Home size={11} /> Inicio
                       </span>
                     )}

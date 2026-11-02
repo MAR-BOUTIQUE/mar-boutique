@@ -39,17 +39,17 @@ export function AdminSidebar() {
   return (
     <>
       {/* Barra superior solo en celular */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#3D2B1F] flex items-center px-3 z-50">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#252525] flex items-center px-3 z-50">
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={open}
-          className="h-11 w-11 flex items-center justify-center text-[#F3EDE0]"
+          className="h-11 w-11 flex items-center justify-center text-[#FFFFFF]"
         >
           {open ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
         </button>
         <span
-          className="text-lg text-[#F3EDE0] ml-1"
+          className="text-lg text-[#FFFFFF] ml-1"
           style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
         >
           Mar Boutique
@@ -66,21 +66,21 @@ export function AdminSidebar() {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full w-60 bg-[#3D2B1F] flex flex-col z-50 transition-transform md:z-40 md:translate-x-0",
+          "fixed left-0 top-0 h-full w-60 bg-[#252525] flex flex-col z-50 transition-transform md:z-40 md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
       {/* Logo */}
-      <div className="px-6 py-6 border-b border-[#4D3B2F]">
+      <div className="px-6 py-6 border-b border-[#444444]">
         <Link href="/" target="_blank">
           <span
-            className="text-xl text-[#F3EDE0]"
+            className="text-xl text-[#FFFFFF]"
             style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
           >
             Mar Boutique
           </span>
         </Link>
-        <p className="text-[9px] tracking-[0.2em] uppercase text-[#897568] mt-0.5">
+        <p className="text-[9px] tracking-[0.2em] uppercase text-[#7B7B7B] mt-0.5">
           Panel admin
         </p>
       </div>
@@ -97,8 +97,8 @@ export function AdminSidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm transition-colors",
                 active
-                  ? "bg-[#EAC9C9]/15 text-[#EAC9C9] font-[500]"
-                  : "text-[#897568] hover:text-[#CEC3AB] hover:bg-white/5"
+                  ? "bg-[#ECD6D1]/15 text-[#ECD6D1] font-[500]"
+                  : "text-[#7B7B7B] hover:text-[#E3CFCA] hover:bg-white/5"
               )}
             >
               <Icon size={16} strokeWidth={1.5} />
@@ -109,10 +109,10 @@ export function AdminSidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="px-3 py-4 border-t border-[#4D3B2F]">
+      <div className="px-3 py-4 border-t border-[#444444]">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 w-full text-sm text-[#897568] hover:text-[#CEC3AB] transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 w-full text-sm text-[#7B7B7B] hover:text-[#E3CFCA] transition-colors"
         >
           <LogOut size={16} strokeWidth={1.5} />
           Cerrar sesión

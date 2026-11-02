@@ -33,17 +33,17 @@ export default function AccountSidebar() {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:block w-44 shrink-0">
-        <nav className="bg-white border border-[#DDD5C4] overflow-hidden">
+        <nav className="bg-white border border-[#EDE3E0] overflow-hidden">
           {NAV.map((item) => {
             const active = isActive(item);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 text-[13px] border-b border-[#F3EDE0] last:border-0 transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 text-[13px] border-b border-[#FFFFFF] last:border-0 transition-colors ${
                   active
-                    ? "bg-[#F3EDE0] text-[#3D2B1F] font-[600]"
-                    : "text-[#897568] hover:bg-[#F3EDE0]/60 hover:text-[#3D2B1F]"
+                    ? "bg-[#FFFFFF] text-[#252525] font-[600]"
+                    : "text-[#7B7B7B] hover:bg-[#FFFFFF]/60 hover:text-[#252525]"
                 }`}
               >
                 <item.icon size={14} />
@@ -53,7 +53,7 @@ export default function AccountSidebar() {
           })}
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-[#897568] hover:bg-[#EAC9C9]/20 hover:text-[#B5888A] transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-[#7B7B7B] hover:bg-[#ECD6D1]/20 hover:text-[#B5888A] transition-colors"
           >
             <LogOut size={14} />
             Salir
@@ -71,8 +71,8 @@ export default function AccountSidebar() {
               href={item.href}
               className={`flex items-center gap-1.5 px-3 py-2 text-[11px] uppercase tracking-[0.1em] font-[500] whitespace-nowrap border transition-colors ${
                 active
-                  ? "bg-[#3D2B1F] text-[#F3EDE0] border-[#3D2B1F]"
-                  : "bg-white text-[#897568] border-[#DDD5C4] hover:border-[#897568]"
+                  ? "bg-[#252525] text-[#FFFFFF] border-[#252525]"
+                  : "bg-white text-[#7B7B7B] border-[#EDE3E0] hover:border-[#7B7B7B]"
               }`}
             >
               <item.icon size={12} />
@@ -82,7 +82,7 @@ export default function AccountSidebar() {
         })}
         <button
           onClick={logout}
-          className="flex items-center gap-1.5 px-3 py-2 text-[11px] uppercase tracking-[0.1em] font-[500] whitespace-nowrap border bg-white text-[#897568] border-[#DDD5C4] hover:text-[#B5888A] hover:border-[#B5888A] transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 text-[11px] uppercase tracking-[0.1em] font-[500] whitespace-nowrap border bg-white text-[#7B7B7B] border-[#EDE3E0] hover:text-[#B5888A] hover:border-[#B5888A] transition-colors"
         >
           <LogOut size={12} />
           Salir

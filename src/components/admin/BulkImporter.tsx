@@ -112,11 +112,11 @@ export function BulkImporter() {
   // ── Done ──────────────────────────────────────────────────────────────────
   if (step === "done" && result) {
     return (
-      <div className="bg-white border border-[#DDD5C4] p-8 space-y-6">
+      <div className="bg-white border border-[#EDE3E0] p-8 space-y-6">
         <div className="flex items-center gap-3">
-          <CheckCircle size={24} className="text-[#3D2B1F] shrink-0" />
+          <CheckCircle size={24} className="text-[#252525] shrink-0" />
           <div>
-            <p className="font-[500] text-[#3D2B1F]">
+            <p className="font-[500] text-[#252525]">
               Importación completada: {result.created} de {result.total} productos creados.
             </p>
             {result.failed.length > 0 && (
@@ -128,7 +128,7 @@ export function BulkImporter() {
         </div>
 
         {result.failed.length > 0 && (
-          <div className="border border-[#EAC9C9] bg-[#EAC9C9]/10 p-4 space-y-1.5">
+          <div className="border border-[#ECD6D1] bg-[#ECD6D1]/10 p-4 space-y-1.5">
             {result.failed.map((f, i) => (
               <p key={i} className="text-xs text-[#B5888A]">
                 <span className="font-[500]">{f.nombre}:</span> {f.message}
@@ -140,13 +140,13 @@ export function BulkImporter() {
         <div className="flex gap-3">
           <a
             href="/admin/productos"
-            className="text-[11px] tracking-[0.18em] uppercase font-[600] px-6 py-2.5 bg-[#3D2B1F] text-[#F3EDE0] hover:bg-[#B5888A] transition-colors"
+            className="text-[11px] tracking-[0.18em] uppercase font-[600] px-6 py-2.5 bg-[#252525] text-[#FFFFFF] hover:bg-[#B5888A] transition-colors"
           >
             Ver productos
           </a>
           <button
             onClick={reset}
-            className="text-xs text-[#897568] hover:text-[#3D2B1F] transition-colors"
+            className="text-xs text-[#7B7B7B] hover:text-[#252525] transition-colors"
           >
             Importar otro archivo
           </button>
@@ -159,18 +159,18 @@ export function BulkImporter() {
   if (step === "error") {
     return (
       <div className="space-y-4">
-        <div className="bg-white border border-[#EAC9C9] p-6 space-y-3">
+        <div className="bg-white border border-[#ECD6D1] p-6 space-y-3">
           <p className="flex items-center gap-2 font-[500] text-[#B5888A]">
             <AlertCircle size={16} /> El archivo tiene errores y no puede importarse.
           </p>
-          <div className="divide-y divide-[#F3EDE0]">
+          <div className="divide-y divide-[#FFFFFF]">
             {parseErrors.map((e, i) => (
               <div key={i} className="py-2 flex gap-4 text-xs">
                 {e.row > 0 && (
-                  <span className="text-[#CEC3AB] shrink-0 w-14">Fila {e.row}</span>
+                  <span className="text-[#E3CFCA] shrink-0 w-14">Fila {e.row}</span>
                 )}
-                <span className="text-[#897568] shrink-0 w-28">{e.column}</span>
-                <span className="text-[#3D2B1F]">{e.message}</span>
+                <span className="text-[#7B7B7B] shrink-0 w-28">{e.column}</span>
+                <span className="text-[#252525]">{e.message}</span>
               </div>
             ))}
           </div>
@@ -178,7 +178,7 @@ export function BulkImporter() {
         </div>
         <button
           onClick={reset}
-          className="text-xs text-[#897568] hover:text-[#3D2B1F] flex items-center gap-1.5"
+          className="text-xs text-[#7B7B7B] hover:text-[#252525] flex items-center gap-1.5"
         >
           <X size={12} /> Subir otro archivo
         </button>
@@ -193,25 +193,25 @@ export function BulkImporter() {
       <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-[500] text-[#3D2B1F]">
+            <p className="text-sm font-[500] text-[#252525]">
               Vista previa: {preview.length} producto(s) · {totalVariants} variante(s)
             </p>
-            <p className="text-xs text-[#897568] mt-0.5">{fileName}</p>
+            <p className="text-xs text-[#7B7B7B] mt-0.5">{fileName}</p>
           </div>
           <button
             onClick={reset}
-            className="text-xs text-[#897568] hover:text-[#3D2B1F] flex items-center gap-1"
+            className="text-xs text-[#7B7B7B] hover:text-[#252525] flex items-center gap-1"
           >
             <X size={12} /> Cancelar
           </button>
         </div>
 
-        <div className="bg-white border border-[#DDD5C4] overflow-x-auto">
+        <div className="bg-white border border-[#EDE3E0] overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#DDD5C4]">
+              <tr className="border-b border-[#EDE3E0]">
                 {["Nombre", "Precio base", "Estado", "Categorías", "Variantes"].map((h) => (
-                  <th key={h} className="text-left text-[9px] tracking-[0.18em] uppercase text-[#897568] font-[600] px-4 py-3 whitespace-nowrap">
+                  <th key={h} className="text-left text-[9px] tracking-[0.18em] uppercase text-[#7B7B7B] font-[600] px-4 py-3 whitespace-nowrap">
                     {h}
                   </th>
                 ))}
@@ -219,24 +219,24 @@ export function BulkImporter() {
             </thead>
             <tbody>
               {preview.map((p, i) => (
-                <tr key={i} className="border-b border-[#F3EDE0] hover:bg-[#F3EDE0]/40 transition-colors">
-                  <td className="px-4 py-3 font-[500] text-[#3D2B1F] max-w-[200px]">{p.nombre}</td>
-                  <td className="px-4 py-3 text-[#897568]">{formatCOP(p.precio_base)}</td>
+                <tr key={i} className="border-b border-[#FFFFFF] hover:bg-[#FFFFFF]/40 transition-colors">
+                  <td className="px-4 py-3 font-[500] text-[#252525] max-w-[200px]">{p.nombre}</td>
+                  <td className="px-4 py-3 text-[#7B7B7B]">{formatCOP(p.precio_base)}</td>
                   <td className="px-4 py-3">
                     <span className={cn(
                       "text-[9px] px-2 py-0.5 rounded-full font-[600] tracking-wide uppercase",
-                      p.estado === "active" ? "bg-[#F3EDE0] text-[#3D2B1F]" : "bg-[#EAC9C9]/40 text-[#897568]"
+                      p.estado === "active" ? "bg-[#FFFFFF] text-[#252525]" : "bg-[#ECD6D1]/40 text-[#7B7B7B]"
                     )}>
                       {STATUS_LABEL[p.estado] ?? p.estado}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[#897568]">
+                  <td className="px-4 py-3 text-[#7B7B7B]">
                     {[...p.categorias, ...p.colecciones].join(", ") || "—"}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {p.variants.map((v, j) => (
-                        <span key={j} className="text-[9px] px-1.5 py-0.5 bg-[#F3EDE0] text-[#897568] rounded">
+                        <span key={j} className="text-[9px] px-1.5 py-0.5 bg-[#FFFFFF] text-[#7B7B7B] rounded">
                           {v.talla}/{v.color} ({v.stock})
                         </span>
                       ))}
@@ -255,8 +255,8 @@ export function BulkImporter() {
             className={cn(
               "text-[11px] tracking-[0.18em] uppercase font-[600] px-8 py-3 transition-colors",
               step === "importing"
-                ? "bg-[#CEC3AB] text-white cursor-not-allowed"
-                : "bg-[#3D2B1F] text-[#F3EDE0] hover:bg-[#B5888A]"
+                ? "bg-[#E3CFCA] text-white cursor-not-allowed"
+                : "bg-[#252525] text-[#FFFFFF] hover:bg-[#B5888A]"
             )}
           >
             {step === "importing" ? "Importando…" : `Confirmar e importar ${preview.length} producto(s)`}
@@ -264,7 +264,7 @@ export function BulkImporter() {
           <button
             onClick={reset}
             disabled={step === "importing"}
-            className="text-xs text-[#897568] hover:text-[#3D2B1F]"
+            className="text-xs text-[#7B7B7B] hover:text-[#252525]"
           >
             Cancelar
           </button>
@@ -284,19 +284,19 @@ export function BulkImporter() {
         className={cn(
           "border-2 border-dashed rounded-none px-6 py-16 text-center cursor-pointer transition-colors",
           dragOver
-            ? "border-[#B5888A] bg-[#EAC9C9]/20"
-            : "border-[#DDD5C4] hover:border-[#897568] bg-[#F3EDE0]"
+            ? "border-[#B5888A] bg-[#ECD6D1]/20"
+            : "border-[#EDE3E0] hover:border-[#7B7B7B] bg-[#FFFFFF]"
         )}
       >
         <FileSpreadsheet
           size={36}
           strokeWidth={1.2}
-          className={cn("mx-auto mb-4", dragOver ? "text-[#B5888A]" : "text-[#CEC3AB]")}
+          className={cn("mx-auto mb-4", dragOver ? "text-[#B5888A]" : "text-[#E3CFCA]")}
         />
-        <p className="text-sm text-[#897568] mb-1">
+        <p className="text-sm text-[#7B7B7B] mb-1">
           Arrastra tu archivo aquí o haz clic para seleccionar
         </p>
-        <p className="text-xs text-[#CEC3AB]">Excel (.xlsx, .xls) o CSV · máx. 10 MB</p>
+        <p className="text-xs text-[#E3CFCA]">Excel (.xlsx, .xls) o CSV · máx. 10 MB</p>
         <input
           ref={inputRef}
           type="file"
@@ -310,14 +310,14 @@ export function BulkImporter() {
       </div>
 
       {/* Pasos de referencia */}
-      <div className="grid grid-cols-3 gap-4 text-xs text-[#897568]">
+      <div className="grid grid-cols-3 gap-4 text-xs text-[#7B7B7B]">
         {[
           { n: "1", text: "Descarga la plantilla Excel con el formato correcto." },
           { n: "2", text: "Completa filas: cada fila = una variante (talla + color)." },
           { n: "3", text: "Sube el archivo y revisa la vista previa antes de confirmar." },
         ].map((s) => (
-          <div key={s.n} className="border border-[#DDD5C4] p-3 bg-white">
-            <span className="text-[10px] tracking-[0.15em] uppercase font-[600] text-[#CEC3AB] block mb-1">
+          <div key={s.n} className="border border-[#EDE3E0] p-3 bg-white">
+            <span className="text-[10px] tracking-[0.15em] uppercase font-[600] text-[#E3CFCA] block mb-1">
               Paso {s.n}
             </span>
             <p>{s.text}</p>

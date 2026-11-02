@@ -20,7 +20,7 @@ const STATUS_BADGE: Record<string, string> = {
   paid: "bg-green-100 text-green-800",
   preparing: "bg-blue-100 text-blue-800",
   shipped: "bg-purple-100 text-purple-800",
-  delivered: "bg-[#EAC9C9] text-[#3D2B1F]",
+  delivered: "bg-[#ECD6D1] text-[#252525]",
   cancelled: "bg-red-100 text-red-700",
 };
 const STATUS_LABEL: Record<string, string> = {
@@ -71,7 +71,7 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
     <div>
       <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <h1
-          className="text-3xl text-[#3D2B1F]"
+          className="text-3xl text-[#252525]"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Pedidos
@@ -90,8 +90,8 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
             href={buildStatusHref(opt.value, date_from, date_to, q)}
             className={`text-[10px] tracking-[0.15em] uppercase px-4 py-2 border font-[500] transition-colors ${
               (status ?? "") === opt.value
-                ? "bg-[#3D2B1F] text-[#F3EDE0] border-[#3D2B1F]"
-                : "border-[#DDD5C4] text-[#897568] hover:border-[#897568]"
+                ? "bg-[#252525] text-[#FFFFFF] border-[#252525]"
+                : "border-[#EDE3E0] text-[#7B7B7B] hover:border-[#7B7B7B]"
             }`}
           >
             {opt.label}
@@ -100,22 +100,22 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
       </div>
 
       {/* Filtro de fecha */}
-      <div className={`flex items-center gap-4 mb-6 px-4 py-3 border flex-wrap ${hasDateFilter ? "border-[#EAC9C9] bg-[#EAC9C9]/10" : "border-[#DDD5C4] bg-white"}`}>
+      <div className={`flex items-center gap-4 mb-6 px-4 py-3 border flex-wrap ${hasDateFilter ? "border-[#ECD6D1] bg-[#ECD6D1]/10" : "border-[#EDE3E0] bg-white"}`}>
         <OrderDateFilter />
         {hasDateFilter && (
-          <span className="text-[10px] text-[#897568]">
+          <span className="text-[10px] text-[#7B7B7B]">
             {(orders ?? []).length} pedido{(orders ?? []).length !== 1 ? "s" : ""} en el período
           </span>
         )}
       </div>
 
       {/* Tabla */}
-      <div className="bg-white border border-[#DDD5C4] overflow-x-auto">
+      <div className="bg-white border border-[#EDE3E0] overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[#DDD5C4]">
+            <tr className="border-b border-[#EDE3E0]">
               {["Pedido", "Clienta", "Ciudad", "Total", "Pago", "Estado", "Fecha", ""].map((h) => (
-                <th key={h} className="text-left text-[9px] tracking-[0.2em] uppercase text-[#897568] font-[600] px-4 py-3">
+                <th key={h} className="text-left text-[9px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] px-4 py-3">
                   {h}
                 </th>
               ))}
@@ -123,20 +123,20 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
           </thead>
           <tbody>
             {(orders ?? []).map((order) => (
-              <tr key={order.id} className="border-b border-[#F3EDE0] hover:bg-[#F3EDE0]/50 transition-colors">
-                <td className="px-4 py-3 font-[500] text-[#3D2B1F]">{order.order_number}</td>
+              <tr key={order.id} className="border-b border-[#FFFFFF] hover:bg-[#FFFFFF]/50 transition-colors">
+                <td className="px-4 py-3 font-[500] text-[#252525]">{order.order_number}</td>
                 <td className="px-4 py-3">
-                  <p className="text-[#3D2B1F]">{order.shipping_name}</p>
-                  <p className="text-xs text-[#897568]">{order.shipping_email}</p>
+                  <p className="text-[#252525]">{order.shipping_name}</p>
+                  <p className="text-xs text-[#7B7B7B]">{order.shipping_email}</p>
                 </td>
-                <td className="px-4 py-3 text-[#897568]">{order.shipping_city}</td>
-                <td className="px-4 py-3 font-[500] text-[#3D2B1F]">{formatCOP(order.total)}</td>
+                <td className="px-4 py-3 text-[#7B7B7B]">{order.shipping_city}</td>
+                <td className="px-4 py-3 font-[500] text-[#252525]">{formatCOP(order.total)}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`text-[9px] px-2 py-0.5 rounded-full font-[600] tracking-wide uppercase ${
                       order.payment_method === "contraentrega"
                         ? "bg-orange-100 text-orange-700"
-                        : "bg-[#EAC9C9]/50 text-[#3D2B1F]"
+                        : "bg-[#ECD6D1]/50 text-[#252525]"
                     }`}
                   >
                     {order.payment_method === "contraentrega" ? "Contraentrega" : "En línea"}
@@ -147,13 +147,13 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
                     {STATUS_LABEL[order.status] ?? order.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-[#897568] text-xs whitespace-nowrap">
+                <td className="px-4 py-3 text-[#7B7B7B] text-xs whitespace-nowrap">
                   {formatDateShort(order.created_at)}
                 </td>
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/pedidos/${order.id}`}
-                    className="text-xs text-[#B5888A] hover:text-[#3D2B1F] font-[500]"
+                    className="text-xs text-[#B5888A] hover:text-[#252525] font-[500]"
                   >
                     Ver →
                   </Link>
@@ -163,7 +163,7 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
           </tbody>
         </table>
         {!orders?.length && (
-          <div className="py-16 text-center text-[#897568] text-sm">
+          <div className="py-16 text-center text-[#7B7B7B] text-sm">
             No hay pedidos con estos filtros.
           </div>
         )}

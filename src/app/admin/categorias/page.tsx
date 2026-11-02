@@ -1,30 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Plus, Edit2, Trash2 } from "lucide-react";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils/format";
 
-type Category = { id: string; name: string; slug: string; description: string | null; sort_order: number };
-type Occasion = { id: string; name: string; slug: string; sort_order: number };
 
-const INPUT = "w-full border border-[#e5e7eb] bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#897568] transition-colors placeholder:text-gray-300";
+const INPUT = "w-full border border-[#e5e7eb] bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#7B7B7B] transition-colors placeholder:text-gray-300";
 const LABEL = "block text-xs font-[500] text-gray-500 mb-1";
 
 function CrudSection<T extends { id: string; name: string; slug: string; sort_order: number }>({
   title,
   table,
   hasDescription,
+  hasImage,
 }: {
   title: string;
   table: string;
   hasDescription?: boolean;
+  hasImage?: boolean;
 }) {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", slug: "", description: "", sort_order: 0 });
+  const [form, setForm] = useState({ name: "", slug: "", description: "", image_url: "", sort_order: 0 });
   const [saving, setSaving] = useState(false);
   const supabase = createClient();
 
@@ -37,7 +39,7 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
   useEffect(() => { load(); }, []);
 
   function openNew() {
-    setForm({ name: "", slug: "", description: "", sort_order: 0 });
+    setForm({ name: "", slug: "", description: "", image_url: "", sort_order: 0 });
     setEditingId(null);
     setShowForm(true);
   }
@@ -47,6 +49,7 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
       name: item.name,
       slug: item.slug,
       description: (item as any).description ?? "",
+      image_url: (item as any).image_url ?? "",
       sort_order: item.sort_order,
     });
     setEditingId(item.id);
@@ -62,6 +65,7 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
     setSaving(true);
     const payload: any = { name: form.name, slug: form.slug, sort_order: form.sort_order };
     if (hasDescription) payload.description = form.description;
+    if (hasImage) payload.image_url = form.image_url || null;
     if (editingId) {
       await supabase.from(table).update(payload).eq("id", editingId);
     } else {
@@ -84,7 +88,7 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
         <h2 className="text-base font-semibold text-gray-800">{title}</h2>
         <button
           onClick={openNew}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#3D2B1F] text-white text-xs rounded hover:bg-[#5A3E2E] transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#252525] text-white text-xs rounded hover:bg-[#444444] transition-colors"
         >
           <Plus size={12} /> Nuevo
         </button>
@@ -124,6 +128,16 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
                 />
               </div>
             )}
+            {hasImage && (
+              <div>
+                <label className={LABEL}>Imagen de la categoría (se muestra en la portada)</label>
+                <ImageUploader
+                  images={form.image_url ? [form.image_url] : []}
+                  onChange={(imgs) => setForm((f) => ({ ...f, image_url: imgs[imgs.length - 1] ?? "" }))}
+                  maxImages={1}
+                />
+              </div>
+            )}
             <div className="w-28">
               <label className={LABEL}>Orden</label>
               <input
@@ -138,7 +152,7 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
               <button
                 type="submit"
                 disabled={saving}
-                className="px-4 py-1.5 bg-[#3D2B1F] text-white text-xs rounded hover:bg-[#5A3E2E] disabled:opacity-50"
+                className="px-4 py-1.5 bg-[#252525] text-white text-xs rounded hover:bg-[#444444] disabled:opacity-50"
               >
                 {saving ? "Guardando…" : "Guardar"}
               </button>
@@ -169,6 +183,7 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
               <tr>
+                {hasImage && <th className="px-4 py-2.5 text-left">Imagen</th>}
                 <th className="px-4 py-2.5 text-left">Nombre</th>
                 <th className="px-4 py-2.5 text-left">Slug</th>
                 <th className="px-4 py-2.5 text-center">Orden</th>
@@ -178,6 +193,17 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
             <tbody className="divide-y divide-gray-100">
               {items.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50">
+                  {hasImage && (
+                    <td className="px-4 py-2.5">
+                      {(item as any).image_url ? (
+                        <div className="relative h-14 w-11 overflow-hidden bg-gray-100">
+                          <Image src={(item as any).image_url} alt={item.name} fill sizes="44px" className="object-cover" />
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-amber-600">Sin imagen</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-4 py-2.5 font-[500] text-gray-800">{item.name}</td>
                   <td className="px-4 py-2.5 text-gray-400 font-mono text-xs">{item.slug}</td>
                   <td className="px-4 py-2.5 text-center text-gray-500">{item.sort_order}</td>
@@ -211,7 +237,7 @@ export default function AdminCategoriasPage() {
   return (
     <div className="p-6 max-w-4xl space-y-10">
       <h1 className="text-xl font-semibold text-gray-800">Categorías y Ocasiones</h1>
-      <CrudSection title="Categorías" table="categories" hasDescription />
+      <CrudSection title="Categorías" table="categories" hasDescription hasImage />
       <CrudSection title="Ocasiones" table="occasions" />
     </div>
   );

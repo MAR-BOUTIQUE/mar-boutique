@@ -62,14 +62,14 @@ export default async function NosotrasPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative bg-[#EAC9C9]/30 py-24 px-4 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F3EDE0] to-transparent opacity-60" />
+      <section className="relative bg-[#ECD6D1]/30 py-24 px-4 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FFFFFF] to-transparent opacity-60" />
         <div className="relative z-10 max-w-xl mx-auto">
           <span className="text-[10px] tracking-[0.3em] uppercase text-[#B5888A] font-[500]">
             Nuestra historia
           </span>
           <h1
-            className="text-5xl text-[#3D2B1F] mt-3 mb-5 leading-tight"
+            className="text-5xl text-[#252525] mt-3 mb-5 leading-tight"
             style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
           >
             Nosotras
@@ -99,12 +99,12 @@ export default async function NosotrasPage() {
               El origen
             </span>
             <h2
-              className="text-3xl text-[#3D2B1F] mt-2 mb-5"
+              className="text-3xl text-[#252525] mt-2 mb-5"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Hola Marlover
             </h2>
-            <div className="space-y-4 text-sm text-[#897568] leading-loose font-[300]">
+            <div className="space-y-4 text-sm text-[#7B7B7B] leading-loose font-[300]">
               <p>
                 Somos una marca colombiana creada para acompañar a la mujer en su día a día,
                 recordándole que lo simple también puede ser especial y que cada momento tiene su
@@ -140,14 +140,14 @@ export default async function NosotrasPage() {
       </section>
 
       {/* Valores */}
-      <section className="bg-[#F3EDE0] border-y border-[#DDD5C4] py-20 px-4">
+      <section className="bg-[#FFFFFF] border-y border-[#EDE3E0] py-20 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-[10px] tracking-[0.28em] uppercase text-[#B5888A] font-[500]">
               Lo que nos define
             </span>
             <h2
-              className="text-4xl text-[#3D2B1F] mt-2"
+              className="text-4xl text-[#252525] mt-2"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Nuestros valores
@@ -158,12 +158,12 @@ export default async function NosotrasPage() {
               <div key={v.title} className="text-center">
                 <div className="w-10 h-px bg-[#B5888A] mx-auto mb-4" />
                 <h3
-                  className="text-lg text-[#3D2B1F] mb-2"
+                  className="text-lg text-[#252525] mb-2"
                   style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
                 >
                   {v.title}
                 </h3>
-                <p className="text-xs text-[#897568] leading-relaxed">{v.desc}</p>
+                <p className="text-xs text-[#7B7B7B] leading-relaxed">{v.desc}</p>
               </div>
             ))}
           </div>
@@ -171,22 +171,22 @@ export default async function NosotrasPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#3D2B1F] py-20 px-4 text-center">
+      <section className="bg-[#252525] py-20 px-4 text-center">
         <span className="text-[10px] tracking-[0.3em] uppercase text-[#B5888A] font-[500]">
           Únete a nuestra comunidad
         </span>
         <h2
-          className="text-3xl text-[#F3EDE0] mt-3 mb-5"
+          className="text-3xl text-[#FFFFFF] mt-3 mb-5"
           style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
         >
           Viste con intención
         </h2>
-        <p className="text-sm text-[#CEC3AB] mb-8 font-[300] max-w-md mx-auto">
+        <p className="text-sm text-[#E3CFCA] mb-8 font-[300] max-w-md mx-auto">
           Descubre prendas curaduras para mujeres que saben lo que quieren.
         </p>
         <Link
           href="/catalogo"
-          className="inline-flex items-center gap-2 px-8 py-3 bg-[#EAC9C9] text-[#3D2B1F] text-[11px] tracking-[0.2em] uppercase font-[600] hover:bg-[#F3EDE0] transition-colors"
+          className="inline-flex items-center gap-2 px-8 py-3 bg-[#ECD6D1] text-[#252525] text-[11px] tracking-[0.2em] uppercase font-[600] hover:bg-[#FFFFFF] transition-colors"
         >
           Ver catálogo <ArrowRight size={13} />
         </Link>

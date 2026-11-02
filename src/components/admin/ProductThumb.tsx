@@ -19,9 +19,9 @@ export function ProductThumb({ src, alt, size = "sm" }: Props) {
 
   if (!src || error) {
     return (
-      <div className={`${BOX[size]} shrink-0 bg-[#EAC9C9]/20 flex items-center justify-center`}>
+      <div className={`${BOX[size]} shrink-0 bg-[#ECD6D1]/20 flex items-center justify-center`}>
         <span
-          className="text-[10px] text-[#897568]"
+          className="text-[10px] text-[#7B7B7B]"
           style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
         >
           MB
@@ -31,7 +31,7 @@ export function ProductThumb({ src, alt, size = "sm" }: Props) {
   }
 
   return (
-    <div className={`relative ${BOX[size]} shrink-0 overflow-hidden bg-[#EAC9C9]/20`}>
+    <div className={`relative ${BOX[size]} shrink-0 overflow-hidden bg-[#ECD6D1]/20`}>
       <Image
         src={src}
         alt={alt}

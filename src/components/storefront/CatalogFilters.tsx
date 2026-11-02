@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback } from "react";
+import { Check, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { Category, Collection, Occasion } from "@/types";
 
@@ -11,9 +12,10 @@ interface Props {
   occasions: Occasion[];
   current: Record<string, string | undefined>;
   onFilterApplied?: () => void;
+  showHeader?: boolean;
 }
 
-export function CatalogFilters({ categories, collections, occasions, current, onFilterApplied }: Props) {
+export function CatalogFilters({ categories, collections, occasions, current, onFilterApplied, showHeader = true }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -38,17 +40,42 @@ export function CatalogFilters({ categories, collections, occasions, current, on
     onFilterApplied?.();
   };
 
+  const FILTER_KEYS = ["categoria", "coleccion", "ocasion", "talla", "precio_min", "precio_max"];
   const hasFilters = Object.values(current).some(Boolean);
+  const activeCount = FILTER_KEYS.filter((k) => current[k]).length;
 
   return (
-    <div className="space-y-8">
-      {hasFilters && (
-        <button
-          onClick={clearAll}
-          className="text-[10px] tracking-[0.2em] uppercase text-[#B5888A] hover:text-[#3D2B1F] font-[500] transition-colors"
-        >
-          Limpiar filtros ×
-        </button>
+    <div className="divide-y divide-[#EDE3E0]">
+      {showHeader && (
+        <div className="flex items-center justify-between pb-4">
+          <h3 className="flex items-center gap-2 text-sm tracking-[0.2em] uppercase text-[#252525] font-[600]">
+            <SlidersHorizontal size={15} strokeWidth={1.75} />
+            Filtros
+            {activeCount > 0 && (
+              <span className="min-w-5 h-5 px-1 rounded-full bg-[#B5888A] text-white text-[11px] flex items-center justify-center font-[600]">
+                {activeCount}
+              </span>
+            )}
+          </h3>
+          {hasFilters && (
+            <button
+              onClick={clearAll}
+              className="text-xs text-[#9C6468] hover:text-[#252525] underline underline-offset-4 transition-colors"
+            >
+              Limpiar todo
+            </button>
+          )}
+        </div>
+      )}
+      {!showHeader && hasFilters && (
+        <div className="pb-4">
+          <button
+            onClick={clearAll}
+            className="text-xs text-[#9C6468] hover:text-[#252525] underline underline-offset-4 transition-colors"
+          >
+            Limpiar todo
+          </button>
+        </div>
       )}
 
       {/* CATEGORÍAS */}
@@ -109,9 +136,9 @@ export function CatalogFilters({ categories, collections, occasions, current, on
       )}
 
       {/* TALLAS */}
-      <FilterGroup title="Talla">
+      <FilterGroup title="Talla" grid>
         {["XS", "S", "M", "L", "XL", "XXL"].map((t) => (
-          <FilterOption
+          <SizeChip
             key={t}
             label={t}
             active={current.talla === t}
@@ -162,16 +189,18 @@ export function CatalogFilters({ categories, collections, occasions, current, on
 function FilterGroup({
   title,
   children,
+  grid = false,
 }: {
   title: string;
   children: React.ReactNode;
+  grid?: boolean;
 }) {
   return (
-    <div>
-      <h4 className="text-[9px] tracking-[0.25em] uppercase text-[#897568] font-[600] mb-3">
+    <div className="py-5">
+      <h4 className="text-[13px] tracking-[0.18em] uppercase text-[#252525] font-[600] mb-3">
         {title}
       </h4>
-      <div className="space-y-1.5">{children}</div>
+      <div className={grid ? "grid grid-cols-3 gap-2" : "space-y-0.5"}>{children}</div>
     </div>
   );
 }
@@ -188,14 +217,48 @@ function FilterOption({
   return (
     <button
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "block w-full text-left text-xs py-1 transition-colors",
+        "flex w-full items-center gap-3 text-left text-[15px] py-2 px-2 -mx-2 rounded-sm transition-colors",
         active
-          ? "text-[#3D2B1F] font-[500]"
-          : "text-[#897568] hover:text-[#3D2B1F]"
+          ? "bg-[#ECD6D1]/60 text-[#252525] font-[500]"
+          : "text-[#252525]/80 hover:bg-[#ECD6D1]/30 hover:text-[#252525]"
       )}
     >
-      {active ? "→ " : ""}{label}
+      <span
+        className={cn(
+          "flex h-4 w-4 shrink-0 items-center justify-center border transition-colors",
+          active ? "border-[#252525] bg-[#252525]" : "border-[#B5888A]"
+        )}
+      >
+        {active && <Check size={11} strokeWidth={3} className="text-white" />}
+      </span>
+      {label}
+    </button>
+  );
+}
+
+function SizeChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "py-2.5 text-sm border transition-colors",
+        active
+          ? "bg-[#252525] border-[#252525] text-white font-[500]"
+          : "border-[#EDE3E0] text-[#252525] hover:border-[#252525]"
+      )}
+    >
+      {label}
     </button>
   );
 }

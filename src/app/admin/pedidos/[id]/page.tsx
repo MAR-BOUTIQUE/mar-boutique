@@ -27,11 +27,11 @@ export default async function AdminPedidoDetailPage({ params }: Props) {
   return (
     <div className="max-w-3xl">
       <div className="flex items-center gap-4 mb-6">
-        <a href="/admin/pedidos" className="text-[#897568] hover:text-[#3D2B1F] text-sm">
+        <a href="/admin/pedidos" className="text-[#7B7B7B] hover:text-[#252525] text-sm">
           ← Volver
         </a>
         <h1
-          className="text-2xl text-[#3D2B1F]"
+          className="text-2xl text-[#252525]"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           {order.order_number}
@@ -40,26 +40,26 @@ export default async function AdminPedidoDetailPage({ params }: Props) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
         {/* Info clienta */}
-        <div className="bg-white border border-[#DDD5C4] p-5">
-          <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-3">Clienta</h2>
-          <p className="text-sm text-[#3D2B1F] font-[500]">{order.shipping_name}</p>
+        <div className="bg-white border border-[#EDE3E0] p-5">
+          <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-3">Clienta</h2>
+          <p className="text-sm text-[#252525] font-[500]">{order.shipping_name}</p>
           {order.customer_id_number && (
-            <p className="text-xs text-[#897568]">
+            <p className="text-xs text-[#7B7B7B]">
               {order.customer_id_type ?? "CC"} {order.customer_id_number}
             </p>
           )}
-          <p className="text-xs text-[#897568]">{order.shipping_email}</p>
-          <p className="text-xs text-[#897568]">{order.shipping_phone}</p>
-          <p className="text-xs text-[#897568] mt-2">
+          <p className="text-xs text-[#7B7B7B]">{order.shipping_email}</p>
+          <p className="text-xs text-[#7B7B7B]">{order.shipping_phone}</p>
+          <p className="text-xs text-[#7B7B7B] mt-2">
             {order.shipping_address}, {order.shipping_city}, {order.shipping_department}
           </p>
         </div>
 
         {/* Totales */}
-        <div className="bg-white border border-[#DDD5C4] p-5">
-          <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-3">Totales</h2>
+        <div className="bg-white border border-[#EDE3E0] p-5">
+          <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-3">Totales</h2>
           <div className="space-y-1 text-sm">
-            <div className="flex justify-between text-[#897568]">
+            <div className="flex justify-between text-[#7B7B7B]">
               <span>Subtotal</span><span>{formatCOP(order.subtotal)}</span>
             </div>
             {order.discount_amount > 0 && (
@@ -67,20 +67,20 @@ export default async function AdminPedidoDetailPage({ params }: Props) {
                 <span>Descuento</span><span>−{formatCOP(order.discount_amount)}</span>
               </div>
             )}
-            <div className="flex justify-between text-[#897568]">
+            <div className="flex justify-between text-[#7B7B7B]">
               <span>Envío</span><span>{formatCOP(order.shipping_cost)}</span>
             </div>
-            <div className="flex justify-between font-[600] text-[#3D2B1F] pt-1 border-t border-[#DDD5C4]">
+            <div className="flex justify-between font-[600] text-[#252525] pt-1 border-t border-[#EDE3E0]">
               <span>Total</span><span>{formatCOP(order.total)}</span>
             </div>
-            <div className="flex justify-between text-[#897568] pt-1 border-t border-[#F3EDE0]">
+            <div className="flex justify-between text-[#7B7B7B] pt-1 border-t border-[#FFFFFF]">
               <span>Método de pago</span>
               {order.payment_method === "contraentrega" ? (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#F3EDE0] border border-[#CEC3AB] text-[#897568] text-[10px] uppercase tracking-wide font-[500]">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#FFFFFF] border border-[#E3CFCA] text-[#7B7B7B] text-[10px] uppercase tracking-wide font-[500]">
                   Contraentrega
                 </span>
               ) : (
-                <span className="text-[#897568] text-xs">Wompi / Online</span>
+                <span className="text-[#7B7B7B] text-xs">Wompi / Online</span>
               )}
             </div>
           </div>
@@ -88,26 +88,26 @@ export default async function AdminPedidoDetailPage({ params }: Props) {
       </div>
 
       {/* Prendas */}
-      <div className="bg-white border border-[#DDD5C4] p-5 mb-5">
-        <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-4">Prendas</h2>
+      <div className="bg-white border border-[#EDE3E0] p-5 mb-5">
+        <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-4">Prendas</h2>
         <div className="space-y-3">
           {(order.items ?? []).map((item: any) => (
-            <div key={item.id} className="flex justify-between text-sm border-b border-[#F3EDE0] pb-2">
+            <div key={item.id} className="flex justify-between text-sm border-b border-[#FFFFFF] pb-2">
               <div>
-                <p className="text-[#3D2B1F] font-[400]">{item.product_name}</p>
-                <p className="text-xs text-[#897568]">
+                <p className="text-[#252525] font-[400]">{item.product_name}</p>
+                <p className="text-xs text-[#7B7B7B]">
                   SKU: {item.variant_sku} · {Object.entries(item.variant_attrs ?? {}).map(([k,v])=>`${k}: ${v}`).join(" · ")} · ×{item.quantity}
                 </p>
               </div>
-              <span className="text-[#3D2B1F] font-[500]">{formatCOP(item.total_price)}</span>
+              <span className="text-[#252525] font-[500]">{formatCOP(item.total_price)}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Acciones de estado */}
-      <div className="bg-white border border-[#DDD5C4] p-5 mb-5">
-        <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-4">
+      <div className="bg-white border border-[#EDE3E0] p-5 mb-5">
+        <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-4">
           Estado del pedido
         </h2>
         <OrderStatusActions order={order} />
@@ -120,8 +120,8 @@ export default async function AdminPedidoDetailPage({ params }: Props) {
       </div>
 
       {/* Log de estados */}
-      <div className="bg-white border border-[#DDD5C4] p-5">
-        <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] mb-4">
+      <div className="bg-white border border-[#EDE3E0] p-5">
+        <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-4">
           Historial de cambios
         </h2>
         <div className="space-y-3">
@@ -131,8 +131,8 @@ export default async function AdminPedidoDetailPage({ params }: Props) {
             <div key={log.id} className="flex gap-3 text-xs">
               <div className="w-2 h-2 rounded-full bg-[#B5888A] shrink-0 mt-1" />
               <div>
-                <p className="text-[#3D2B1F]">{log.notes ?? `${log.from_status} → ${log.to_status}`}</p>
-                <p className="text-[#897568] mt-0.5">{formatDate(log.created_at)}</p>
+                <p className="text-[#252525]">{log.notes ?? `${log.from_status} → ${log.to_status}`}</p>
+                <p className="text-[#7B7B7B] mt-0.5">{formatDate(log.created_at)}</p>
               </div>
             </div>
           ))}

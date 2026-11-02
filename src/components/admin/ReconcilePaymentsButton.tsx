@@ -86,11 +86,11 @@ export function ReconcilePaymentsButton() {
 
   return (
     <div className="flex items-center gap-3 flex-wrap">
-      {message && <span className="text-xs text-[#897568]">{message}</span>}
+      {message && <span className="text-xs text-[#7B7B7B]">{message}</span>}
       <button
         onClick={() => run(true)}
         disabled={loading}
-        className="flex items-center gap-2 px-4 py-2.5 border border-[#3D2B1F] text-[#3D2B1F] text-[11px] tracking-[0.15em] uppercase font-[500] hover:bg-[#3D2B1F] hover:text-[#F3EDE0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 px-4 py-2.5 border border-[#252525] text-[#252525] text-[11px] tracking-[0.15em] uppercase font-[500] hover:bg-[#252525] hover:text-[#FFFFFF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? <Loader2 size={13} className="animate-spin" /> : <ShieldCheck size={13} strokeWidth={1.5} />}
         {loading ? "Consultando Wompi…" : "Verificar pagos"}

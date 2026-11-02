@@ -15,12 +15,12 @@ export default async function NuevoProductoPage() {
     <div>
       <div className="mb-6">
         <h1
-          className="text-3xl text-[#3D2B1F]"
+          className="text-3xl text-[#252525]"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Nuevo producto
         </h1>
-        <p className="text-sm text-[#897568] mt-1">
+        <p className="text-sm text-[#7B7B7B] mt-1">
           Completa la información para agregar un producto al catálogo.
         </p>
       </div>

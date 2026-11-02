@@ -148,14 +148,14 @@ export default async function CatalogoPage({ searchParams }: Props) {
   ]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-10">
       {/* ENCABEZADO */}
       <div className="text-center mb-10">
         <span className="text-[10px] tracking-[0.3em] uppercase text-[#B5888A] font-[500]">
           {filters.coleccion ?? "Todas las prendas"}
         </span>
         <h1
-          className="text-5xl text-[#3D2B1F] mt-1"
+          className="text-5xl text-[#252525] mt-1"
           style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
         >
           Catálogo
@@ -164,8 +164,8 @@ export default async function CatalogoPage({ searchParams }: Props) {
 
       <div className="flex gap-8">
         {/* SIDEBAR FILTROS — solo desktop */}
-        <aside className="hidden lg:block w-56 shrink-0">
-          <Suspense fallback={<div className="space-y-8 animate-pulse"><div className="h-4 bg-[#DDD5C4] rounded w-3/4"/><div className="h-4 bg-[#DDD5C4] rounded w-1/2"/></div>}>
+        <aside className="hidden lg:block w-72 shrink-0 self-start sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto border border-[#EDE3E0] bg-white p-6">
+          <Suspense fallback={<div className="space-y-8 animate-pulse"><div className="h-4 bg-[#EDE3E0] rounded w-3/4"/><div className="h-4 bg-[#EDE3E0] rounded w-1/2"/></div>}>
             <CatalogFilters
               categories={filterOptions.categories}
               collections={filterOptions.collections}
@@ -192,7 +192,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
                   />
                 </Suspense>
               </div>
-              <p className="text-sm text-[#897568]">
+              <p className="text-sm text-[#7B7B7B]">
                 {products.length} {products.length === 1 ? "prenda" : "prendas"}
               </p>
             </div>
@@ -202,17 +202,17 @@ export default async function CatalogoPage({ searchParams }: Props) {
           {products.length === 0 ? (
             <div className="text-center py-24">
               <p
-                className="text-2xl text-[#897568]"
+                className="text-2xl text-[#7B7B7B]"
                 style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
               >
                 Sin resultados
               </p>
-              <p className="text-sm text-[#897568] mt-2">
+              <p className="text-sm text-[#7B7B7B] mt-2">
                 Prueba con otros filtros o busca algo diferente.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 gap-y-10">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

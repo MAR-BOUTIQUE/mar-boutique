@@ -90,19 +90,19 @@ export function ImageUploader({ images, onChange, maxImages = 8 }: Props) {
           className={cn(
             "border-2 border-dashed rounded-none px-6 py-10 text-center cursor-pointer transition-colors",
             dragOver
-              ? "border-[#B5888A] bg-[#EAC9C9]/20"
-              : "border-[#DDD5C4] hover:border-[#897568] bg-[#F3EDE0]"
+              ? "border-[#B5888A] bg-[#ECD6D1]/20"
+              : "border-[#EDE3E0] hover:border-[#7B7B7B] bg-[#FFFFFF]"
           )}
         >
           <Upload
             size={28}
             strokeWidth={1.5}
-            className={cn("mx-auto mb-3", dragOver ? "text-[#B5888A]" : "text-[#CEC3AB]")}
+            className={cn("mx-auto mb-3", dragOver ? "text-[#B5888A]" : "text-[#E3CFCA]")}
           />
-          <p className="text-sm text-[#897568]">
+          <p className="text-sm text-[#7B7B7B]">
             {uploading ? "Subiendo…" : "Arrastra imágenes aquí o haz clic para seleccionar"}
           </p>
-          <p className="text-xs text-[#CEC3AB] mt-1">
+          <p className="text-xs text-[#E3CFCA] mt-1">
             JPG, PNG, WEBP, HEIC · máx. 20 MB por imagen · {images.length}/{maxImages}
           </p>
           <input
@@ -136,7 +136,7 @@ export function ImageUploader({ images, onChange, maxImages = 8 }: Props) {
               onDragEnd={() => { setDraggingIdx(null); setDragTargetIdx(null); }}
               className={cn(
                 "relative group aspect-[3/4] overflow-hidden border transition-all",
-                idx === 0 ? "border-[#3D2B1F]" : "border-[#DDD5C4]",
+                idx === 0 ? "border-[#252525]" : "border-[#EDE3E0]",
                 draggingIdx === idx && "opacity-40",
                 dragTargetIdx === idx && draggingIdx !== idx && "border-[#B5888A] scale-105"
               )}
@@ -157,7 +157,7 @@ export function ImageUploader({ images, onChange, maxImages = 8 }: Props) {
                 <button
                   type="button"
                   onClick={() => removeImage(idx)}
-                  className="text-white hover:text-[#EAC9C9]"
+                  className="text-white hover:text-[#ECD6D1]"
                   aria-label="Eliminar imagen"
                 >
                   <X size={14} />
@@ -166,7 +166,7 @@ export function ImageUploader({ images, onChange, maxImages = 8 }: Props) {
 
               {/* Badge principal */}
               {idx === 0 && (
-                <span className="absolute bottom-0 left-0 right-0 bg-[#3D2B1F]/80 text-[#F3EDE0] text-[8px] tracking-wide uppercase text-center py-0.5 font-[500]">
+                <span className="absolute bottom-0 left-0 right-0 bg-[#252525]/80 text-[#FFFFFF] text-[8px] tracking-wide uppercase text-center py-0.5 font-[500]">
                   Principal
                 </span>
               )}
@@ -176,7 +176,7 @@ export function ImageUploader({ images, onChange, maxImages = 8 }: Props) {
       )}
 
       {images.length > 0 && (
-        <p className="text-[10px] text-[#897568]">
+        <p className="text-[10px] text-[#7B7B7B]">
           Arrastra los thumbnails para reordenar. La primera imagen es la principal.
         </p>
       )}

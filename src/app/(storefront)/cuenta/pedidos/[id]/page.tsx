@@ -78,7 +78,7 @@ export default async function PedidoDetallePage({
     <div>
       <Link
         href="/cuenta/pedidos"
-        className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.15em] text-[#897568] hover:text-[#3D2B1F] mb-5 transition-colors"
+        className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.15em] text-[#7B7B7B] hover:text-[#252525] mb-5 transition-colors"
       >
         <ArrowLeft size={12} /> Mis pedidos
       </Link>
@@ -86,12 +86,12 @@ export default async function PedidoDetallePage({
       <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
         <div>
           <h2
-            className="text-xl text-[#3D2B1F]"
+            className="text-xl text-[#252525]"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {order.order_number}
           </h2>
-          <p className="text-xs text-[#897568] mt-1">{formatDate(order.created_at)}</p>
+          <p className="text-xs text-[#7B7B7B] mt-1">{formatDate(order.created_at)}</p>
         </div>
         <span className={`text-[10px] px-3 py-1.5 border font-[500] ${s.cls}`}>{s.label}</span>
       </div>
@@ -103,10 +103,10 @@ export default async function PedidoDetallePage({
 
       <div className="space-y-4">
         {/* Prendas */}
-        <div className="bg-white border border-[#DDD5C4]">
-          <div className="px-5 py-3 border-b border-[#F3EDE0] flex items-center gap-2">
+        <div className="bg-white border border-[#EDE3E0]">
+          <div className="px-5 py-3 border-b border-[#FFFFFF] flex items-center gap-2">
             <Package size={13} className="text-[#B5888A]" />
-            <p className="text-[11px] uppercase tracking-[0.15em] font-[600] text-[#3D2B1F]">
+            <p className="text-[11px] uppercase tracking-[0.15em] font-[600] text-[#252525]">
               Prendas
             </p>
           </div>
@@ -116,20 +116,20 @@ export default async function PedidoDetallePage({
             return (
               <div
                 key={item.id}
-                className="flex items-start justify-between px-5 py-4 border-b border-[#F3EDE0] last:border-0 gap-4"
+                className="flex items-start justify-between px-5 py-4 border-b border-[#FFFFFF] last:border-0 gap-4"
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-[500] text-[#3D2B1F]">{item.product_name}</p>
+                  <p className="text-sm font-[500] text-[#252525]">{item.product_name}</p>
                   {attrStr && (
-                    <p className="text-[11px] text-[#897568] mt-0.5">{attrStr}</p>
+                    <p className="text-[11px] text-[#7B7B7B] mt-0.5">{attrStr}</p>
                   )}
-                  <p className="text-[11px] text-[#CEC3AB] mt-0.5">SKU: {item.variant_sku}</p>
+                  <p className="text-[11px] text-[#E3CFCA] mt-0.5">SKU: {item.variant_sku}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-[600] text-[#3D2B1F]">
+                  <p className="text-sm font-[600] text-[#252525]">
                     {formatCOP(item.total_price)}
                   </p>
-                  <p className="text-[11px] text-[#897568]">
+                  <p className="text-[11px] text-[#7B7B7B]">
                     {formatCOP(item.unit_price)} × {item.quantity}
                   </p>
                 </div>
@@ -137,8 +137,8 @@ export default async function PedidoDetallePage({
             );
           })}
           {/* Totales */}
-          <div className="px-5 py-4 border-t border-[#DDD5C4] bg-[#F3EDE0]/40 space-y-2">
-            <div className="flex justify-between text-sm text-[#897568]">
+          <div className="px-5 py-4 border-t border-[#EDE3E0] bg-[#FFFFFF]/40 space-y-2">
+            <div className="flex justify-between text-sm text-[#7B7B7B]">
               <span>Subtotal</span>
               <span>{formatCOP(order.subtotal)}</span>
             </div>
@@ -148,13 +148,13 @@ export default async function PedidoDetallePage({
                 <span>−{formatCOP(order.discount_amount)}</span>
               </div>
             )}
-            <div className="flex justify-between text-sm text-[#897568]">
+            <div className="flex justify-between text-sm text-[#7B7B7B]">
               <span>Envío</span>
               <span>
                 {order.shipping_cost > 0 ? formatCOP(order.shipping_cost) : "Gratis"}
               </span>
             </div>
-            <div className="flex justify-between text-base font-[600] text-[#3D2B1F] pt-2 border-t border-[#DDD5C4]">
+            <div className="flex justify-between text-base font-[600] text-[#252525] pt-2 border-t border-[#EDE3E0]">
               <span>Total</span>
               <span>{formatCOP(order.total)}</span>
             </div>
@@ -162,15 +162,15 @@ export default async function PedidoDetallePage({
         </div>
 
         {/* Dirección de envío */}
-        <div className="bg-white border border-[#DDD5C4]">
-          <div className="px-5 py-3 border-b border-[#F3EDE0] flex items-center gap-2">
+        <div className="bg-white border border-[#EDE3E0]">
+          <div className="px-5 py-3 border-b border-[#FFFFFF] flex items-center gap-2">
             <MapPin size={13} className="text-[#B5888A]" />
-            <p className="text-[11px] uppercase tracking-[0.15em] font-[600] text-[#3D2B1F]">
+            <p className="text-[11px] uppercase tracking-[0.15em] font-[600] text-[#252525]">
               Envío
             </p>
           </div>
-          <div className="px-5 py-4 text-sm text-[#897568] space-y-0.5">
-            <p className="text-[#3D2B1F] font-[500]">{order.shipping_name}</p>
+          <div className="px-5 py-4 text-sm text-[#7B7B7B] space-y-0.5">
+            <p className="text-[#252525] font-[500]">{order.shipping_name}</p>
             <p>{order.shipping_address}</p>
             <p>
               {order.shipping_city}, {order.shipping_department}
@@ -182,27 +182,27 @@ export default async function PedidoDetallePage({
         {/* Tracking — solo si fue despachado */}
         {(order.status === "shipped" || order.status === "delivered") &&
           order.tracking_number && (
-            <div className="bg-white border border-[#DDD5C4]">
-              <div className="px-5 py-3 border-b border-[#F3EDE0] flex items-center gap-2">
+            <div className="bg-white border border-[#EDE3E0]">
+              <div className="px-5 py-3 border-b border-[#FFFFFF] flex items-center gap-2">
                 <Truck size={13} className="text-[#B5888A]" />
-                <p className="text-[11px] uppercase tracking-[0.15em] font-[600] text-[#3D2B1F]">
+                <p className="text-[11px] uppercase tracking-[0.15em] font-[600] text-[#252525]">
                   Seguimiento
                 </p>
               </div>
               <div className="px-5 py-4 text-sm space-y-1">
-                <p className="text-[#897568]">
+                <p className="text-[#7B7B7B]">
                   Guía:{" "}
-                  <span className="text-[#3D2B1F] font-[600]">{order.tracking_number}</span>
+                  <span className="text-[#252525] font-[600]">{order.tracking_number}</span>
                 </p>
                 {order.courier && (
-                  <p className="text-[#897568]">
-                    Courier: <span className="text-[#3D2B1F]">{order.courier}</span>
+                  <p className="text-[#7B7B7B]">
+                    Courier: <span className="text-[#252525]">{order.courier}</span>
                   </p>
                 )}
                 {order.shipped_at && (
-                  <p className="text-[#897568]">
+                  <p className="text-[#7B7B7B]">
                     Despachado:{" "}
-                    <span className="text-[#3D2B1F]">{formatDate(order.shipped_at)}</span>
+                    <span className="text-[#252525]">{formatDate(order.shipped_at)}</span>
                   </p>
                 )}
               </div>

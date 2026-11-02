@@ -3,22 +3,22 @@
 /* ── PALETA MAR BOUTIQUE ─────────────────────────────────── */
 @theme {
   /* Colores de marca */
-  --color-ivory:       #F3EDE0;
-  --color-sand:        #CEC3AB;
-  --color-taupe:       #897568;
-  --color-espresso:    #3D2B1F;
+  --color-ivory:       #FFFFFF;
+  --color-sand:        #E3CFCA;
+  --color-taupe:       #7B7B7B;
+  --color-espresso:    #252525;
   --color-dusty-rose:  #B5888A;
-  --color-blush:       #EAC9C9;
+  --color-blush:       #ECD6D1;
 
   /* Alias semánticos */
-  --color-background:  #F3EDE0;
-  --color-foreground:  #3D2B1F;
-  --color-primary:     #EAC9C9;
-  --color-primary-fg:  #3D2B1F;
+  --color-background:  #FFFFFF;
+  --color-foreground:  #252525;
+  --color-primary:     #ECD6D1;
+  --color-primary-fg:  #252525;
   --color-accent:      #B5888A;
-  --color-muted:       #CEC3AB;
-  --color-muted-fg:    #897568;
-  --color-border:      #DDD5C4;
+  --color-muted:       #E3CFCA;
+  --color-muted-fg:    #7B7B7B;
+  --color-border:      #EDE3E0;
 
   /* Tipografía — variables inyectadas por next/font/google en layout.tsx */
   --font-display: var(--font-playfair), Georgia, serif;
@@ -31,8 +31,8 @@
   --radius-full: 9999px;
 
   /* Sombras suaves */
-  --shadow-card: 0 2px 16px rgba(61,43,31,0.07);
-  --shadow-modal: 0 8px 40px rgba(61,43,31,0.14);
+  --shadow-card: 0 2px 16px rgba(0,0,0,0.07);
+  --shadow-modal: 0 8px 40px rgba(0,0,0,0.14);
 }
 
 /* ── RESET Y BASE ────────────────────────────────────────── */

@@ -107,7 +107,7 @@ export function VariantSelector({ product }: Props) {
       {sizes.length > 0 && (
         <div>
           <div className="flex justify-between items-center mb-2.5">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600]">
+            <span className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600]">
               Talla{selectedSize ? `: ${selectedSize}` : ""}
             </span>
             <button
@@ -128,10 +128,10 @@ export function VariantSelector({ product }: Props) {
                   className={cn(
                     "w-10 h-10 text-xs font-[500] border transition-colors",
                     selectedSize === size
-                      ? "border-[#3D2B1F] bg-[#3D2B1F] text-white"
+                      ? "border-[#252525] bg-[#252525] text-white"
                       : hasStock
-                      ? "border-[#DDD5C4] text-[#3D2B1F] hover:border-[#897568]"
-                      : "border-[#DDD5C4] text-[#CEC3AB] cursor-not-allowed line-through"
+                      ? "border-[#EDE3E0] text-[#252525] hover:border-[#7B7B7B]"
+                      : "border-[#EDE3E0] text-[#E3CFCA] cursor-not-allowed line-through"
                   )}
                 >
                   {size}
@@ -145,7 +145,7 @@ export function VariantSelector({ product }: Props) {
       {/* COLORES */}
       {colors.length > 0 && (
         <div>
-          <span className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] block mb-2.5">
+          <span className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] block mb-2.5">
             Color{selectedColor ? `: ${selectedColor}` : ""}
           </span>
           <div className="flex flex-wrap gap-2">
@@ -159,10 +159,10 @@ export function VariantSelector({ product }: Props) {
                   className={cn(
                     "px-4 h-9 text-xs font-[400] border transition-colors",
                     selectedColor === color
-                      ? "border-[#3D2B1F] bg-[#3D2B1F] text-white"
+                      ? "border-[#252525] bg-[#252525] text-white"
                       : hasStock
-                      ? "border-[#DDD5C4] text-[#3D2B1F] hover:border-[#897568]"
-                      : "border-[#DDD5C4] text-[#CEC3AB] cursor-not-allowed line-through"
+                      ? "border-[#EDE3E0] text-[#252525] hover:border-[#7B7B7B]"
+                      : "border-[#EDE3E0] text-[#E3CFCA] cursor-not-allowed line-through"
                   )}
                 >
                   {color}
@@ -176,22 +176,22 @@ export function VariantSelector({ product }: Props) {
       {/* CANTIDAD */}
       {!isSoldOut && selectedVariant && available > 0 && (
         <div>
-          <span className="text-[10px] tracking-[0.2em] uppercase text-[#897568] font-[600] block mb-2.5">
+          <span className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] block mb-2.5">
             Cantidad
           </span>
-          <div className="flex items-center border border-[#DDD5C4] w-fit">
+          <div className="flex items-center border border-[#EDE3E0] w-fit">
             <button
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              className="w-10 h-10 flex items-center justify-center text-[#897568] hover:text-[#3D2B1F] text-lg"
+              className="w-10 h-10 flex items-center justify-center text-[#7B7B7B] hover:text-[#252525] text-lg"
             >
               −
             </button>
-            <span className="w-10 text-center text-sm text-[#3D2B1F] font-[500]">
+            <span className="w-10 text-center text-sm text-[#252525] font-[500]">
               {quantity}
             </span>
             <button
               onClick={() => setQuantity((q) => Math.min(available, q + 1))}
-              className="w-10 h-10 flex items-center justify-center text-[#897568] hover:text-[#3D2B1F] text-lg"
+              className="w-10 h-10 flex items-center justify-center text-[#7B7B7B] hover:text-[#252525] text-lg"
             >
               +
             </button>
@@ -209,7 +209,7 @@ export function VariantSelector({ product }: Props) {
         {isSoldOut ? (
           <button
             disabled
-            className="w-full py-4 bg-[#CEC3AB] text-[#897568] text-[11px] tracking-[0.2em] uppercase font-[500] cursor-not-allowed"
+            className="w-full py-4 bg-[#E3CFCA] text-[#7B7B7B] text-[11px] tracking-[0.2em] uppercase font-[500] cursor-not-allowed"
           >
             Agotado
           </button>
@@ -220,8 +220,8 @@ export function VariantSelector({ product }: Props) {
             className={cn(
               "w-full py-4 flex items-center justify-center gap-2 text-[11px] tracking-[0.2em] uppercase font-[500] transition-colors",
               canAddToCart && !adding
-                ? "bg-[#3D2B1F] text-[#F3EDE0] hover:bg-[#5A3E2E]"
-                : "bg-[#CEC3AB] text-[#897568] cursor-not-allowed"
+                ? "bg-[#252525] text-[#FFFFFF] hover:bg-[#444444]"
+                : "bg-[#E3CFCA] text-[#7B7B7B] cursor-not-allowed"
             )}
           >
             <ShoppingBag size={15} strokeWidth={1.5} />
@@ -229,7 +229,7 @@ export function VariantSelector({ product }: Props) {
           </button>
         )}
 
-        <button className="w-full py-3 border border-[#DDD5C4] flex items-center justify-center gap-2 text-[11px] tracking-[0.2em] uppercase font-[500] text-[#897568] hover:border-[#B5888A] hover:text-[#B5888A] transition-colors">
+        <button className="w-full py-3 border border-[#EDE3E0] flex items-center justify-center gap-2 text-[11px] tracking-[0.2em] uppercase font-[500] text-[#7B7B7B] hover:border-[#B5888A] hover:text-[#B5888A] transition-colors">
           <Heart size={14} strokeWidth={1.5} />
           Añadir a favoritos
         </button>
@@ -260,7 +260,7 @@ export function VariantSelector({ product }: Props) {
           >
             <button
               onClick={() => setShowSizeGuide(false)}
-              className="absolute top-3 right-3 text-[#897568] hover:text-[#3D2B1F] transition-colors z-10"
+              className="absolute top-3 right-3 text-[#7B7B7B] hover:text-[#252525] transition-colors z-10"
               aria-label="Cerrar"
             >
               <X size={20} strokeWidth={1.5} />

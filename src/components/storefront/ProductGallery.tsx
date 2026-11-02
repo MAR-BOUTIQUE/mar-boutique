@@ -14,9 +14,9 @@ export function ProductGallery({ images, name }: Props) {
 
   if (images.length === 0) {
     return (
-      <div className="aspect-[3/4] bg-[#EAC9C9]/20 flex items-center justify-center">
+      <div className="aspect-[3/4] bg-[#ECD6D1]/20 flex items-center justify-center">
         <span
-          className="text-4xl text-[#897568]"
+          className="text-4xl text-[#7B7B7B]"
           style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}
         >
           MB
@@ -37,8 +37,8 @@ export function ProductGallery({ images, name }: Props) {
               className={cn(
                 "relative aspect-square w-full overflow-hidden border transition-colors",
                 active === i
-                  ? "border-[#3D2B1F]"
-                  : "border-[#DDD5C4] hover:border-[#897568]"
+                  ? "border-[#252525]"
+                  : "border-[#EDE3E0] hover:border-[#7B7B7B]"
               )}
             >
               <Image
@@ -55,7 +55,7 @@ export function ProductGallery({ images, name }: Props) {
       )}
 
       {/* Main image */}
-      <div className="relative flex-1 aspect-[3/4] overflow-hidden bg-[#EAC9C9]/10">
+      <div className="relative flex-1 aspect-[3/4] overflow-hidden bg-[#ECD6D1]/10">
         <Image
           src={images[active]}
           alt={name}
