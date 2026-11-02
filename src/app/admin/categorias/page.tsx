@@ -1,15 +1,80 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Plus, Edit2, Trash2 } from "lucide-react";
-import { ImageUploader } from "@/components/admin/ImageUploader";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils/format";
 
 
 const INPUT = "w-full border border-[#e5e7eb] bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#7B7B7B] transition-colors placeholder:text-gray-300";
 const LABEL = "block text-xs font-[500] text-gray-500 mb-1";
+
+function CategoryImageField({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function upload(file: File) {
+    setUploading(true);
+    setError(null);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) onChange(data.url);
+    else setError(data.error ?? "Error al subir la imagen");
+    setUploading(false);
+  }
+
+  return (
+    <div className="flex items-start gap-4">
+      <div className="relative w-28 aspect-[3/4] shrink-0 overflow-hidden border border-gray-200 bg-gray-100">
+        {value ? (
+          <Image src={value} alt="Imagen de la categoría" fill sizes="112px" className="object-cover" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-[11px] text-gray-400">
+            Sin imagen
+          </div>
+        )}
+      </div>
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            className="px-3 py-1.5 bg-[#252525] text-white text-xs rounded hover:bg-[#444444] disabled:opacity-50"
+          >
+            {uploading ? "Subiendo…" : value ? "Cambiar imagen" : "Subir imagen"}
+          </button>
+          {value && !uploading && (
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="px-3 py-1.5 border border-gray-200 text-gray-500 text-xs rounded hover:bg-gray-50"
+            >
+              Quitar
+            </button>
+          )}
+        </div>
+        <p className="text-[11px] text-gray-400">Mejor una foto vertical (3:4). Se ve en la portada del sitio.</p>
+        {error && <p className="text-xs text-red-500">{error}</p>}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) upload(file);
+            e.target.value = "";
+          }}
+        />
+      </div>
+    </div>
+  );
+}
 
 function CrudSection<T extends { id: string; name: string; slug: string; sort_order: number }>({
   title,
@@ -130,11 +195,10 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
             )}
             {hasImage && (
               <div>
-                <label className={LABEL}>Imagen de la categoría (se muestra en la portada)</label>
-                <ImageUploader
-                  images={form.image_url ? [form.image_url] : []}
-                  onChange={(imgs) => setForm((f) => ({ ...f, image_url: imgs[imgs.length - 1] ?? "" }))}
-                  maxImages={1}
+                <label className={LABEL}>Imagen de la categoría</label>
+                <CategoryImageField
+                  value={form.image_url}
+                  onChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
                 />
               </div>
             )}
@@ -196,11 +260,22 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
                   {hasImage && (
                     <td className="px-4 py-2.5">
                       {(item as any).image_url ? (
-                        <div className="relative h-14 w-11 overflow-hidden bg-gray-100">
-                          <Image src={(item as any).image_url} alt={item.name} fill sizes="44px" className="object-cover" />
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openEdit(item)}
+                          title="Cambiar imagen"
+                          className="relative block h-20 w-16 overflow-hidden bg-gray-100 ring-offset-1 hover:ring-2 hover:ring-[#B5888A] transition"
+                        >
+                          <Image src={(item as any).image_url} alt={item.name} fill sizes="64px" className="object-cover" />
+                        </button>
                       ) : (
-                        <span className="text-[11px] text-amber-600">Sin imagen</span>
+                        <button
+                          type="button"
+                          onClick={() => openEdit(item)}
+                          className="text-[11px] text-amber-600 underline underline-offset-2"
+                        >
+                          Agregar imagen
+                        </button>
                       )}
                     </td>
                   )}

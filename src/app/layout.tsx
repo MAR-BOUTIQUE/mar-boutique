@@ -42,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`h-full ${playfair.variable} ${dmSans.variable}`}>
+    <html lang="es" className={`h-full ${playfair.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

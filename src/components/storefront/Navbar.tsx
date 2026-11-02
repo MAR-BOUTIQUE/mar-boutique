@@ -81,19 +81,18 @@ export function Navbar() {
         {/* Grid 3 columnas: [nav] [logo] [iconos] */}
         <div className="grid grid-cols-[1fr_auto_1fr] items-center h-20">
 
-          {/* COLUMNA IZQUIERDA */}
+          {/* COLUMNA IZQUIERDA: logo (≥ 1280px) / hamburger (< 1280px) */}
           <div className="flex items-center min-w-0">
             <Link
               href="/"
-              className={cn(ink, "text-[22px] sm:text-[28px] tracking-tight leading-none select-none whitespace-nowrap shrink-0")}
+              className={cn(ink, "hidden xl:block text-[28px] tracking-tight leading-none select-none whitespace-nowrap shrink-0")}
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Mar Boutique
             </Link>
 
-            {/* Móvil y tablet (< 1280px): hamburger */}
             <button
-              className={cn(ink, "xl:hidden ml-4 shrink-0")}
+              className={cn(ink, "xl:hidden shrink-0")}
               aria-label="Menú"
               onClick={() => setMenuOpen((v) => !v)}
             >
@@ -101,7 +100,15 @@ export function Navbar() {
             </button>
           </div>
 
-          {/* COLUMNA CENTRAL: links de navegación — Desktop (≥ 1280px) */}
+          {/* COLUMNA CENTRAL: logo centrado (< 1280px) / links de navegación (≥ 1280px) */}
+          <Link
+            href="/"
+            className={cn(ink, "xl:hidden text-[22px] sm:text-[28px] tracking-tight leading-none select-none whitespace-nowrap text-center")}
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Mar Boutique
+          </Link>
+
           <nav className="hidden xl:flex items-center gap-6 2xl:gap-9 min-w-0">
             {NAV_LINKS.map((link) => (
               <Link
