@@ -1,10 +1,8 @@
 const WORDS = [
-  "◈ Nueva Colección",
-  "◈ Mar Boutique",
-  "◈ Cartagena",
-  "◈ Mujeres que visten con intención",
-  "◈ Hecho con amor",
-  "◈ Diseño exclusivo",
+  "◈ Contra entrega en Cartagena",
+  "◈ Envíos nacionales",
+  "◈ Pago con Wompi",
+  "◈ Mary te asesora",
 ];
 
 const TEXT = WORDS.join("   ") + "   ";
