@@ -67,8 +67,8 @@ export default async function ProductPage({ params }: Props) {
   const isOnSale = product.is_on_sale && product.compare_price;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
 
         {/* ── GALERÍA ── */}
         <ProductGallery images={product.images} name={product.name} />
@@ -77,14 +77,14 @@ export default async function ProductPage({ params }: Props) {
         <div className="flex flex-col">
           {/* Breadcrumb colección */}
           {product.collections?.[0] && (
-            <span className="text-[9px] tracking-[0.25em] uppercase text-[#B5888A] font-[500] mb-3">
+            <span className="text-xs tracking-[0.25em] uppercase text-[#B5888A] font-[500] mb-3">
               {product.collections[0].name}
             </span>
           )}
 
           {/* Nombre */}
           <h1
-            className="text-3xl sm:text-4xl text-[#252525] leading-tight mb-4"
+            className="text-4xl sm:text-5xl text-[#252525] leading-tight mb-5"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {product.name}
@@ -92,7 +92,7 @@ export default async function ProductPage({ params }: Props) {
 
           {/* Precio */}
           <div className="flex items-baseline gap-3 mb-6">
-            <span className="text-2xl text-[#252525] font-[500]">
+            <span className="text-3xl text-[#252525] font-[500]">
               {formatCOP(price)}
             </span>
             {isOnSale && product.compare_price && (
@@ -119,7 +119,7 @@ export default async function ProductPage({ params }: Props) {
               <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-3">
                 Descripción
               </h2>
-              <div className="space-y-3 text-sm text-[#252525] leading-relaxed font-[300]">
+              <div className="space-y-3 text-base text-[#252525] leading-relaxed font-[300]">
                 {product.description.split(/\n\n+/).map((paragraph, i) => (
                   <p key={i}>
                     {paragraph.split("\n").map((line, j, arr) => (
@@ -140,7 +140,7 @@ export default async function ProductPage({ params }: Props) {
               <h2 className="text-[10px] tracking-[0.2em] uppercase text-[#7B7B7B] font-[600] mb-3">
                 Cuidado de la prenda
               </h2>
-              <div className="space-y-3 text-sm text-[#7B7B7B] leading-relaxed font-[300]">
+              <div className="space-y-3 text-base text-[#7B7B7B] leading-relaxed font-[300]">
                 {product.care_instructions.split(/\n\n+/).map((paragraph, i) => (
                   <p key={i}>
                     {paragraph.split("\n").map((line, j, arr) => (
