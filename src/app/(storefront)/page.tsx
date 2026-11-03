@@ -33,14 +33,22 @@ const PRODUCT_FIELDS = `
 
 async function getCategoryTiles(): Promise<CategoryTile[]> {
   const db = createServiceClient();
-  const { data: cats } = await db
+  const { data } = await db
     .from("categories")
-    .select("id, name, slug, image_url")
+    .select("id, name, slug, image_url, sort_order")
     .order("sort_order")
-    .limit(4);
+    .order("name");
 
-  // Una sola consulta para las categorías sin imagen propia (evita N+1)
-  const missing = (cats ?? []).filter((c: any) => !c.image_url).map((c: any) => c.id);
+  // Primero las categorías con imagen asignada (en su orden); si faltan para
+  // completar las 4, se rellenan con las demás.
+  const all = (data ?? []) as any[];
+  const picked = [
+    ...all.filter((c) => c.image_url),
+    ...all.filter((c) => !c.image_url),
+  ].slice(0, 4);
+
+  // Una sola consulta para las que no tienen imagen propia (evita N+1)
+  const missing = picked.filter((c) => !c.image_url).map((c) => c.id);
   const fallback = new Map<string, string>();
   if (missing.length > 0) {
     const { data: rows } = await db
@@ -55,7 +63,7 @@ async function getCategoryTiles(): Promise<CategoryTile[]> {
     }
   }
 
-  return (cats ?? []).map((c: any) => ({
+  return picked.map((c) => ({
     id: c.id,
     name: c.name,
     slug: c.slug,

@@ -131,10 +131,14 @@ function CrudSection<T extends { id: string; name: string; slug: string; sort_or
     const payload: any = { name: form.name, slug: form.slug, sort_order: form.sort_order };
     if (hasDescription) payload.description = form.description;
     if (hasImage) payload.image_url = form.image_url || null;
-    if (editingId) {
-      await supabase.from(table).update(payload).eq("id", editingId);
-    } else {
-      await supabase.from(table).insert(payload);
+    const { data: saved, error } = editingId
+      ? await supabase.from(table).update(payload).eq("id", editingId).select("id")
+      : await supabase.from(table).insert(payload).select("id");
+    if (error || !saved?.length) {
+      // Sin filas modificadas = Supabase (RLS) rechazó el cambio sin dar error
+      alert(`No se pudo guardar: ${error?.message ?? "sin permisos de administrador (revisa que tu usuario tenga el rol admin)"}`);
+      setSaving(false);
+      return;
     }
     await load();
     setShowForm(false);
